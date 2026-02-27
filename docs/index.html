@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Komut Satırı Eğitimi — Türkçe</title>
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav" id="topNav">
+        <div class="nav-container">
+            <div class="nav-brand" onclick="showSection('home')">
+                <span class="brand-icon">🐧</span>
+                <span class="brand-text">Linux Eğitimi</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#" onclick="showSection('home'); return false;" class="nav-link active" data-section="home">Ana Sayfa</a>
+                <div class="nav-dropdown">
+                    <button class="nav-link dropdown-toggle">Dersler <span class="arrow">▾</span></button>
+                    <div class="dropdown-menu" id="lessonsDropdown"></div>
+                </div>
+                <a href="#" onclick="showSection('cheatsheet'); return false;" class="nav-link" data-section="cheatsheet">Kopya Kağıdı</a>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Tema Değiştir">
+                    <span class="theme-icon light-icon">🌙</span>
+                    <span class="theme-icon dark-icon">☀️</span>
+                </button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menü">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="sidebar-header">
+            <span>📚 Dersler</span>
+            <button class="close-sidebar" id="closeSidebar">&times;</button>
+        </div>
+        <div class="sidebar-content" id="sidebarContent"></div>
+    </aside>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Home Section -->
+        <section class="section home-section" id="section-home">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">Linux Komut Satırı<br><span class="highlight">Türkçe Eğitim</span></h1>
+                    <p class="hero-subtitle">Bash komut satırı arayüzünü (terminal) sıfırdan öğrenin. 13 bölümlük bu kapsamlı eğitimle Linux'un güçlü dünyasına adım atın.</p>
+                    <div class="hero-features">
+                        <div class="feature">
+                            <span class="feature-icon">💻</span>
+                            <span>Tarayıcıda Terminal</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🇹🇷</span>
+                            <span>Türkçe İçerik</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">📝</span>
+                            <span>Alıştırmalar & Quizler</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🔤</span>
+                            <span>İngilizce Komut Açıklamaları</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-lg" onclick="showSection('lesson-1')">Eğitime Başla →</button>
+                </div>
+                <div class="hero-visual">
+                    <div class="terminal-preview">
+                        <div class="terminal-header-preview">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                            <span class="terminal-title-preview">bash</span>
+                        </div>
+                        <div class="terminal-body-preview">
+                            <div class="typing-line" id="typingDemo"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lessons-grid">
+                <h2 class="section-heading">📚 Ders İçeriği</h2>
+                <p class="section-desc">13 bölümden oluşan eğitimi sırayla takip etmenizi öneririz. Her bölüm bir öncekinin üzerine inşa edilmiştir.</p>
+                <div class="grid" id="lessonsGrid"></div>
+            </div>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h3>🎯 Bu Eğitim Kimin İçin?</h3>
+                    <p>Linux komut satırını öğrenmek isteyen herkes için! Üniversite öğrencisi, yazılımcı veya sistem yöneticisi olun — bu eğitim size sağlam bir temel kazandıracaktır.</p>
+                </div>
+                <div class="info-card">
+                    <h3>🧠 Nasıl Çalışmalı?</h3>
+                    <p>Her bölümü sırayla okuyun, örnekleri tarayıcıdaki terminalde deneyin ve bölüm sonundaki quizleri çözün. En önemlisi: bol bol pratik yapın!</p>
+                </div>
+                <div class="info-card">
+                    <h3>🔤 Neden İngilizce Açıklamalar?</h3>
+                    <p>Linux komutları İngilizce kökenlidir. Komutların İngilizce anlamlarını bilmek, onları daha kolay hatırlamanıza yardımcı olur. <code>ls</code> = <strong>list</strong> (listelemek) gibi.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lesson sections will be injected here by JS -->
+        <div id="lessonSections"></div>
+
+        <!-- Cheat Sheet Section -->
+        <section class="section" id="section-cheatsheet" style="display:none;">
+            <div class="lesson-container">
+                <h1>📋 Kopya Kağıdı (Cheat Sheet)</h1>
+                <p class="lesson-intro">Eğitimde öğrendiğiniz tüm önemli komutların hızlı referans listesi.</p>
+                <div id="cheatsheetContent"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Terminal Toggle -->
+    <button class="terminal-fab" id="terminalFab" title="Terminali Aç/Kapat" onclick="toggleTerminal()">
+        <span class="fab-icon">⌨️</span>
+    </button>
+
+    <!-- Floating Terminal -->
+    <div class="floating-terminal" id="floatingTerminal">
+        <div class="terminal-header" id="terminalHeader">
+            <div class="terminal-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+            </div>
+            <span class="terminal-title">Linux Terminal (Sandbox)</span>
+            <div class="terminal-controls">
+                <button class="terminal-btn" onclick="clearTerminal()" title="Temizle">🗑️</button>
+                <button class="terminal-btn" onclick="toggleTerminalSize()" title="Büyüt/Küçült" id="termResizeBtn">⬆️</button>
+                <button class="terminal-btn" onclick="toggleTerminal()" title="Kapat">✖️</button>
+            </div>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+            <div class="terminal-output" id="terminalOutput">
+                <div class="terminal-welcome">
+Linux Terminal Sandbox'a hoş geldiniz! 🐧
+Bu terminal, temel Linux komutlarını güvenli bir şekilde denemenizi sağlar.
+
+Desteklenen komutları görmek için <span class="cmd-highlight">help</span> yazın.
+────────────────────────────────────────
+</div>
+            </div>
+            <div class="terminal-input-line">
+                <span class="terminal-prompt"><span class="prompt-user">kullanici</span>@<span class="prompt-host">linux</span>:<span class="prompt-path" id="promptPath">~</span>$ </span>
+                <input type="text" class="terminal-input" id="terminalInput" autofocus spellcheck="false" autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" title="Yukarı Çık">↑</button>
+
+    <!-- Footer -->
+    <footer class="footer" id="mainFooter">
+        <div class="footer-content">
+            <p>🐧 Linux Komut Satırı Türkçe Eğitimi</p>
+            <p class="footer-note">Ryan's Tutorials'dan esinlenilmiştir. İçerik genişletilerek Türkçe olarak yeniden oluşturulmuştur.</p>
+            <div class="footer-contribute">
+                <p class="footer-contribute-title">🛠️ Katkıda Bulunun</p>
+                <p class="footer-contribute-text">Bu eğitim açık kaynaklıdır. Hataları, eksikleri veya önerilerinizi bildirebilir, doğrudan katkıda bulunabilirsiniz:</p>
+                <p class="footer-contribute-links">
+                    <a href="https://github.com/gusanmaz/bash-tutorial" target="_blank" rel="noopener">⭐ GitHub Repo</a>
+                    <span class="footer-sep">|</span>
+                    <a href="https://github.com/gusanmaz/bash-tutorial/issues" target="_blank" rel="noopener">🐛 Hata / Öneri Bildirin</a>
+                    <span class="footer-sep">|</span>
+                    <a href="https://github.com/gusanmaz/bash-tutorial/pulls" target="_blank" rel="noopener">🔀 Pull Request Gönderin</a>
+                </p>
+            </div>
+            <p class="footer-links">
+                <a href="https://ryanstutorials.net/linuxtutorial/" target="_blank" rel="noopener">Orijinal Eğitim (İngilizce)</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/terminal.js"></script>
+    <!-- Chapter files (must load before content.js) -->
+    <script src="js/chapters/ch0.js"></script>
+    <script src="js/chapters/ch1.js"></script>
+    <script src="js/chapters/ch2.js"></script>
+    <script src="js/chapters/ch3.js"></script>
+    <script src="js/chapters/ch4.js"></script>
+    <script src="js/chapters/ch5.js"></script>
+    <script src="js/chapters/ch6.js"></script>
+    <script src="js/chapters/ch7.js"></script>
+    <script src="js/chapters/ch8.js"></script>
+    <script src="js/chapters/ch9.js"></script>
+    <script src="js/chapters/ch10.js"></script>
+    <script src="js/chapters/ch11.js"></script>
+    <script src="js/chapters/ch12.js"></script>
+    <script src="js/chapters/ch13.js"></script>
+    <script src="js/chapters/cheatsheet.js"></script>
+    <!-- Aggregator -->
+    <script src="js/content.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
