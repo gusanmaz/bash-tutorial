@@ -158,6 +158,133 @@ window.CHEATSHEET = [
         ]
     },
     {
+        title: '🔑 SSH ve Uzak Bağlantı',
+        items: [
+            { cmd: 'ssh user@host', desc: 'SSH ile uzak sunucuya bağlan' },
+            { cmd: 'ssh -p 2222 user@host', desc: 'Farklı port ile bağlan' },
+            { cmd: 'ssh-keygen -t ed25519', desc: 'SSH anahtar çifti oluştur (Ed25519)' },
+            { cmd: 'ssh-copy-id user@host', desc: 'Genel anahtarı sunucuya kopyala' },
+            { cmd: 'ssh-agent / ssh-add', desc: 'Anahtar ajanı başlat / anahtar ekle' },
+            { cmd: 'scp dosya user@host:yol', desc: 'SSH ile dosya kopyala (Secure Copy)' },
+            { cmd: 'sftp user@host', desc: 'Güvenli FTP oturumu başlat' },
+            { cmd: 'ssh -L 8080:localhost:80 host', desc: 'Yerel port yönlendirme (tunnel)' },
+            { cmd: '~/.ssh/config', desc: 'SSH bağlantı yapılandırma dosyası' },
+        ]
+    },
+    {
+        title: '🐚 Kabuk Yapılandırma',
+        items: [
+            { cmd: '~/.bashrc', desc: 'İnteraktif kabuk yapılandırması' },
+            { cmd: '~/.bash_profile', desc: 'Login kabuk yapılandırması' },
+            { cmd: '~/.profile', desc: 'Genel login yapılandırması' },
+            { cmd: 'source ~/.bashrc', desc: 'Yapılandırmayı yeniden yükle' },
+            { cmd: 'export VAR="deger"', desc: 'Ortam değişkeni tanımla (tüm alt süreçler)' },
+            { cmd: 'alias ll="ls -la"', desc: 'Komut kısayolu tanımla' },
+            { cmd: 'echo $PATH', desc: 'PATH değişkenini göster' },
+            { cmd: 'PS1="\\u@\\h:\\w\\$ "', desc: 'Prompt özelleştir' },
+        ]
+    },
+    {
+        title: '📦 Git Versiyon Kontrol',
+        items: [
+            { cmd: 'git init', desc: 'Yeni depo oluştur' },
+            { cmd: 'git clone url', desc: 'Uzak depoyu kopyala' },
+            { cmd: 'git status', desc: 'Durum göster' },
+            { cmd: 'git add . / git add dosya', desc: 'Staging alanına ekle' },
+            { cmd: 'git commit -m "mesaj"', desc: 'Değişiklikleri kaydet' },
+            { cmd: 'git log --oneline', desc: 'Geçmişi göster (kısa)' },
+            { cmd: 'git branch / git branch isim', desc: 'Dalları listele / dal oluştur' },
+            { cmd: 'git checkout -b yeni-dal', desc: 'Yeni dal oluştur ve geç' },
+            { cmd: 'git merge dal', desc: 'Dalı birleştir' },
+            { cmd: 'git pull / git push', desc: 'Uzaktan çek / gönder' },
+            { cmd: 'git stash / git stash pop', desc: 'Değişiklikleri sakla / geri al' },
+            { cmd: 'git diff', desc: 'Değişiklikleri karşılaştır' },
+        ]
+    },
+    {
+        title: '👤 Kullanıcı Yönetimi',
+        items: [
+            { cmd: 'useradd -m kullanici', desc: 'Kullanıcı oluştur (ev dizini ile)' },
+            { cmd: 'passwd kullanici', desc: 'Şifre ayarla/değiştir' },
+            { cmd: 'usermod -aG grup kullanici', desc: 'Kullanıcıyı gruba ekle (-a önemli!)' },
+            { cmd: 'userdel -r kullanici', desc: 'Kullanıcı sil (ev dizini dahil)' },
+            { cmd: 'groupadd grup', desc: 'Grup oluştur' },
+            { cmd: 'groups kullanici', desc: 'Kullanıcının gruplarını göster' },
+            { cmd: 'sudo komut', desc: 'Root olarak çalıştır' },
+            { cmd: 'visudo', desc: 'Sudoers dosyasını güvenle düzenle' },
+            { cmd: '/etc/passwd', desc: 'Kullanıcı bilgileri dosyası' },
+            { cmd: '/etc/shadow', desc: 'Şifre hash\'leri dosyası (sadece root)' },
+        ]
+    },
+    {
+        title: '🌐 curl ve wget',
+        items: [
+            { cmd: 'curl url', desc: 'URL\'den veri al (GET)' },
+            { cmd: 'curl -o dosya url', desc: 'Dosyaya kaydet' },
+            { cmd: 'curl -X POST -d "veri" url', desc: 'POST isteği gönder' },
+            { cmd: 'curl -H "Header: val" url', desc: 'Özel header ile istek' },
+            { cmd: 'curl -s url | jq .', desc: 'JSON yanıtı formatla (sessiz mod + jq)' },
+            { cmd: 'wget url', desc: 'Dosya indir' },
+            { cmd: 'wget -r -l2 url', desc: 'Özyinelemeli indir (2 seviye)' },
+            { cmd: 'wget -c url', desc: 'Yarım kalan indirmeyi sürdür (Continue)' },
+            { cmd: 'wget --mirror url', desc: 'Web sitesini aynala' },
+        ]
+    },
+    {
+        title: '🔄 rsync',
+        items: [
+            { cmd: 'rsync -av kaynak/ hedef/', desc: 'Yerel senkronizasyon (archive + verbose)' },
+            { cmd: 'rsync -avz kaynak/ user@host:hedef/', desc: 'SSH üzerinden senkronizasyon (sıkıştırmalı)' },
+            { cmd: 'rsync --dry-run', desc: 'Deneme çalıştırma (değişiklik yapmaz)' },
+            { cmd: 'rsync --delete', desc: 'Kaynakta olmayan hedef dosyaları sil' },
+            { cmd: 'rsync --exclude="*.log"', desc: 'Dosya/kalıp hariç tut' },
+        ]
+    },
+    {
+        title: '📦 Paket Yöneticileri',
+        items: [
+            { cmd: 'sudo apt update', desc: 'Paket listesini güncelle (Debian/Ubuntu)' },
+            { cmd: 'sudo apt install paket', desc: 'Paket kur (Debian/Ubuntu)' },
+            { cmd: 'sudo apt remove paket', desc: 'Paket kaldır (Debian/Ubuntu)' },
+            { cmd: 'sudo dnf install paket', desc: 'Paket kur (Fedora/RHEL)' },
+            { cmd: 'sudo pacman -Syu', desc: 'Sistemi güncelle (Arch)' },
+            { cmd: 'sudo pacman -S paket', desc: 'Paket kur (Arch)' },
+            { cmd: 'snap install paket', desc: 'Snap paketi kur' },
+            { cmd: 'flatpak install paket', desc: 'Flatpak paketi kur' },
+        ]
+    },
+    {
+        title: '⚙️ Derleme ve Geliştirme',
+        items: [
+            { cmd: 'gcc main.c -o program', desc: 'C derle' },
+            { cmd: 'g++ main.cpp -o program', desc: 'C++ derle' },
+            { cmd: 'gcc -Wall -Wextra -g', desc: 'Uyarılar + debug bilgisi ile derle' },
+            { cmd: 'make / make -j$(nproc)', desc: 'Makefile ile derle (paralel)' },
+            { cmd: 'go build -o app', desc: 'Go derle' },
+            { cmd: 'cargo build --release', desc: 'Rust derle (optimize)' },
+            { cmd: 'python3 -m venv env', desc: 'Python sanal ortam oluştur' },
+            { cmd: 'pip install -r requirements.txt', desc: 'Python bağımlılıkları kur' },
+            { cmd: 'nvm install --lts', desc: 'Node.js LTS versiyonunu kur' },
+            { cmd: 'npm install / npm init -y', desc: 'Node paketleri kur / proje başlat' },
+            { cmd: 'ldd program', desc: 'Dinamik bağımlılıkları göster' },
+        ]
+    },
+    {
+        title: '🔬 Hata Ayıklama',
+        items: [
+            { cmd: 'gdb ./program', desc: 'GDB debugger başlat' },
+            { cmd: '(gdb) break main', desc: 'Breakpoint ekle' },
+            { cmd: '(gdb) run / next / step', desc: 'Çalıştır / sonraki satır / içine gir' },
+            { cmd: '(gdb) print x / backtrace', desc: 'Değişken göster / çağrı yığını' },
+            { cmd: 'strace ./program', desc: 'Sistem çağrılarını izle' },
+            { cmd: 'strace -e trace=file ./prog', desc: 'Sadece dosya işlemlerini izle' },
+            { cmd: 'ltrace ./program', desc: 'Kütüphane çağrılarını izle' },
+            { cmd: 'valgrind --leak-check=full ./prog', desc: 'Bellek sızıntısı tespiti' },
+            { cmd: 'gcc -fsanitize=address', desc: 'AddressSanitizer ile derle' },
+            { cmd: 'perf stat ./program', desc: 'Performans istatistikleri' },
+        ]
+    },
+    {
         title: '⌨️ Kısayollar',
         items: [
             { cmd: 'Tab', desc: 'Otomatik tamamlama' },
