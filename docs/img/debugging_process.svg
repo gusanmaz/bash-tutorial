@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgDbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="340" fill="url(#bgDbg)" rx="12"/>
+  <text x="400" y="28" text-anchor="middle" fill="#e0e0e0" font-size="16" font-weight="bold">Hata Ayıklama Süreci — Bilimsel Yöntem</text>
+
+  <!-- Step 1 -->
+  <rect x="30" y="55" width="130" height="80" rx="10" fill="#264653" stroke="#e76f51" stroke-width="2"/>
+  <text x="95" y="80" text-anchor="middle" fill="#e76f51" font-size="24">🐛</text>
+  <text x="95" y="100" text-anchor="middle" fill="#e76f51" font-size="12" font-weight="bold">1. Hatayı Gözlemle</text>
+  <text x="95" y="118" text-anchor="middle" fill="#a0a0a0" font-size="9">"Program çöküyor"</text>
+  <text x="95" y="130" text-anchor="middle" fill="#a0a0a0" font-size="9">"Yanlış sonuç veriyor"</text>
+
+  <line x1="160" y1="95" x2="185" y2="95" stroke="#505050" stroke-width="2"/>
+  <polygon points="183,90 193,95 183,100" fill="#505050"/>
+
+  <!-- Step 2 -->
+  <rect x="190" y="55" width="130" height="80" rx="10" fill="#264653" stroke="#e9c46a" stroke-width="2"/>
+  <text x="255" y="80" text-anchor="middle" fill="#e9c46a" font-size="24">🔍</text>
+  <text x="255" y="100" text-anchor="middle" fill="#e9c46a" font-size="12" font-weight="bold">2. Yeniden Üret</text>
+  <text x="255" y="118" text-anchor="middle" fill="#a0a0a0" font-size="9">Hatayı tutarlı biçimde</text>
+  <text x="255" y="130" text-anchor="middle" fill="#a0a0a0" font-size="9">tekrarlayabilmelisin</text>
+
+  <line x1="320" y1="95" x2="345" y2="95" stroke="#505050" stroke-width="2"/>
+  <polygon points="343,90 353,95 343,100" fill="#505050"/>
+
+  <!-- Step 3 -->
+  <rect x="350" y="55" width="130" height="80" rx="10" fill="#264653" stroke="#2a9d8f" stroke-width="2"/>
+  <text x="415" y="80" text-anchor="middle" fill="#2a9d8f" font-size="24">🧠</text>
+  <text x="415" y="100" text-anchor="middle" fill="#2a9d8f" font-size="12" font-weight="bold">3. Hipotez Kur</text>
+  <text x="415" y="118" text-anchor="middle" fill="#a0a0a0" font-size="9">"Belki bu değişken</text>
+  <text x="415" y="130" text-anchor="middle" fill="#a0a0a0" font-size="9">NULL geliyor?"</text>
+
+  <line x1="480" y1="95" x2="505" y2="95" stroke="#505050" stroke-width="2"/>
+  <polygon points="503,90 513,95 503,100" fill="#505050"/>
+
+  <!-- Step 4 -->
+  <rect x="510" y="55" width="130" height="80" rx="10" fill="#264653" stroke="#00b4d8" stroke-width="2"/>
+  <text x="575" y="80" text-anchor="middle" fill="#00b4d8" font-size="24">🔬</text>
+  <text x="575" y="100" text-anchor="middle" fill="#00b4d8" font-size="12" font-weight="bold">4. Test Et</text>
+  <text x="575" y="118" text-anchor="middle" fill="#a0a0a0" font-size="9">GDB, strace, print,</text>
+  <text x="575" y="130" text-anchor="middle" fill="#a0a0a0" font-size="9">valgrind ile doğrula</text>
+
+  <line x1="640" y1="95" x2="665" y2="95" stroke="#505050" stroke-width="2"/>
+  <polygon points="663,90 673,95 663,100" fill="#505050"/>
+
+  <!-- Step 5 -->
+  <rect x="670" y="55" width="110" height="80" rx="10" fill="#264653" stroke="#4ecdc4" stroke-width="2"/>
+  <text x="725" y="80" text-anchor="middle" fill="#4ecdc4" font-size="24">✅</text>
+  <text x="725" y="100" text-anchor="middle" fill="#4ecdc4" font-size="12" font-weight="bold">5. Düzelt</text>
+  <text x="725" y="118" text-anchor="middle" fill="#a0a0a0" font-size="9">Kök nedeni çöz,</text>
+  <text x="725" y="130" text-anchor="middle" fill="#a0a0a0" font-size="9">sadece semptomu değil</text>
+
+  <!-- Loop back arrow -->
+  <path d="M 575 135 L 575 155 L 255 155 L 255 140" fill="none" stroke="#ff6b6b" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <polygon points="250,142 255,132 260,142" fill="#ff6b6b"/>
+  <text x="415" y="168" text-anchor="middle" fill="#ff6b6b" font-size="10">Hipotez yanlışsa → yeni hipotez kur ve tekrar test et</text>
+
+  <!-- Bug types -->
+  <text x="400" y="200" text-anchor="middle" fill="#e0e0e0" font-size="14" font-weight="bold">Hata Türleri ve Doğru Araç Seçimi</text>
+
+  <rect x="30" y="215" width="175" height="105" rx="8" fill="#0d1b2a" stroke="#e76f51" stroke-width="1.5"/>
+  <text x="117" y="237" text-anchor="middle" fill="#e76f51" font-size="12" font-weight="bold">💥 Derleme Hatası</text>
+  <text x="117" y="255" text-anchor="middle" fill="#a0a0a0" font-size="10">(Compile Error)</text>
+  <text x="117" y="275" text-anchor="middle" fill="#707070" font-size="10">Sözdizimi yanlış,</text>
+  <text x="117" y="290" text-anchor="middle" fill="#707070" font-size="10">program derlenemez.</text>
+  <text x="117" y="310" text-anchor="middle" fill="#e76f51" font-size="10">Araç: derleyici mesajları</text>
+
+  <rect x="220" y="215" width="175" height="105" rx="8" fill="#0d1b2a" stroke="#e9c46a" stroke-width="1.5"/>
+  <text x="307" y="237" text-anchor="middle" fill="#e9c46a" font-size="12" font-weight="bold">⚡ Çalışma Zamanı</text>
+  <text x="307" y="255" text-anchor="middle" fill="#a0a0a0" font-size="10">(Runtime Error)</text>
+  <text x="307" y="275" text-anchor="middle" fill="#707070" font-size="10">Segfault, sıfıra bölme,</text>
+  <text x="307" y="290" text-anchor="middle" fill="#707070" font-size="10">dosya bulunamadı.</text>
+  <text x="307" y="310" text-anchor="middle" fill="#e9c46a" font-size="10">Araç: GDB, strace</text>
+
+  <rect x="410" y="215" width="175" height="105" rx="8" fill="#0d1b2a" stroke="#2a9d8f" stroke-width="1.5"/>
+  <text x="497" y="237" text-anchor="middle" fill="#2a9d8f" font-size="12" font-weight="bold">🧩 Mantık Hatası</text>
+  <text x="497" y="255" text-anchor="middle" fill="#a0a0a0" font-size="10">(Logic Error)</text>
+  <text x="497" y="275" text-anchor="middle" fill="#707070" font-size="10">Program çalışır ama</text>
+  <text x="497" y="290" text-anchor="middle" fill="#707070" font-size="10">yanlış sonuç verir.</text>
+  <text x="497" y="310" text-anchor="middle" fill="#2a9d8f" font-size="10">Araç: GDB + breakpoint</text>
+
+  <rect x="600" y="215" width="175" height="105" rx="8" fill="#0d1b2a" stroke="#00b4d8" stroke-width="1.5"/>
+  <text x="687" y="237" text-anchor="middle" fill="#00b4d8" font-size="12" font-weight="bold">💧 Bellek Hatası</text>
+  <text x="687" y="255" text-anchor="middle" fill="#a0a0a0" font-size="10">(Memory Error)</text>
+  <text x="687" y="275" text-anchor="middle" fill="#707070" font-size="10">Bellek sızıntısı,</text>
+  <text x="687" y="290" text-anchor="middle" fill="#707070" font-size="10">buffer overflow.</text>
+  <text x="687" y="310" text-anchor="middle" fill="#00b4d8" font-size="10">Araç: Valgrind, ASan</text>
+</svg>

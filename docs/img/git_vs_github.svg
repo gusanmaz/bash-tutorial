@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 350" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgGR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+  </defs>
+  <rect width="780" height="350" fill="url(#bgGR)" rx="12"/>
+  <text x="390" y="30" text-anchor="middle" fill="#e0e0e0" font-size="17" font-weight="bold">Git vs GitHub: Fark Nedir?</text>
+
+  <!-- Git Box -->
+  <rect x="30" y="55" width="340" height="275" rx="12" fill="#0d1b2a" stroke="#e76f51" stroke-width="2"/>
+  <text x="200" y="85" text-anchor="middle" fill="#e76f51" font-size="16" font-weight="bold">🔧 Git</text>
+  <text x="200" y="108" text-anchor="middle" fill="#a0a0a0" font-size="11">(Araç / Yazılım)</text>
+
+  <text x="50" y="138" fill="#e0e0e0" font-size="12">• Sürüm kontrol sistemi (VCS)</text>
+  <text x="50" y="160" fill="#e0e0e0" font-size="12">• Bilgisayarında çalışır (yerel)</text>
+  <text x="50" y="182" fill="#e0e0e0" font-size="12">• Komut satırından kullanılır</text>
+  <text x="50" y="204" fill="#e0e0e0" font-size="12">• İnternet gerektirmez</text>
+  <text x="50" y="226" fill="#e0e0e0" font-size="12">• Ücretsiz ve açık kaynak</text>
+  <text x="50" y="248" fill="#e0e0e0" font-size="12">• Linus Torvalds tarafından yazıldı</text>
+
+  <rect x="50" y="265" width="300" height="45" rx="6" fill="#1a1a2e" stroke="#505050" stroke-width="1"/>
+  <text x="200" y="285" text-anchor="middle" fill="#707070" font-size="10">Örnek kullanım:</text>
+  <text x="200" y="300" text-anchor="middle" fill="#e76f51" font-size="11" font-family="monospace">git commit -m "yeni özellik"</text>
+
+  <!-- GitHub Box -->
+  <rect x="410" y="55" width="340" height="275" rx="12" fill="#0d1b2a" stroke="#00b4d8" stroke-width="2"/>
+  <text x="580" y="85" text-anchor="middle" fill="#00b4d8" font-size="16" font-weight="bold">🌐 GitHub</text>
+  <text x="580" y="108" text-anchor="middle" fill="#a0a0a0" font-size="11">(Platform / Web Sitesi)</text>
+
+  <text x="430" y="138" fill="#e0e0e0" font-size="12">• Git repo barındırma servisi</text>
+  <text x="430" y="160" fill="#e0e0e0" font-size="12">• Bulutta çalışır (uzak sunucu)</text>
+  <text x="430" y="182" fill="#e0e0e0" font-size="12">• Web arayüzü ve mobil uygulama</text>
+  <text x="430" y="204" fill="#e0e0e0" font-size="12">• İnternet gerektirir</text>
+  <text x="430" y="226" fill="#e0e0e0" font-size="12">• Freemium (ücretsiz + ücretli)</text>
+  <text x="430" y="248" fill="#e0e0e0" font-size="12">• Microsoft'a ait (2018'den beri)</text>
+
+  <rect x="430" y="265" width="300" height="45" rx="6" fill="#1a1a2e" stroke="#505050" stroke-width="1"/>
+  <text x="580" y="285" text-anchor="middle" fill="#707070" font-size="10">Özellikler:</text>
+  <text x="580" y="300" text-anchor="middle" fill="#00b4d8" font-size="11">PR, Issues, Actions, Pages, Wiki</text>
+
+  <!-- VS Arrow -->
+  <text x="390" y="195" text-anchor="middle" fill="#e9c46a" font-size="22" font-weight="bold">≠</text>
+  <text x="390" y="215" text-anchor="middle" fill="#707070" font-size="9">farklı ama</text>
+  <text x="390" y="228" text-anchor="middle" fill="#707070" font-size="9">birlikte çalışır</text>
+</svg>

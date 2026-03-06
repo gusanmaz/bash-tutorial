@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480">
+  <defs>
+    <filter id="gp-shadow" x="-3%" y="-3%" width="106%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="480" rx="12" fill="#1a1a2e"/>
+  <rect x="2" y="2" width="896" height="476" rx="11" fill="none" stroke="#2d3748" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="16" font-weight="bold">Git Tabanlı Platformlar — Karşılaştırma</text>
+
+  <!-- ====== Column Headers ====== -->
+  <text x="174" y="55" text-anchor="middle" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">ÖZELLİK</text>
+  <text x="330" y="55" text-anchor="middle" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">PLATFORM</text>
+  <text x="500" y="55" text-anchor="middle" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">PLATFORM</text>
+  <text x="670" y="55" text-anchor="middle" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">PLATFORM</text>
+  <text x="830" y="55" text-anchor="middle" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">PLATFORM</text>
+
+  <!-- ====== Platform Headers ====== -->
+  <!-- GitHub -->
+  <rect x="260" y="64" width="140" height="50" rx="8" fill="#1e293b" stroke="#f0f6fc" stroke-width="2" filter="url(#gp-shadow)"/>
+  <text x="330" y="85" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, sans-serif" font-size="20">🐙</text>
+  <text x="330" y="105" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">GitHub</text>
+
+  <!-- GitLab -->
+  <rect x="430" y="64" width="140" height="50" rx="8" fill="#1e293b" stroke="#fc6d26" stroke-width="2" filter="url(#gp-shadow)"/>
+  <text x="500" y="85" text-anchor="middle" fill="#fc6d26" font-family="system-ui, sans-serif" font-size="20">🦊</text>
+  <text x="500" y="105" text-anchor="middle" fill="#fc6d26" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">GitLab</text>
+
+  <!-- Bitbucket -->
+  <rect x="600" y="64" width="140" height="50" rx="8" fill="#1e293b" stroke="#2684ff" stroke-width="2" filter="url(#gp-shadow)"/>
+  <text x="670" y="85" text-anchor="middle" fill="#2684ff" font-family="system-ui, sans-serif" font-size="20">🪣</text>
+  <text x="670" y="105" text-anchor="middle" fill="#2684ff" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">Bitbucket</text>
+
+  <!-- Codeberg -->
+  <rect x="762" y="64" width="130" height="50" rx="8" fill="#1e293b" stroke="#2185d0" stroke-width="2" filter="url(#gp-shadow)"/>
+  <text x="827" y="85" text-anchor="middle" fill="#2185d0" font-family="system-ui, sans-serif" font-size="20">🏔️</text>
+  <text x="827" y="105" text-anchor="middle" fill="#2185d0" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">Codeberg</text>
+
+  <!-- ====== Feature Labels (Left Column) ====== -->
+  <rect x="10" y="64" width="234" height="50" rx="8" fill="#1e293b" filter="url(#gp-shadow)"/>
+  <text x="127" y="95" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">🔍 Özellik Karşılaştırma</text>
+
+  <!-- Row backgrounds -->
+  <rect x="10" y="122" width="882" height="30" rx="4" fill="#161b22" opacity="0.6"/>
+  <rect x="10" y="158" width="882" height="30" rx="4" fill="#1e293b" opacity="0.4"/>
+  <rect x="10" y="194" width="882" height="30" rx="4" fill="#161b22" opacity="0.6"/>
+  <rect x="10" y="230" width="882" height="30" rx="4" fill="#1e293b" opacity="0.4"/>
+  <rect x="10" y="266" width="882" height="30" rx="4" fill="#161b22" opacity="0.6"/>
+  <rect x="10" y="302" width="882" height="30" rx="4" fill="#1e293b" opacity="0.4"/>
+  <rect x="10" y="338" width="882" height="30" rx="4" fill="#161b22" opacity="0.6"/>
+  <rect x="10" y="374" width="882" height="30" rx="4" fill="#1e293b" opacity="0.4"/>
+
+  <!-- ====== Row 1: Topluluk ====== -->
+  <text x="20" y="142" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">👥 Topluluk Büyüklüğü</text>
+  <text x="330" y="142" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">100M+ kullanıcı ⭐</text>
+  <text x="500" y="142" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">30M+ kullanıcı</text>
+  <text x="670" y="142" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">10M+ kullanıcı</text>
+  <text x="827" y="142" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Büyüyen</text>
+
+  <!-- ====== Row 2: CI/CD ====== -->
+  <text x="20" y="178" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">⚡ Dahili CI/CD</text>
+  <text x="330" y="178" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Actions</text>
+  <text x="500" y="178" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">Entegre CI/CD ⭐</text>
+  <text x="670" y="178" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Pipelines</text>
+  <text x="827" y="178" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Woodpecker CI</text>
+
+  <!-- ====== Row 3: Self-Hosted ====== -->
+  <text x="20" y="214" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">🏠 Self-Hosted (Kendi Sunucu)</text>
+  <text x="330" y="214" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Enterprise (💰)</text>
+  <text x="500" y="214" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">CE — Ücretsiz ⭐</text>
+  <text x="670" y="214" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Data Center (💰)</text>
+  <text x="827" y="214" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11">Ücretsiz ⭐</text>
+
+  <!-- ====== Row 4: Ücretsiz Private Repo ====== -->
+  <text x="20" y="250" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">🔒 Ücretsiz Private Repo</text>
+  <text x="330" y="250" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11">✅ Sınırsız</text>
+  <text x="500" y="250" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11">✅ Sınırsız</text>
+  <text x="670" y="250" text-anchor="middle" fill="#fbbf24" font-family="system-ui, sans-serif" font-size="11">5 kullanıcı limit</text>
+  <text x="827" y="250" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11">✅ Sınırsız</text>
+
+  <!-- ====== Row 5: Proje Yönetimi ====== -->
+  <text x="20" y="286" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">📊 Proje Yönetimi</text>
+  <text x="330" y="286" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Projects, Issues</text>
+  <text x="500" y="286" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">Epics, Boards ⭐</text>
+  <text x="670" y="286" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Jira entegrasyonu</text>
+  <text x="827" y="286" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Issues, Boards</text>
+
+  <!-- ====== Row 6: Container Registry ====== -->
+  <text x="20" y="322" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">🐳 Container Registry</text>
+  <text x="330" y="322" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11">✅ GHCR</text>
+  <text x="500" y="322" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11">✅ Dahili</text>
+  <text x="670" y="322" text-anchor="middle" fill="#f85149" font-family="system-ui, sans-serif" font-size="11">❌</text>
+  <text x="827" y="322" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11">✅ Packages</text>
+
+  <!-- ====== Row 7: AI Özellikleri ====== -->
+  <text x="20" y="358" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">🤖 AI Özellikleri</text>
+  <text x="330" y="358" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">Copilot ⭐</text>
+  <text x="500" y="358" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Duo (yeni)</text>
+  <text x="670" y="358" text-anchor="middle" fill="#c9d1d9" font-family="system-ui, sans-serif" font-size="11">Atlassian AI</text>
+  <text x="827" y="358" text-anchor="middle" fill="#f85149" font-family="system-ui, sans-serif" font-size="11">❌</text>
+
+  <!-- ====== Row 8: Açık Kaynak ====== -->
+  <text x="20" y="394" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">📖 Açık Kaynak Platform</text>
+  <text x="330" y="394" text-anchor="middle" fill="#f85149" font-family="system-ui, sans-serif" font-size="11">❌ Kapalı</text>
+  <text x="500" y="394" text-anchor="middle" fill="#fbbf24" font-family="system-ui, sans-serif" font-size="11">CE açık / EE kapalı</text>
+  <text x="670" y="394" text-anchor="middle" fill="#f85149" font-family="system-ui, sans-serif" font-size="11">❌ Kapalı</text>
+  <text x="827" y="394" text-anchor="middle" fill="#3fb950" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">✅ Tamamen ⭐</text>
+
+  <!-- ====== Bottom Summary ====== -->
+  <rect x="20" y="415" width="860" height="55" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+  <text x="450" y="435" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">💡 Özet Tavsiye</text>
+  <text x="40" y="455" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">🐙 GitHub → Açık kaynak, portfolyo, en büyük topluluk</text>
+  <text x="310" y="455" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">🦊 GitLab → Self-hosted, entegre DevOps</text>
+  <text x="560" y="455" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">🪣 Bitbucket → Jira/Atlassian ekosistemi</text>
+  <text x="780" y="455" fill="#8b949e" font-family="system-ui, sans-serif" font-size="10">🏔️ Codeberg → Özgürlük</text>
+</svg>

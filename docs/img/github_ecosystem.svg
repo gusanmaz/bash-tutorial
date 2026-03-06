@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 520">
+  <defs>
+    <filter id="eco-shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <linearGradient id="eco-center-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6c63ff"/>
+      <stop offset="100%" stop-color="#4834d4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="920" height="520" rx="12" fill="#1a1a2e"/>
+  <rect x="2" y="2" width="916" height="516" rx="11" fill="none" stroke="#2d3748" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="460" y="32" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="17" font-weight="bold">GitHub Ekosistemi — Platform Özellikleri</text>
+
+  <!-- Center Hub -->
+  <circle cx="460" cy="260" r="58" fill="url(#eco-center-grad)" filter="url(#eco-shadow)"/>
+  <circle cx="460" cy="260" r="58" fill="none" stroke="#8b83ff" stroke-width="2"/>
+  <!-- GitHub Octocat simplified -->
+  <text x="460" y="252" text-anchor="middle" fill="#fff" font-family="system-ui, sans-serif" font-size="28">🐙</text>
+  <text x="460" y="278" text-anchor="middle" fill="#fff" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">GitHub</text>
+
+  <!-- Connection lines -->
+  <line x1="460" y1="202" x2="460" y2="105" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="500" y1="210" x2="660" y2="118" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="518" y1="260" x2="680" y2="260" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="500" y1="310" x2="660" y2="402" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="460" y1="318" x2="460" y2="415" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="420" y1="310" x2="260" y2="402" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="402" y1="260" x2="240" y2="260" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="420" y1="210" x2="260" y2="118" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- ===== Feature Cards ===== -->
+
+  <!-- 1. Actions (Top Center) -->
+  <rect x="385" y="58" width="150" height="46" rx="8" fill="#1e293b" stroke="#2a9d8f" stroke-width="2" filter="url(#eco-shadow)"/>
+  <rect x="385" y="58" width="5" height="46" rx="3" fill="#2a9d8f"/>
+  <text x="402" y="78" fill="#2a9d8f" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">⚡ Actions</text>
+  <text x="402" y="95" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="10">CI/CD Otomasyon</text>
+
+  <!-- 2. Pages (Top Right) -->
+  <rect x="660" y="80" width="150" height="46" rx="8" fill="#1e293b" stroke="#e76f51" stroke-width="2" filter="url(#eco-shadow)"/>
+  <rect x="660" y="80" width="5" height="46" rx="3" fill="#e76f51"/>
+  <text x="677" y="100" fill="#e76f51" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">🌐 Pages</text>
+  <text x="677" y="117" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="10">Ücretsiz Web Hosting</text>
+
+  <!-- 3. Desktop (Right) -->
+  <rect x="680" y="237" width="150" height="46" rx="8" fill="#1e293b" stroke="#a78bfa" stroke-width="2" filter="url(#eco-shadow)"/>
+  <rect x="680" y="237" width="5" height="46" rx="3" fill="#a78bfa"/>
+  <text x="697" y="257" fill="#a78bfa" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">🖥️ Desktop</text>
+  <text x="697" y="274" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="10">GUI Uygulaması</text>
+
+  <!-- 4. Copilot (Bottom Right) -->
+  <rect x="660" y="390" width="150" height="46" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2" filter="url(#eco-shadow)"/>
+  <rect x="660" y="390" width="5" height="46" rx="3" fill="#38bdf8"/>
+  <text x="677" y="410" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">🤖 Copilot</text>
+  <text x="677" y="427" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="10">AI Kod Asistanı</text>
+
+  <!-- 5. Classroom (Bottom Center) -->
+  <rect x="385" y="420" width="150" height="46" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="2" filter="url(#eco-shadow)"/>
+  <rect x="385" y="420" width="5" height="46" rx="3" fill="#fbbf24"/>
+  <text x="402" y="440" fill="#fbbf24" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">🎓 Classroom</text>
+  <text x="402" y="457" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="10">Eğitim Platformu</text>
+
+  <!-- 6. Organizations (Bottom Left) -->
+  <rect x="110" y="390" width="150" height="46" rx="8" fill="#1e293b" stroke="#fb923c" stroke-width="2" filter="url(#eco-shadow)"/>
+  <rect x="110" y="390" width="5" height="46" rx="3" fill="#fb923c"/>
+  <text x="127" y="410" fill="#fb923c" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">🏢 Organizations</text>
+  <text x="127" y="427" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="10">Takım Yönetimi</text>
+
+  <!-- 7. Packages (Left) -->
+  <rect x="90" y="237" width="150" height="46" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="2" filter="url(#eco-shadow)"/>
+  <rect x="90" y="237" width="5" height="46" rx="3" fill="#34d399"/>
+  <text x="107" y="257" fill="#34d399" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">📦 Packages</text>
+  <text x="107" y="274" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="10">Paket Registry</text>
+
+  <!-- 8. Security (Top Left) -->
+  <rect x="110" y="80" width="150" height="46" rx="8" fill="#1e293b" stroke="#f472b6" stroke-width="2" filter="url(#eco-shadow)"/>
+  <rect x="110" y="80" width="5" height="46" rx="3" fill="#f472b6"/>
+  <text x="127" y="100" fill="#f472b6" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">🔒 Security</text>
+  <text x="127" y="117" fill="#a0aec0" font-family="system-ui, sans-serif" font-size="10">Güvenlik Taraması</text>
+
+  <!-- Bottom note -->
+  <text x="460" y="500" text-anchor="middle" fill="#718096" font-family="system-ui, sans-serif" font-size="11" font-style="italic">Tüm bu özellikler ücretsiz plan dahilinde kullanılabilir (bazı limitlerle)</text>
+</svg>

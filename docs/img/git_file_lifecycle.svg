@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgFL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <marker id="arrFL" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#e9c46a"/>
+    </marker>
+    <marker id="arrFLg" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#2a9d8f"/>
+    </marker>
+    <marker id="arrFLr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#e76f51"/>
+    </marker>
+    <marker id="arrFLb" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#00b4d8"/>
+    </marker>
+  </defs>
+  <rect width="800" height="340" fill="url(#bgFL)" rx="12"/>
+  <text x="400" y="30" text-anchor="middle" fill="#e0e0e0" font-size="17" font-weight="bold">Git Dosya Yaşam Döngüsü</text>
+  <text x="400" y="50" text-anchor="middle" fill="#707070" font-size="11">Bir dosya Git'te hangi durumlardan geçer?</text>
+
+  <!-- States -->
+  <rect x="30" y="100" width="150" height="55" rx="10" fill="#264653" stroke="#ff6b6b" stroke-width="2"/>
+  <text x="105" y="125" text-anchor="middle" fill="#ff6b6b" font-size="12" font-weight="bold">Untracked</text>
+  <text x="105" y="143" text-anchor="middle" fill="#707070" font-size="10">(İzlenmeyen)</text>
+
+  <rect x="230" y="100" width="150" height="55" rx="10" fill="#264653" stroke="#e9c46a" stroke-width="2"/>
+  <text x="305" y="125" text-anchor="middle" fill="#e9c46a" font-size="12" font-weight="bold">Staged</text>
+  <text x="305" y="143" text-anchor="middle" fill="#707070" font-size="10">(Sahnelenmiş)</text>
+
+  <rect x="430" y="100" width="150" height="55" rx="10" fill="#264653" stroke="#2a9d8f" stroke-width="2"/>
+  <text x="505" y="125" text-anchor="middle" fill="#2a9d8f" font-size="12" font-weight="bold">Committed</text>
+  <text x="505" y="143" text-anchor="middle" fill="#707070" font-size="10">(Kaydedilmiş)</text>
+
+  <rect x="630" y="100" width="150" height="55" rx="10" fill="#264653" stroke="#e76f51" stroke-width="2"/>
+  <text x="705" y="125" text-anchor="middle" fill="#e76f51" font-size="12" font-weight="bold">Modified</text>
+  <text x="705" y="143" text-anchor="middle" fill="#707070" font-size="10">(Değiştirilmiş)</text>
+
+  <!-- Forward arrows -->
+  <line x1="180" y1="120" x2="222" y2="120" stroke="#e9c46a" stroke-width="2" marker-end="url(#arrFL)"/>
+  <text x="200" y="112" text-anchor="middle" fill="#e9c46a" font-size="9" font-weight="bold">git add</text>
+
+  <line x1="380" y1="120" x2="422" y2="120" stroke="#2a9d8f" stroke-width="2" marker-end="url(#arrFLg)"/>
+  <text x="400" y="112" text-anchor="middle" fill="#2a9d8f" font-size="9" font-weight="bold">git commit</text>
+
+  <path d="M580,140 Q600,200 660,155" fill="none" stroke="#e76f51" stroke-width="2" marker-end="url(#arrFLr)"/>
+  <text x="620" y="198" text-anchor="middle" fill="#e76f51" font-size="9" font-weight="bold">dosyayı düzenle</text>
+
+  <!-- Modified back to Staged -->
+  <path d="M698,100 Q698,70 305,70 Q305,70 305,92" fill="none" stroke="#e9c46a" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrFL)"/>
+  <text x="500" y="65" text-anchor="middle" fill="#e9c46a" font-size="9">git add (tekrar stage'le)</text>
+
+  <!-- Reverse: restore -->
+  <line x1="222" y1="145" x2="188" y2="145" stroke="#00b4d8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrFLb)"/>
+  <text x="200" y="168" text-anchor="middle" fill="#00b4d8" font-size="8">git rm --cached</text>
+
+  <line x1="422" y1="145" x2="388" y2="145" stroke="#00b4d8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrFLb)"/>
+  <text x="400" y="168" text-anchor="middle" fill="#00b4d8" font-size="8">git restore --staged</text>
+
+  <!-- Legend -->
+  <rect x="50" y="230" width="700" height="90" rx="8" fill="#0d1b2a" stroke="#505050" stroke-width="1"/>
+  <text x="400" y="252" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="bold">Özet: Dosya 4 Durumda Olabilir</text>
+
+  <circle cx="90" cy="275" r="6" fill="#ff6b6b"/>
+  <text x="105" y="279" fill="#a0a0a0" font-size="10"><tspan font-weight="bold" fill="#ff6b6b">Untracked:</tspan> Git bu dosyayı hiç bilmiyor (yeni oluşturulmuş)</text>
+
+  <circle cx="90" cy="298" r="6" fill="#e9c46a"/>
+  <text x="105" y="302" fill="#a0a0a0" font-size="10"><tspan font-weight="bold" fill="#e9c46a">Staged:</tspan> Sonraki commit'e dahil edilmeye hazır (git add yapılmış)</text>
+
+  <circle cx="430" cy="275" r="6" fill="#2a9d8f"/>
+  <text x="445" y="279" fill="#a0a0a0" font-size="10"><tspan font-weight="bold" fill="#2a9d8f">Committed:</tspan> Güvenle kaydedilmiş, değişmemiş</text>
+
+  <circle cx="430" cy="298" r="6" fill="#e76f51"/>
+  <text x="445" y="302" fill="#a0a0a0" font-size="10"><tspan font-weight="bold" fill="#e76f51">Modified:</tspan> Dosya değişmiş ama henüz stage'lenmemiş</text>
+</svg>

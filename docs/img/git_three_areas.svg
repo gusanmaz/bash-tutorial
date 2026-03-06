@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 320" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+  </defs>
+  <rect width="880" height="320" fill="url(#bg4)" rx="12"/>
+  <text x="440" y="30" text-anchor="middle" fill="#e0e0e0" font-size="18" font-weight="bold">Git'in Üç Alanı</text>
+
+  <!-- Working Directory -->
+  <rect x="30" y="55" width="220" height="200" rx="10" fill="#0d1b2a" stroke="#e76f51" stroke-width="2"/>
+  <text x="140" y="80" text-anchor="middle" fill="#e76f51" font-size="14" font-weight="bold">📂 Working Directory</text>
+  <text x="140" y="100" text-anchor="middle" fill="#a0a0a0" font-size="11">(Çalışma Dizini)</text>
+  <text x="140" y="135" text-anchor="middle" fill="#707070" font-size="11">Dosyalarınız burada.</text>
+  <text x="140" y="155" text-anchor="middle" fill="#707070" font-size="11">Düzenleme yaparsınız.</text>
+
+  <rect x="60" y="175" width="160" height="25" rx="4" fill="#264653" stroke="#e76f51" stroke-width="1"/>
+  <text x="140" y="193" text-anchor="middle" fill="#e76f51" font-size="10">Modified (Değiştirilmiş)</text>
+
+  <rect x="60" y="210" width="160" height="25" rx="4" fill="#264653" stroke="#a0a0a0" stroke-width="1"/>
+  <text x="140" y="228" text-anchor="middle" fill="#a0a0a0" font-size="10">Untracked (İzlenmeyen)</text>
+
+  <!-- Arrow 1: git add -->
+  <text x="290" y="140" text-anchor="middle" fill="#e9c46a" font-size="11" font-weight="bold">git add</text>
+  <line x1="258" y1="150" x2="312" y2="150" stroke="#e9c46a" stroke-width="2"/>
+  <polygon points="310,145 320,150 310,155" fill="#e9c46a"/>
+
+  <!-- Staging Area -->
+  <rect x="330" y="55" width="220" height="200" rx="10" fill="#0d1b2a" stroke="#e9c46a" stroke-width="2"/>
+  <text x="440" y="80" text-anchor="middle" fill="#e9c46a" font-size="14" font-weight="bold">📋 Staging Area</text>
+  <text x="440" y="100" text-anchor="middle" fill="#a0a0a0" font-size="11">(Index / Hazırlık Alanı)</text>
+  <text x="440" y="135" text-anchor="middle" fill="#707070" font-size="11">Commit'e hangi değişikliklerin</text>
+  <text x="440" y="155" text-anchor="middle" fill="#707070" font-size="11">gireceğini seçersiniz.</text>
+
+  <rect x="360" y="175" width="160" height="25" rx="4" fill="#264653" stroke="#e9c46a" stroke-width="1"/>
+  <text x="440" y="193" text-anchor="middle" fill="#e9c46a" font-size="10">Staged (Sahnelenmiş)</text>
+
+  <!-- Arrow 2: git commit -->
+  <text x="590" y="140" text-anchor="middle" fill="#2a9d8f" font-size="11" font-weight="bold">git commit</text>
+  <line x1="558" y1="150" x2="618" y2="150" stroke="#2a9d8f" stroke-width="2"/>
+  <polygon points="616,145 626,150 616,155" fill="#2a9d8f"/>
+
+  <!-- Repository -->
+  <rect x="630" y="55" width="220" height="200" rx="10" fill="#0d1b2a" stroke="#2a9d8f" stroke-width="2"/>
+  <text x="740" y="80" text-anchor="middle" fill="#2a9d8f" font-size="14" font-weight="bold">🗄️ Repository</text>
+  <text x="740" y="100" text-anchor="middle" fill="#a0a0a0" font-size="11">(.git dizini)</text>
+  <text x="740" y="135" text-anchor="middle" fill="#707070" font-size="11">Kalıcı geçmiş burada.</text>
+  <text x="740" y="155" text-anchor="middle" fill="#707070" font-size="11">Tüm commit'ler saklanır.</text>
+
+  <rect x="660" y="175" width="160" height="25" rx="4" fill="#264653" stroke="#2a9d8f" stroke-width="1"/>
+  <text x="740" y="193" text-anchor="middle" fill="#2a9d8f" font-size="10">Committed (Kaydedilmiş)</text>
+
+  <!-- Restore arrows -->
+  <text x="290" y="275" text-anchor="middle" fill="#00b4d8" font-size="10">git restore</text>
+  <line x1="320" y1="265" x2="260" y2="265" stroke="#00b4d8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="262,260 252,265 262,270" fill="#00b4d8"/>
+
+  <text x="590" y="275" text-anchor="middle" fill="#00b4d8" font-size="10">git restore --staged</text>
+  <line x1="626" y1="265" x2="558" y2="265" stroke="#00b4d8" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="560,260 550,265 560,270" fill="#00b4d8"/>
+
+  <!-- Key -->
+  <text x="440" y="310" text-anchor="middle" fill="#505050" font-size="10">git diff → Working vs Staging  |  git diff --staged → Staging vs Repository</text>
+</svg>

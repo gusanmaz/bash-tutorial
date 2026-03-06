@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgGH" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="480" fill="url(#bgGH)" rx="12"/>
+  <text x="400" y="30" text-anchor="middle" fill="#e0e0e0" font-size="17" font-weight="bold">GitHub ile Fork → PR İş Akışı</text>
+  <text x="400" y="50" text-anchor="middle" fill="#707070" font-size="11">Açık kaynak projelere katkıda bulunma adımları</text>
+
+  <!-- Step 1: Fork -->
+  <rect x="30" y="75" width="230" height="80" rx="10" fill="#264653" stroke="#e76f51" stroke-width="2"/>
+  <text x="145" y="100" text-anchor="middle" fill="#e76f51" font-size="13" font-weight="bold">1. Fork (Çatalla)</text>
+  <text x="145" y="120" text-anchor="middle" fill="#a0a0a0" font-size="10">GitHub'da "Fork" butonuna tıkla.</text>
+  <text x="145" y="137" text-anchor="middle" fill="#707070" font-size="10">Projenin kendi hesabına kopyası oluşur.</text>
+
+  <!-- Arrow -->
+  <line x1="260" y1="115" x2="280" y2="115" stroke="#e9c46a" stroke-width="2"/>
+  <polygon points="278,110 288,115 278,120" fill="#e9c46a"/>
+
+  <!-- Step 2: Clone -->
+  <rect x="290" y="75" width="230" height="80" rx="10" fill="#264653" stroke="#e9c46a" stroke-width="2"/>
+  <text x="405" y="100" text-anchor="middle" fill="#e9c46a" font-size="13" font-weight="bold">2. Clone (Klonla)</text>
+  <text x="405" y="120" text-anchor="middle" fill="#a0a0a0" font-size="10">Fork'u bilgisayarına indir.</text>
+  <text x="405" y="137" text-anchor="middle" fill="#707070" font-size="9">git clone git@github.com:SEN/proje.git</text>
+
+  <!-- Arrow -->
+  <line x1="520" y1="115" x2="540" y2="115" stroke="#e9c46a" stroke-width="2"/>
+  <polygon points="538,110 548,115 538,120" fill="#e9c46a"/>
+
+  <!-- Step 3: Branch -->
+  <rect x="550" y="75" width="230" height="80" rx="10" fill="#264653" stroke="#2a9d8f" stroke-width="2"/>
+  <text x="665" y="100" text-anchor="middle" fill="#2a9d8f" font-size="13" font-weight="bold">3. Branch (Dal Oluştur)</text>
+  <text x="665" y="120" text-anchor="middle" fill="#a0a0a0" font-size="10">Yeni dal oluştur ve geç.</text>
+  <text x="665" y="137" text-anchor="middle" fill="#707070" font-size="9">git switch -c fix/typo-duzelt</text>
+
+  <!-- Arrow Down -->
+  <line x1="665" y1="155" x2="665" y2="185" stroke="#e9c46a" stroke-width="2"/>
+  <polygon points="660,183 665,193 670,183" fill="#e9c46a"/>
+
+  <!-- Step 4: Commit -->
+  <rect x="550" y="195" width="230" height="80" rx="10" fill="#264653" stroke="#e9c46a" stroke-width="2"/>
+  <text x="665" y="220" text-anchor="middle" fill="#e9c46a" font-size="13" font-weight="bold">4. Commit (Kaydet)</text>
+  <text x="665" y="240" text-anchor="middle" fill="#a0a0a0" font-size="10">Değişiklikleri yap ve commit'le.</text>
+  <text x="665" y="257" text-anchor="middle" fill="#707070" font-size="9">git add -A &amp;&amp; git commit -m "mesaj"</text>
+
+  <!-- Arrow Left -->
+  <line x1="550" y1="235" x2="520" y2="235" stroke="#e9c46a" stroke-width="2"/>
+  <polygon points="522,230 512,235 522,240" fill="#e9c46a"/>
+
+  <!-- Step 5: Push -->
+  <rect x="290" y="195" width="230" height="80" rx="10" fill="#264653" stroke="#00b4d8" stroke-width="2"/>
+  <text x="405" y="220" text-anchor="middle" fill="#00b4d8" font-size="13" font-weight="bold">5. Push (Gönder)</text>
+  <text x="405" y="240" text-anchor="middle" fill="#a0a0a0" font-size="10">Dalı GitHub fork'una gönder.</text>
+  <text x="405" y="257" text-anchor="middle" fill="#707070" font-size="9">git push origin fix/typo-duzelt</text>
+
+  <!-- Arrow Left -->
+  <line x1="290" y1="235" x2="260" y2="235" stroke="#e9c46a" stroke-width="2"/>
+  <polygon points="262,230 252,235 262,240" fill="#e9c46a"/>
+
+  <!-- Step 6: Pull Request -->
+  <rect x="30" y="195" width="230" height="80" rx="10" fill="#264653" stroke="#ff6b6b" stroke-width="2"/>
+  <text x="145" y="220" text-anchor="middle" fill="#ff6b6b" font-size="13" font-weight="bold">6. Pull Request (PR)</text>
+  <text x="145" y="240" text-anchor="middle" fill="#a0a0a0" font-size="10">GitHub'da "New Pull Request" tıkla.</text>
+  <text x="145" y="257" text-anchor="middle" fill="#707070" font-size="10">Orijinal projeye birleştirme iste.</text>
+
+  <!-- Arrow Down -->
+  <line x1="145" y1="275" x2="145" y2="305" stroke="#e9c46a" stroke-width="2"/>
+  <polygon points="140,303 145,313 150,303" fill="#e9c46a"/>
+
+  <!-- Step 7: Review & Merge -->
+  <rect x="30" y="315" width="230" height="80" rx="10" fill="#264653" stroke="#2a9d8f" stroke-width="2"/>
+  <text x="145" y="340" text-anchor="middle" fill="#2a9d8f" font-size="13" font-weight="bold">7. Review &amp; Merge</text>
+  <text x="145" y="360" text-anchor="middle" fill="#a0a0a0" font-size="10">Proje sahibi PR'ı inceler,</text>
+  <text x="145" y="377" text-anchor="middle" fill="#a0a0a0" font-size="10">onaylarsa main'e merge eder. ✅</text>
+
+  <!-- Right side: info boxes -->
+  <rect x="300" y="310" width="475" height="150" rx="8" fill="#0d1b2a" stroke="#505050" stroke-width="1"/>
+  <text x="537" y="335" text-anchor="middle" fill="#e0e0e0" font-size="12" font-weight="bold">💡 Her Adımda Nerede Çalışıyorsun?</text>
+
+  <text x="320" y="360" fill="#e76f51" font-size="11" font-weight="bold">Fork &amp; PR:</text>
+  <text x="415" y="360" fill="#a0a0a0" font-size="11">GitHub web arayüzünde (tarayıcıda)</text>
+
+  <text x="320" y="382" fill="#2a9d8f" font-size="11" font-weight="bold">Clone, Branch, Commit:</text>
+  <text x="490" y="382" fill="#a0a0a0" font-size="11">Kendi bilgisayarında (terminal)</text>
+
+  <text x="320" y="404" fill="#00b4d8" font-size="11" font-weight="bold">Push:</text>
+  <text x="415" y="404" fill="#a0a0a0" font-size="11">Terminalden → GitHub'a gönderim</text>
+
+  <text x="320" y="430" fill="#ff6b6b" font-size="11" font-weight="bold">İpucu:</text>
+  <text x="415" y="430" fill="#a0a0a0" font-size="11">Orijinal repo'yu "upstream" olarak ekle:</text>
+  <text x="320" y="448" fill="#707070" font-size="10">git remote add upstream https://github.com/ORIJINAL/proje.git</text>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="clientGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00b4d8"/>
+      <stop offset="100%" stop-color="#0077b6"/>
+    </linearGradient>
+    <linearGradient id="serverGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e76f51"/>
+      <stop offset="100%" stop-color="#c1121f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#bg)" rx="12"/>
+  <text x="400" y="35" text-anchor="middle" fill="#e0e0e0" font-size="18" font-weight="bold">SSH Bağlantı Akışı</text>
+
+  <!-- Client -->
+  <rect x="40" y="60" width="160" height="70" rx="10" fill="url(#clientGrad)" opacity="0.9"/>
+  <text x="120" y="90" text-anchor="middle" fill="white" font-size="14" font-weight="bold">💻 İstemci</text>
+  <text x="120" y="115" text-anchor="middle" fill="white" font-size="11">(ssh client)</text>
+
+  <!-- Server -->
+  <rect x="600" y="60" width="160" height="70" rx="10" fill="url(#serverGrad)" opacity="0.9"/>
+  <text x="680" y="90" text-anchor="middle" fill="white" font-size="14" font-weight="bold">🖥️ Sunucu</text>
+  <text x="680" y="115" text-anchor="middle" fill="white" font-size="11">(sshd port 22)</text>
+
+  <!-- Step 1 -->
+  <line x1="200" y1="85" x2="600" y2="85" stroke="#00b4d8" stroke-width="2" stroke-dasharray="8,4"/>
+  <polygon points="595,80 605,85 595,90" fill="#00b4d8"/>
+  <rect x="300" y="65" width="200" height="24" rx="4" fill="#0d1b2a" stroke="#00b4d8" stroke-width="1"/>
+  <text x="400" y="82" text-anchor="middle" fill="#00b4d8" font-size="11">1. TCP Bağlantısı (port 22)</text>
+
+  <!-- Step 2 -->
+  <rect x="40" y="155" width="720" height="50" rx="8" fill="#0d1b2a" stroke="#2a9d8f" stroke-width="1.5"/>
+  <text x="400" y="175" text-anchor="middle" fill="#2a9d8f" font-size="13" font-weight="bold">2. Anahtar Değişimi (Key Exchange — Diffie-Hellman)</text>
+  <text x="400" y="195" text-anchor="middle" fill="#a0a0a0" font-size="11">Ortak oturum anahtarı güvenli kanal üzerinden oluşturulur → Simetrik şifreleme başlar</text>
+
+  <!-- Step 3 -->
+  <rect x="40" y="220" width="720" height="50" rx="8" fill="#0d1b2a" stroke="#e9c46a" stroke-width="1.5"/>
+  <text x="400" y="240" text-anchor="middle" fill="#e9c46a" font-size="13" font-weight="bold">3. Sunucu Doğrulama (Host Verification)</text>
+  <text x="400" y="260" text-anchor="middle" fill="#a0a0a0" font-size="11">Sunucunun parmak izi ~/.ssh/known_hosts ile kontrol edilir</text>
+
+  <!-- Step 4 -->
+  <rect x="40" y="285" width="720" height="50" rx="8" fill="#0d1b2a" stroke="#e76f51" stroke-width="1.5"/>
+  <text x="400" y="305" text-anchor="middle" fill="#e76f51" font-size="13" font-weight="bold">4. İstemci Kimlik Doğrulama (User Authentication)</text>
+  <text x="400" y="325" text-anchor="middle" fill="#a0a0a0" font-size="11">Şifre veya SSH anahtarı (özel anahtar ile imza → sunucu genel anahtar ile doğrular)</text>
+
+  <!-- Step 5 -->
+  <rect x="40" y="350" width="720" height="35" rx="8" fill="#0d1b2a" stroke="#2a9d8f" stroke-width="1.5"/>
+  <text x="400" y="373" text-anchor="middle" fill="#2a9d8f" font-size="13" font-weight="bold">5. Şifreli Oturum Başlar ✅ (AES-256 Encrypted Channel)</text>
+</svg>

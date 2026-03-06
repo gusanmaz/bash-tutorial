@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgCM" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="380" fill="url(#bgCM)" rx="12"/>
+  <text x="360" y="30" text-anchor="middle" fill="#e0e0e0" font-size="17" font-weight="bold">İyi Commit Mesajı Kuralları</text>
+
+  <!-- Good Example -->
+  <rect x="30" y="50" width="320" height="170" rx="10" fill="#0d3b1e" stroke="#2a9d8f" stroke-width="2"/>
+  <text x="190" y="75" text-anchor="middle" fill="#2a9d8f" font-size="14" font-weight="bold">✅ İyi Örnekler</text>
+  <text x="45" y="100" fill="#90ee90" font-size="11" font-family="monospace">fix: login hatasını düzelt</text>
+  <text x="45" y="120" fill="#90ee90" font-size="11" font-family="monospace">feat: kullanıcı profil sayfası ekle</text>
+  <text x="45" y="140" fill="#90ee90" font-size="11" font-family="monospace">docs: API belgelerini güncelle</text>
+  <text x="45" y="160" fill="#90ee90" font-size="11" font-family="monospace">style: header CSS düzenlemesi</text>
+  <text x="45" y="185" fill="#707070" font-size="10">Kısa, açık, ne yapıldığı belli.</text>
+  <text x="45" y="202" fill="#707070" font-size="10">Ön ek (fix/feat/docs) → tür belli.</text>
+
+  <!-- Bad Example -->
+  <rect x="370" y="50" width="320" height="170" rx="10" fill="#3b0d0d" stroke="#e76f51" stroke-width="2"/>
+  <text x="530" y="75" text-anchor="middle" fill="#e76f51" font-size="14" font-weight="bold">❌ Kötü Örnekler</text>
+  <text x="385" y="100" fill="#ff9999" font-size="11" font-family="monospace">güncelleme</text>
+  <text x="385" y="120" fill="#ff9999" font-size="11" font-family="monospace">fix</text>
+  <text x="385" y="140" fill="#ff9999" font-size="11" font-family="monospace">asd</text>
+  <text x="385" y="160" fill="#ff9999" font-size="11" font-family="monospace">dosyalar eklendi bla bla</text>
+  <text x="385" y="185" fill="#707070" font-size="10">Ne yapıldığı belirsiz.</text>
+  <text x="385" y="202" fill="#707070" font-size="10">6 ay sonra kimse anlamaz.</text>
+
+  <!-- Convention Box -->
+  <rect x="30" y="235" width="660" height="128" rx="10" fill="#0d1b2a" stroke="#e9c46a" stroke-width="1.5"/>
+  <text x="360" y="260" text-anchor="middle" fill="#e9c46a" font-size="13" font-weight="bold">📝 Conventional Commits Formatı</text>
+
+  <text x="50" y="285" fill="#00b4d8" font-size="12" font-family="monospace" font-weight="bold">&lt;tür&gt;: &lt;açıklama&gt;</text>
+  <text x="300" y="285" fill="#707070" font-size="11">← Temel format</text>
+
+  <text x="50" y="310" fill="#a0a0a0" font-size="11">feat</text>
+  <text x="100" y="310" fill="#707070" font-size="11">→ yeni özellik</text>
+  <text x="230" y="310" fill="#a0a0a0" font-size="11">fix</text>
+  <text x="270" y="310" fill="#707070" font-size="11">→ hata düzeltme</text>
+  <text x="410" y="310" fill="#a0a0a0" font-size="11">docs</text>
+  <text x="460" y="310" fill="#707070" font-size="11">→ belge değişikliği</text>
+
+  <text x="50" y="333" fill="#a0a0a0" font-size="11">style</text>
+  <text x="100" y="333" fill="#707070" font-size="11">→ görsel düzenleme</text>
+  <text x="270" y="333" fill="#a0a0a0" font-size="11">refactor</text>
+  <text x="340" y="333" fill="#707070" font-size="11">→ kod iyileştirme</text>
+  <text x="480" y="333" fill="#a0a0a0" font-size="11">test</text>
+  <text x="520" y="333" fill="#707070" font-size="11">→ test ekleme</text>
+
+  <text x="50" y="355" fill="#a0a0a0" font-size="11">chore</text>
+  <text x="100" y="355" fill="#707070" font-size="11">→ build/düzenleme</text>
+  <text x="270" y="355" fill="#a0a0a0" font-size="11">perf</text>
+  <text x="320" y="355" fill="#707070" font-size="11">→ performans</text>
+  <text x="440" y="355" fill="#a0a0a0" font-size="11">ci</text>
+  <text x="470" y="355" fill="#707070" font-size="11">→ CI/CD değişikliği</text>
+</svg>
