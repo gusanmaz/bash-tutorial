@@ -1,0 +1,6 @@
+[2026-04-17 10:00:01] INFO Sunucu başlatıldı.
+[2026-04-17 10:05:22] WARNING Bellek kullanımı %85 seviyesinde.
+[2026-04-17 10:15:30] ERROR Veritabanı bağlantısı koptu (Timeout).
+[2026-04-17 10:20:00] INFO Bağlantı yeniden kuruldu.
+[2026-04-17 10:45:12] ERROR Dosya okuma hatası: /etc/config.json bulunamadı.
+[2026-04-17 11:00:00] INFO Yedekleme tamamlandı.

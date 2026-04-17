@@ -1,0 +1,7 @@
+Bu bir örnek metin dosyasıdır.
+Linux komut satırı öğrenmek çok eğlencelidir.
+Filtreleri kullanarak verileri işleyebiliriz.
+cat, head, tail, sort, awk, sed gibi araçlar vardır.
+Unix felsejesi: her program tek bir işi iyi yapmalı.
+Bu satırda ERROR veya benzeri bir kelime geçmiyor.
+Büyük küçük harf duyarlılığı önemlidir.

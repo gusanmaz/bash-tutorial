@@ -1,0 +1,10 @@
+=== HAFTALIK SATIŞ RAPORU ===
+Pazartesi: 15000 TL
+Salı: 12000 TL
+Çarşamba: 18000 TL
+Perşembe: 16500 TL
+Cuma: 22000 TL
+Cumartesi: 30000 TL
+Pazar: 28000 TL
+=============================
+Toplam: 141500 TL
