@@ -285,6 +285,75 @@ window.CHEATSHEET = [
         ]
     },
     {
+        title: '🐳 Docker Temel',
+        items: [
+            { cmd: 'docker run imaj', desc: 'İmajdan yeni konteyner başlat' },
+            { cmd: 'docker run -d --name ad imaj', desc: 'Arka planda (detached) isim vererek' },
+            { cmd: 'docker run -it imaj bash', desc: 'İnteraktif shell ile başlat' },
+            { cmd: 'docker run --rm imaj', desc: 'Durduğunda otomatik silinsin' },
+            { cmd: 'docker run -p 8080:80 nginx', desc: 'Port eşleme — host:konteyner' },
+            { cmd: 'docker run -e VAR=val imaj', desc: 'Ortam değişkeni ile' },
+            { cmd: 'docker run -v vol:/yol imaj', desc: 'Volume bağla' },
+            { cmd: 'docker ps / docker ps -a', desc: 'Çalışan konteynerler / tümü' },
+            { cmd: 'docker logs -f ad', desc: 'Logları canlı takip et' },
+            { cmd: 'docker exec -it ad bash', desc: 'Çalışan konteynere gir' },
+            { cmd: 'docker stop / start / restart ad', desc: 'Yaşam döngüsü' },
+            { cmd: 'docker rm ad / docker rm -f ad', desc: 'Sil / zorla sil' },
+            { cmd: 'docker stats', desc: 'Canlı CPU/RAM kullanımı' },
+            { cmd: 'docker inspect ad', desc: 'Detaylı JSON bilgi' },
+        ]
+    },
+    {
+        title: '📦 Docker İmaj',
+        items: [
+            { cmd: 'docker images', desc: 'Yerel imajları listele' },
+            { cmd: 'docker pull imaj:tag', desc: 'Docker Hub\'dan indir' },
+            { cmd: 'docker build -t ad:tag .', desc: 'Dockerfile\'dan imaj oluştur' },
+            { cmd: 'docker build --no-cache .', desc: 'Önbelleksiz yeniden build' },
+            { cmd: 'docker tag eski yeni', desc: 'İmaja yeni etiket ekle' },
+            { cmd: 'docker rmi imaj', desc: 'İmaj sil' },
+            { cmd: 'docker image prune -a', desc: 'Kullanılmayan imajları sil' },
+            { cmd: 'docker history imaj', desc: 'İmajın katmanlarını göster' },
+            { cmd: 'docker login', desc: 'Docker Hub\'a giriş yap' },
+            { cmd: 'docker push kullanici/repo:tag', desc: 'İmajı Hub\'a yükle' },
+            { cmd: 'docker search isim', desc: 'Hub\'da imaj ara' },
+        ]
+    },
+    {
+        title: '🌐 Docker Ağ & Volume',
+        items: [
+            { cmd: 'docker network ls', desc: 'Ağları listele' },
+            { cmd: 'docker network create ad', desc: 'Yeni bridge ağı oluştur' },
+            { cmd: 'docker network connect ag ad', desc: 'Konteyneri ağa bağla' },
+            { cmd: 'docker network inspect ad', desc: 'Ağ detayları' },
+            { cmd: 'docker volume ls', desc: 'Volume\'leri listele' },
+            { cmd: 'docker volume create ad', desc: 'Yeni volume oluştur' },
+            { cmd: 'docker volume inspect ad', desc: 'Volume detayı (host yolu)' },
+            { cmd: 'docker volume rm ad', desc: 'Volume sil' },
+            { cmd: 'docker system df', desc: 'Disk kullanımı raporu' },
+            { cmd: 'docker system prune', desc: 'Kullanılmayanları temizle (güvenli)' },
+            { cmd: 'docker system prune -a --volumes', desc: 'Agresif temizlik (DİKKAT!)' },
+        ]
+    },
+    {
+        title: '🎼 Docker Compose',
+        items: [
+            { cmd: 'docker compose up', desc: 'Tüm servisleri başlat (foreground)' },
+            { cmd: 'docker compose up -d', desc: 'Arka planda başlat' },
+            { cmd: 'docker compose up --build', desc: 'Yeniden build edip başlat' },
+            { cmd: 'docker compose down', desc: 'Durdur ve sil' },
+            { cmd: 'docker compose down -v', desc: 'Volume\'leri de sil' },
+            { cmd: 'docker compose stop / start', desc: 'Durdur / yeniden başlat' },
+            { cmd: 'docker compose ps', desc: 'Proje konteynerleri' },
+            { cmd: 'docker compose logs -f [servis]', desc: 'Canlı log takibi' },
+            { cmd: 'docker compose exec servis bash', desc: 'Servise shell aç' },
+            { cmd: 'docker compose run --rm servis cmd', desc: 'Tek seferlik komut çalıştır' },
+            { cmd: 'docker compose build', desc: 'Sadece build et' },
+            { cmd: 'docker compose config', desc: 'YAML\'ı doğrula ve göster' },
+            { cmd: 'docker compose -f dosya.yml up', desc: 'Özel YAML dosyası ile' },
+        ]
+    },
+    {
         title: '⌨️ Kısayollar',
         items: [
             { cmd: 'Tab', desc: 'Otomatik tamamlama' },
