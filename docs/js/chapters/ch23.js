@@ -140,10 +140,123 @@ window.CHAPTERS.push({
 <p>Geliştirici "ben Ubuntu 22.04 kullanıyorum, her şey çalışıyor" der. Sunucu ise CentOS 7'dir. Uygulama sunucuda çalışmaz. Docker ile imajı geliştiricinin makinesinden aynen sunucuya gönderirsiniz — aradaki OS farkı önemsizleşir çünkü uygulama zaten kendi ortamını taşıyor.</p>
 
 <h3>3. Mikroservis Mimarisi</h3>
-<p>Büyük bir uygulamayı küçük, bağımsız servislere bölmek (ör. "auth-service", "payment-service", "email-service"). Her servis kendi konteynerinde çalışır, kendi ölçeklenir, ayrı güncellenir. Netflix, Spotify, Airbnb gibi şirketlerin tercih ettiği yaklaşım.</p>
 
-<h3>4. CI/CD (Sürekli Entegrasyon / Teslimat)</h3>
-<p>GitHub Actions, GitLab CI gibi sistemler testlerinizi çalıştırırken her seferinde temiz bir konteyner başlatır. Testler yan yana çalışsa bile birbirine bulaşmaz.</p>
+<p>Bu konu ilk duyduğunuzda kulağa hoş gelir ama biraz açıklamadan anlaşılmaz. Önce <strong>tersini</strong> tanıyalım.</p>
+
+<p><strong>Monolit (tek parça) uygulama:</strong> Eski yöntem. Tüm kodlar tek bir devasa projede yaşar: kullanıcı girişi, ödeme, e-posta gönderme, raporlama, arama... hepsi aynı kod tabanında, aynı süreçte. Banka uygulamanızı düşünün — her şey "Banka App" denen bir devasa kutuda.</p>
+
+<p>Bu küçük takımlar ve küçük uygulamalar için iyi çalışır. Ama uygulama büyüdükçe sorunlar başlar:</p>
+<ul>
+    <li><strong>Küçük değişiklik = büyük risk</strong>: E-posta servisindeki minik bir hata, ödeme akışını da çökertebilir çünkü hepsi aynı süreçte.</li>
+    <li><strong>Bir parça yavaşlatınca her şey yavaşlar</strong>: Raporlama modülü yoğunlaşınca, giriş ekranı da yavaşlar.</li>
+    <li><strong>Tek dilde sıkışırsınız</strong>: Tüm uygulama Java ise, "şu kısımda Python daha iyi olur" diyemezsiniz.</li>
+    <li><strong>Deploy = nükleer seviye iş</strong>: Tek satır değişse bile koca uygulamayı yeniden başlatmak zorundasınız.</li>
+</ul>
+
+<p><strong>Mikroservis yaklaşımı:</strong> Bu devasa uygulamayı <strong>küçük, bağımsız servislere</strong> bölmek. Her servis tek bir iş yapar ve diğerleriyle ağ üzerinden (HTTP API, gRPC, mesaj kuyruğu) konuşur. Tipik bir e-ticaret sitesinde:</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Bir e-ticaret sitesindeki mikroservisler</span></div>
+    <pre><code>┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ auth-service │    │ user-service │    │catalog-service│
+│ (giriş/kayıt)│    │ (profil)     │    │ (ürün listesi)│
+│  Python      │    │  Node.js     │    │  Go          │
+└──────────────┘    └──────────────┘    └──────────────┘
+       │                  │                    │
+       └──────────┬───────┴────────────┬───────┘
+                  │                    │
+       ┌──────────▼─────────┐  ┌───────▼───────────┐
+       │  payment-service   │  │  email-service    │
+       │  (ödeme alma)      │  │  (bildirim atma)  │
+       │  Java              │  │  Python           │
+       └────────────────────┘  └───────────────────┘</code></pre>
+</div>
+
+<p>Avantajları:</p>
+<ul>
+    <li><strong>Bağımsız geliştirme:</strong> Ödeme ekibi bir takım, e-posta ekibi başka bir takım. Birbirinin koduna karışmazlar.</li>
+    <li><strong>Bağımsız ölçekleme:</strong> Black Friday'de catalog-service'in 50 kopyası, email-service'in 2 kopyası çalışsın diyebilirsiniz. Her servisi kendine yetecek kadar büyütürsünüz.</li>
+    <li><strong>Bağımsız deploy:</strong> E-posta şablonu güncelleyeceksiniz? Sadece email-service'i yeniden başlatın. Site ayakta kalır.</li>
+    <li><strong>Dil özgürlüğü:</strong> Her servis kendi diline yazılabilir. Ödeme Java, arama Go, web Node.js olabilir.</li>
+    <li><strong>Hatalar yayılmaz:</strong> Email-service çökse bile kullanıcı yine giriş yapıp alışveriş edebilir.</li>
+</ul>
+
+<p><strong>Docker'ın buradaki rolü:</strong> Her servisi kendi konteynerine koymak doğal bir uyum. Sonra <strong>orkestrasyon</strong> araçları (Kubernetes, Docker Swarm) bu konteynerleri yönetir: hangisi ölmüş, hangisi yeniden başlatılmalı, hangisi 5 kopyaya çıksın, vb.</p>
+
+<p>Netflix, Spotify, Airbnb, Amazon — hepsi yüzlerce, hatta binlerce mikroservisten oluşur. Netflix'in açıklamasına göre 1000+ mikroservisi vardır ve binlerce makinede konteyner olarak çalışır.</p>
+
+<div class="info-box warning">
+    <div class="info-box-title">⚠️ Mikroservis Her Derde Deva Değildir</div>
+    Küçük bir uygulama yazıyorsanız mikroservis mimarisi <strong>aşırıdır</strong>. Ağ gecikmesi, dağıtık sistem karmaşıklığı, deployment maliyeti devreye girer. "Monolit ile başla, gerekince böl" tavsiyesi yaygındır. Mikroservis büyük ekipler ve büyük ürünler için bir araçtır, otomatik olarak "daha iyi" değildir.
+</div>
+
+<h3>4. CI/CD (Sürekli Entegrasyon / Sürekli Teslimat)</h3>
+
+<p>Önce <strong>problemi</strong> anlayalım: bir geliştirici kodu kendi makinesinde yazar. Test eder. Çalışır. Sonra ne olur?</p>
+
+<ol>
+    <li>Başka bir geliştirici de kendi kod parçasını yazmıştır. İkisinin kodu birleştirilmelidir.</li>
+    <li>Birleşen kodun bozulmadığından emin olunmalı — yani <strong>testler</strong> tekrar çalıştırılmalı.</li>
+    <li>Tüm testler geçtiyse, bu kod sunucuya yüklenmeli (deploy).</li>
+    <li>Yarın yeni bir değişiklik gelir; aynı süreç baştan başlar.</li>
+</ol>
+
+<p>Bu adımları her seferinde elle yapmak — testleri manuel çalıştır, FTP ile dosya yükle, sunucuyu yeniden başlat — yorucu, yavaş ve hata yapmaya açıktır. <strong>CI/CD</strong> bu süreci tamamen otomatikleştirir.</p>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 İki Terim — Aynı Aile</div>
+    <ul>
+        <li><strong>CI — Continuous Integration (Sürekli Entegrasyon)</strong>: Her geliştirici kod yazınca, otomatik olarak testler çalışır. Hata varsa anında bildirim gelir. Amaç: "kod tabanı her an çalışır halde olsun".</li>
+        <li><strong>CD — Continuous Delivery / Deployment (Sürekli Teslimat)</strong>: Testler geçince, kod otomatik olarak (tek tıkla veya hemen) üretim sunucusuna gider. Amaç: "değişiklik birkaç dakikada kullanıcının elinde olsun".</li>
+    </ul>
+    <p>İkisi birlikte "CI/CD pipeline" denir — kodun yazıldığı andan üretime kadar geçtiği otomatik boru hattı.</p>
+</div>
+
+<p>Popüler CI/CD platformları: <strong>GitHub Actions</strong>, <strong>GitLab CI</strong>, <strong>Jenkins</strong>, <strong>CircleCI</strong>, <strong>Bitbucket Pipelines</strong>. Hepsi benzer mantıkla çalışır: bir <code>.yml</code> dosyasında "ne olacak" yazarsınız, Git'e push'larsınız, sistem otomatik koşturur.</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Tipik bir CI/CD akışı</span></div>
+    <pre><code>1. Geliştirici "git push" yapar
+        │
+        ▼
+2. GitHub Actions tetiklenir
+        │
+        ▼
+3. ✨ Temiz bir Docker konteyneri başlatılır (Ubuntu + Python 3.12)
+        │
+        ▼
+4. Kod konteynerin içine kopyalanır
+        │
+        ▼
+5. Bağımlılıklar kurulur (pip install ...)
+        │
+        ▼
+6. Testler çalışır (pytest ...)
+        │
+        ▼
+7. Hepsi geçti mi?
+   ├── HAYIR → 📧 Geliştiriciye bildirim, kırmızı X işareti
+   └── EVET  → 🎉 Yeşil tik
+        │
+        ▼
+8. (CD kısmı) İmaj build edilir, Docker Hub'a push'lanır
+        │
+        ▼
+9. Üretim sunucusunda yeni imaj çekilir, konteyner yeniden başlar
+        │
+        ▼
+10. Yeni özellik kullanıcıların elinde — push'tan ~3 dakika sonra!</code></pre>
+</div>
+
+<p><strong>Docker'ın bu süreçteki sihirli rolü:</strong> Her CI çalıştırması <strong>tertemiz</strong> bir konteynerde başlar. Bu çok kritik:</p>
+<ul>
+    <li><strong>Eski testler kalıntı bırakmaz</strong>: Önceki bir testin yarattığı dosya sonraki testi yanıltamaz. Konteyner her seferinde sıfırdan.</li>
+    <li><strong>Geliştiricinin makinesi alakasız</strong>: Test, geliştiricinin "exotic" yapılandırmasında değil, "saf" bir ortamda koşar. "Benim makinemde çalışıyordu" sorununun tam tersi: "CI'da çalışıyorsa kesin çalışıyor".</li>
+    <li><strong>Birden fazla test paralel</strong>: 10 farklı geliştirici aynı anda push yaparsa, 10 ayrı konteynerde paralel testler koşar. Birbirlerini etkilemezler — konteynerler kardeşler ama izole.</li>
+    <li><strong>Farklı ortamları aynı anda test</strong>: Aynı kod Python 3.10, 3.11, 3.12'de paralel test edilebilir — 3 ayrı imaj, 3 ayrı konteyner.</li>
+</ul>
+
+<p>Bugün hemen hemen tüm modern yazılım ekipleri CI/CD kullanıyor. Kariyerinizde GitHub'da iş ararken iş ilanlarında "GitHub Actions tecrübesi" veya "CI/CD pipeline kurmuş" diye sıkça göreceksiniz — Docker bu işin temelidir.</p>
 
 <h3>5. Eski Yazılımları Çalıştırmak</h3>
 <p>10 yıl önce yazılmış, Python 2.7 ve eski bir kütüphane gerektiren bir scriptiniz var. Modern Ubuntu'da kurulumu imkansıza yakın. Docker ile Python 2.7 imajında saniyeler içinde çalıştırırsınız.</p>

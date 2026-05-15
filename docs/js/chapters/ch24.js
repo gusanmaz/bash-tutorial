@@ -15,6 +15,20 @@ window.CHAPTERS.push({
     Her adımı terminalinizde <strong>gerçekten yazın</strong>. Okuyup geçmeyin. Docker'ın sihri kendi ellerinizle yazdığınızda anlamlanır. Tüm örnekler kopyala-yapıştır yapılıp anında çalışacak şekilde hazırlandı.
 </div>
 
+<div class="info-box note">
+    <div class="info-box-title">📌 Bu Bölümün Yol Haritası</div>
+    <ol>
+        <li><strong>Adım 0–5</strong>: Docker'ın hayatta olduğunu doğrulayıp ilk konteyneri çalıştırma.</li>
+        <li><strong>Adım 6–9</strong>: Konteynerleri arka planda çalıştırma, yönetme (start/stop/rm).</li>
+        <li><strong>Adım 10–11</strong>: Konteyneri dışarıyla bağlama: portlar ve ortam değişkenleri.</li>
+        <li><strong>Adım 12</strong>: <strong>Volumes</strong> — veriyi konteyner silinse de tutmak.</li>
+        <li><strong>Adım 13</strong>: <strong>Networks</strong> — konteynerlerin birbiriyle konuşması (Redis + NGINX örneği).</li>
+        <li><strong>Adım 14–17</strong>: İzleme, dosya transferi, kaynak sınırları, temizlik.</li>
+        <li><strong>Mini Proje</strong>: Tüm bunları tek bir uygulamada birleştirme.</li>
+    </ol>
+    <p>"Veri" ve "ağ" bölümlerine geldiğimizde geri durup biraz daha derin nefes alacağız — çünkü bunlar Docker'ı gerçekten anlamanın anahtarı.</p>
+</div>
+
 <h2>Adım 0: Docker Çalışıyor mu?</h2>
 <p>Kaymadan önce koşmaya çalışmayalım. Önce Docker'ın hayatta olduğundan emin olalım.</p>
 
@@ -346,7 +360,14 @@ f9e8d7c6b5a4   alpine   "echo 'Merhaba D...'"   8 minutes ago    Exited (0) 8 mi
 </div>
 
 <h2>Adım 11: Ortam Değişkenleri — <code>-e</code></h2>
-<p>Çoğu imaj yapılandırmasını <strong>ortam değişkenleriyle</strong> alır. Veritabanı şifresi, portu, modu... Kodda sabit yazmak yerine dışardan veriyoruz. En klasik örnek: PostgreSQL.</p>
+<p>Çoğu imaj yapılandırmasını <strong>ortam değişkenleriyle</strong> alır. Veritabanı şifresi, portu, modu... Kodda sabit yazmak yerine dışardan veriyoruz.</p>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Ortam Değişkeni Nedir? (Kısa Hatırlatma)</div>
+    <p>Programa "etrafından" verilen isim-değer çiftleridir — programa bir not bırakmak gibi: <em>"Şifre şudur"</em>, <em>"Log seviyesi info olsun"</em>. Linux'ta <code>echo $HOME</code>, <code>echo $USER</code> da birer ortam değişkeni okumadır. Aynı imajı farklı ortamlarda (geliştirme/üretim) farklı ayarlarla çalıştırmak için en temiz yoldur.</p>
+</div>
+
+<p><strong>Hangi değişkenleri ayarlamam gerek nereden bilirim?</strong> Her resmi Docker imajının Docker Hub sayfasında <em>"Environment Variables"</em> bölümü vardır. Örneğin PostgreSQL imajı <code>POSTGRES_PASSWORD</code>, <code>POSTGRES_USER</code>, <code>POSTGRES_DB</code> değişkenlerini bekler. Bu isimler imaj geliştiricileri tarafından belirlenir, biz keşfederiz. En klasik örnek: PostgreSQL.</p>
 
 <div class="code-block">
     <div class="code-block-header"><span>PostgreSQL'i ortam değişkenleriyle başlat</span></div>
@@ -364,14 +385,43 @@ f9e8d7c6b5a4   alpine   "echo 'Merhaba D...'"   8 minutes ago    Exited (0) 8 mi
 <span class="output">uygulama=#</span> <span class="command">\\q</span></code></pre>
 </div>
 
+<h3>Çok Değişken Varsa: <code>--env-file</code></h3>
+<p>Komuta 5-10 tane <code>-e</code> bayrağı yazmak yorucudur. Daha temizi: değişkenleri bir <strong>düz metin dosyasına</strong> koymak. Önce <code>db.env</code> adında bir dosya oluşturalım. Bunu nano, vim ya da herhangi bir metin düzenleyiciyle yapabilirsiniz — örneğin:</p>
+
 <div class="code-block">
-    <div class="code-block-header"><span>.env dosyasından ortam değişkenleri</span></div>
-    <pre><code><span class="comment"># Çok değişken varsa dosyaya koymak daha temiz:</span>
-<span class="prompt">$</span> <span class="command">cat</span> <span class="operator">&gt;</span> <span class="path">db.env</span> <span class="operator">&lt;&lt;</span> <span class="string">EOF</span>
+    <div class="code-block-header"><span>db.env dosyasını oluşturmak</span></div>
+    <pre><code><span class="prompt">$</span> <span class="command">nano</span> <span class="argument">db.env</span>
+<span class="comment"># Aşağıdaki üç satırı yazıp Ctrl+O ile kaydet, Ctrl+X ile çık:</span>
+
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=gizli
+POSTGRES_DB=uygulama</code></pre>
+</div>
+
+<p>Format basit: her satırda <code>ANAHTAR=DEGER</code>. Boşluk yok, tırnak yok, satır başına bir tane. Yorum satırı için <code>#</code> kullanılabilir.</p>
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Alternatif: Tek Komutla Dosya Yazmak (heredoc)</div>
+    <p>Editör açmadan terminalden hızlıca dosya oluşturmak için Bash'in <strong>heredoc</strong> özelliği vardır:</p>
+    <pre><code><span class="prompt">$</span> <span class="command">cat</span> <span class="operator">&gt;</span> <span class="path">db.env</span> <span class="operator">&lt;&lt;</span> <span class="string">EOF</span>
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=gizli
 POSTGRES_DB=uygulama
-EOF
+<span class="string">EOF</span></code></pre>
+    <p>Bu sözdizimi şunu der: <em>"Aşağıdaki satırları, <code>EOF</code> kelimesini gördüğüm yere kadar oku ve <code>db.env</code> dosyasına yaz."</em></p>
+    <ul>
+        <li><code>&gt; db.env</code>: çıktıyı bu dosyaya yönlendir (varsa üzerine yaz).</li>
+        <li><code>&lt;&lt; EOF</code>: "burada başlıyor, EOF satırı geldiğinde bitir" demek. <em>End Of File</em>'ın kısaltmasıdır ama aslında herhangi bir kelime olabilir (<code>&lt;&lt; SON</code> da olur); kapanış da aynı kelime olmalı.</li>
+        <li>Bu, bu eğitimin önceki bölümlerinde gördüğümüz <strong>I/O yönlendirme</strong> mantığının bir uzantısıdır. İlk gördüğünüzde yabancı gelir, ama betik yazarken çok hayat kurtarır.</li>
+    </ul>
+</div>
+
+<div class="code-block">
+    <div class="code-block-header"><span>.env dosyasıyla konteyner başlatmak</span></div>
+    <pre><code><span class="prompt">$</span> <span class="command">cat</span> <span class="argument">db.env</span>           <span class="comment"># Dosyayı görmek için</span>
+<span class="output">POSTGRES_USER=admin
+POSTGRES_PASSWORD=gizli
+POSTGRES_DB=uygulama</span>
 
 <span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">pg</span> \\
     <span class="flag">--env-file</span> <span class="argument">db.env</span> \\
@@ -381,6 +431,11 @@ EOF
 <span class="prompt">$</span> <span class="command">docker exec</span> <span class="argument">pg env</span></code></pre>
 </div>
 
+<div class="info-box warning">
+    <div class="info-box-title">⚠️ .env Dosyalarını Git'e Eklemeyin!</div>
+    İçinde şifre, API anahtarı gibi sırlar olur. Projenizin <code>.gitignore</code> dosyasına <code>.env</code> ve <code>*.env</code> satırlarını eklemeyi unutmayın. <code>.dockerignore</code>'a da koymanız iyi olur.
+</div>
+
 <h2>Adım 12: Veriler Uçmasın! — Volume'ler</h2>
 <p>Yukarıdaki PostgreSQL konteynerine bir tablo oluşturup veri ekleyin. Sonra konteyneri silip yeniden oluşturun. Ne oldu? <strong>Her şey gitti.</strong> Çünkü konteynerin içine yazılan veri, konteyner silindiğinde yok olur.</p>
 
@@ -388,6 +443,22 @@ EOF
     <div class="info-box-title">⚠️ Konteyner Silindiğinde Her Şey Silinir</div>
     Docker konteynerleri varsayılan olarak "uçucu"dur (ephemeral). Veritabanı dosyaları, yüklenen dosyalar, loglar — konteyner rm'lendiğinde hepsi gider. Kalıcı tutmak için <strong>volume</strong> kullanmalısınız.
 </div>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Önce Anlamamız Gereken: Konteynerin "Yazılabilir Katmanı"</div>
+    <p>İmajlar değişmez (read-only) katmanların yığınıdır. Konteyner çalışırken Docker bu yığının üstüne <strong>yazılabilir bir katman daha</strong> koyar — siz dosya oluşturdukça, veritabanına veri yazdıkça bu üst katmana yazılır.</p>
+    <p>Şeffaf folyolar metaforuna dönelim: imajınız 5 sabit folyonun üst üste konulmuş hâli; en üste yenisi konuyor ve değişiklikler oraya işleniyor. Konteyner silindiğinde Docker o üst folyoyu çöpe atar — alttaki imaj sağlam kalır, ama yazdıklarınız gider.</p>
+    <p>Volume'ler tam burada devreye girer: yazılabilir katmana yazmak yerine, konteyner içindeki belirli bir klasörü <strong>dışarıda, konteynerin ömründen bağımsız bir yere</strong> bağlarız. Konteyner silinse bile o klasördeki veri orada kalır.</p>
+</div>
+
+<h3>Üç Mount Tipi — Hangisi Ne İçin?</h3>
+<p>Docker'da konteynere "dışarıdan" veri bağlamanın üç yolu vardır. Karıştırılmasın:</p>
+<table>
+    <tr><th>Tip</th><th>Yer</th><th>Tipik Kullanım</th></tr>
+    <tr><td><strong>Named volume</strong></td><td>Docker'ın yönettiği özel bir alan (Linux'ta genelde <code>/var/lib/docker/volumes/</code>)</td><td>Veritabanı verileri, kalıcı uygulama verisi</td></tr>
+    <tr><td><strong>Bind mount</strong></td><td>Sizin seçtiğiniz bir host klasörü (örn. <code>/home/ahmet/projem</code>)</td><td>Geliştirme sırasında kod yansıtma, config dosyası verme</td></tr>
+    <tr><td><strong>tmpfs mount</strong></td><td>Sadece RAM'de, diske hiç yazılmaz</td><td>Hassas/geçici veri (örn. anahtarlar, cache)</td></tr>
+</table>
 
 <h3>Volume — Docker'ın Yönettiği Disk</h3>
 <div class="code-block">
@@ -440,29 +511,99 @@ EOF
 </div>
 
 <div class="info-box note">
-    <div class="info-box-title">📌 Volume mu, Bind Mount mu?</div>
+    <div class="info-box-title">📌 Volume mu, Bind Mount mu? — Hangisini Ne Zaman Seçeyim?</div>
     <ul>
-        <li><strong>Named volume</strong>: Docker'ın yönettiği bir alan. Veritabanı gibi "Docker benim adıma tutsun" dediğiniz veriler için.</li>
-        <li><strong>Bind mount</strong>: Hostunuzdaki bir klasör. "Kodu canlı yansıt", "config dosyası ver" senaryoları için.</li>
+        <li><strong>Veritabanı verisi (Postgres, MySQL, Redis)</strong> → Named volume. Docker yönetir; başka makineye taşınabilir (volume dump alıp aktarabilirsiniz).</li>
+        <li><strong>Geliştirme sırasında "kodumu canlı düzenleyip konteynerde göreyim"</strong> → Bind mount. Host klasörü direk konteynere yansır.</li>
+        <li><strong>Config dosyası tek dosya halinde vermek</strong> → Bind mount (tek dosya da olabilir): <code>-v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro</code>. Sondaki <code>:ro</code> = read-only.</li>
+        <li><strong>Geçici / hassas veri</strong> → tmpfs mount (sadece RAM, hiç diske yazılmaz).</li>
     </ul>
 </div>
 
+<h3>Volume'üm Aslında Nerede Yaşıyor?</h3>
+<p>Named volume yarattığınızda merak ediyor olabilirsiniz: "Bu dosyalar nerede?" <code>docker volume inspect</code> ile öğrenebilirsiniz:</p>
+
 <div class="code-block">
-    <div class="code-block-header"><span>Volume yönetimi</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker volume ls</span>
-<span class="prompt">$</span> <span class="command">docker volume inspect pg-verisi</span>    <span class="comment"># Host'taki yerini bile söyler</span>
-<span class="prompt">$</span> <span class="command">docker volume rm pg-verisi</span>
-<span class="prompt">$</span> <span class="command">docker volume prune</span>                 <span class="comment"># Kullanılmayanları sil</span></code></pre>
+    <div class="code-block-header"><span>Volume'ün fiziksel adresi</span></div>
+    <pre><code><span class="prompt">$</span> <span class="command">docker volume create</span> <span class="argument">deneme</span>
+<span class="prompt">$</span> <span class="command">docker volume inspect</span> <span class="argument">deneme</span>
+<span class="output">[
+    {
+        "CreatedAt": "2026-01-15T10:30:00Z",
+        "Driver": "local",
+        "Mountpoint": "/var/lib/docker/volumes/deneme/_data",
+        "Name": "deneme"
+    }
+]</span>
+<span class="comment"># Linux'ta volume verisi genelde:
+# /var/lib/docker/volumes/&lt;volume-adi&gt;/_data
+# altında durur. Root yetkisi gerekir görüntülemek için.</span></code></pre>
+</div>
+
+<p><strong>Önemli not:</strong> Bu yolu bilmek ilginçtir ama oraya elle dokunmayın — Docker'ın yönetimine bırakın. Volume'leri taşımak için <code>docker run --rm -v eski:/from -v yeni:/to alpine cp -a /from/. /to/</code> gibi temiz yollar var.</p>
+
+<h3>tmpfs Mount — Sadece RAM'de Geçici Veri</h3>
+<p>Bazen veriyi <strong>hiç</strong> diske yazmak istemezsiniz: hassas anahtarlar, geçici hesaplama dosyaları, performans kritik cache. <code>--tmpfs</code> ile konteyner içindeki bir klasörü tamamen RAM'de tutarsınız:</p>
+<div class="code-block">
+    <div class="code-block-header"><span>tmpfs örneği</span></div>
+    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">cache</span> \\
+    <span class="flag">--tmpfs</span> <span class="argument">/tmp:size=100m</span> \\
+    <span class="argument">nginx</span>
+<span class="comment"># Konteyner içindeki /tmp 100 MB'lık bir RAM diski.
+# Konteyner durunca her şey buhar olur — kalıcılık YOK.</span></code></pre>
+</div>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Volume yönetim komutları</span></div>
+    <pre><code><span class="prompt">$</span> <span class="command">docker volume ls</span>                      <span class="comment"># Tüm volume'leri listele</span>
+<span class="prompt">$</span> <span class="command">docker volume inspect pg-verisi</span>      <span class="comment"># Detay (host'taki yer dahil)</span>
+<span class="prompt">$</span> <span class="command">docker volume rm pg-verisi</span>           <span class="comment"># Tek volume'ü sil</span>
+<span class="prompt">$</span> <span class="command">docker volume prune</span>                   <span class="comment"># Kimseye bağlı olmayanları toplu sil</span>
+
+<span class="comment"># Bir volume'ün boyutunu görmek (root yetkisi):</span>
+<span class="prompt">$</span> <span class="command">sudo du</span> <span class="flag">-sh</span> <span class="argument">/var/lib/docker/volumes/pg-verisi/_data</span></code></pre>
+</div>
+
+<div class="info-box warning">
+    <div class="info-box-title">⚠️ Volume Silinmeden Konteyner Silmek "Yetim Volume" Yaratır</div>
+    <code>docker rm -f pg</code> dediğinizde sadece konteyner gider, volume hâlâ orada durur. Bu güvenliğiniz için iyidir (yanlışlıkla veritabanı silmezsiniz) ama unutursanız diskte sessizce birikir. Kullanılmadığından emin olduktan sonra <code>docker volume rm</code> ya da <code>docker volume prune</code> ile temizleyin.
 </div>
 
 <h2>Adım 13: Konteynerler Arası İletişim — Ağlar</h2>
-<p>Şu ana kadar konteynerlerimizi tek tek başlattık. Peki iki konteynerin birbiriyle konuşması gerekirse? Örneğin bir API sunucusu bir veritabanıyla konuşmalı. Bu <strong>ağlar (networks)</strong> alanına girer.</p>
+<p>Şu ana kadar konteynerlerimizi tek tek başlattık. Peki iki konteynerin birbiriyle konuşması gerekirse? Örneğin bir API sunucusunun bir veritabanına bağlanması, ya da bir web uygulamasının bir cache servisine istek atması. Bu <strong>ağlar (networks)</strong> alanına girer.</p>
+
+<p>Bu adımda Redis'i sıkça kullanacağımız için önce onu bir tanıtalım:</p>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Bu Arada — Redis Nedir?</div>
+    <p><strong>Redis</strong> (Remote Dictionary Server) çok hızlı bir <em>anahtar-değer (key-value)</em> veri saklayıcısıdır. Klasik veritabanı gibi tablo/sütun mantığı yoktur; basitçe <em>"anahtar şu, değer şu"</em> şeklinde veri tutar:</p>
+    <pre><code>SET kullanici:42 "ahmet"
+GET kullanici:42        → "ahmet"
+INCR ziyaret-sayisi     → 1, sonra 2, sonra 3...</code></pre>
+    <p><strong>Neden bu kadar popüler?</strong> Verileri RAM'de tuttuğu için saniyede yüz binlerce işlem yapabilir. Tipik kullanımları:</p>
+    <ul>
+        <li><strong>Önbellek (cache)</strong>: Veritabanından çekilen yavaş sonuçları geçici olarak Redis'e koyarsınız; bir dahaki istekte oradan saniyenin binde biri sürede gelir.</li>
+        <li><strong>Sayaçlar</strong>: Ziyaret sayısı, oy sayısı, "şu kadar saniyede şu kadar istek" gibi şeyler.</li>
+        <li><strong>Oturum (session) saklama</strong>: Giriş yapan kullanıcının token'ı, sepeti vs.</li>
+        <li><strong>Kuyruk / mesajlaşma</strong>: İşlemler arasında basit mesaj geçirme.</li>
+    </ul>
+    <p>Aşağıda "Redis'e PING gönderiyoruz, PONG dönüyor" derken: bir konteynerden başka konteynerdeki Redis sunucusuna ağ üzerinden mesaj atıp cevap alıyoruz. <code>redis-cli</code> ise Redis'le konuşmak için kullanılan komut satırı istemcisidir (PostgreSQL'in <code>psql</code>'i gibi).</p>
+</div>
+
+<h3>Konteynerler Birbirini Nasıl Bulur?</h3>
+<p>Normal bir bilgisayar ağında iki makine birbirini iki şekilde bulabilir:</p>
+<ul>
+    <li><strong>IP adresi ile</strong> (örn. <code>192.168.1.42</code>) — sayısal, ezberlemesi zor, değişebilir.</li>
+    <li><strong>İsim ile</strong> (örn. <code>google.com</code>) — okunur, kalıcı. Bunu mümkün kılan şey <strong>DNS</strong>'tir: isimleri IP'lere çeviren bir telefon rehberi gibi.</li>
+</ul>
+<p>Docker, konteynerleri için aynı şeyi yapar — ama bir <strong>şart vardır</strong>: aynı kullanıcı tarafından oluşturulan ağ üzerinde olmaları lazım.</p>
 
 <h3>Bridge Nedir?</h3>
 <div class="info-box note">
     <div class="info-box-title">📌 Sanal Ağ Köprüsü</div>
-    <p>Düşünün: bir router'a dört kablo taktınız, dört bilgisayar birbirine konuşabilir. <strong>Bridge</strong>, yazılım tarafındaki bu router'dır (teknik olarak "switch"). Docker kurulunca <code>docker0</code> adlı bir bridge oluşturur. Her konteyner bu köprüye sanal bir "kabloyla" takılır.</p>
-    <p>Ama varsayılan <code>docker0</code> bridge'inde konteynerler <strong>birbirlerini isimle göremez</strong>, sadece IP ile. Bu kötü; IP'ler değişir. Bunun için <strong>kendi ağınızı oluşturmak</strong> altın kuraldır.</p>
+    <p>Düşünün: bir router'a dört kablo taktınız, dört bilgisayar birbirine konuşabilir. <strong>Bridge</strong>, yazılım tarafındaki bu router'dır (teknik olarak "switch"). Docker kurulunca <code>docker0</code> adlı bir varsayılan bridge oluşturur. Bu ağda her konteynere bir iç IP atanır (örn. <code>172.17.0.2</code>) ve aynı köprüye takılı oldukları için birbirlerine IP üzerinden erişebilirler.</p>
+    <p><strong>Ama varsayılan <code>docker0</code> bridge'inde bir sorun var:</strong> konteynerler birbirini <em>isimle bulamaz</em>, sadece IP ile. Üstelik IP'ler konteyner her yeniden başladığında değişebilir. Kodunuzda <code>db.host = "172.17.0.3"</code> yazmak çok kırılgan olur.</p>
+    <p>Çözüm: <strong>kendi ağınızı (user-defined bridge) oluşturmak</strong>. Docker burada bir bonus olarak <em>otomatik DNS</em> sağlar — konteynerleri isimle bulabilirsiniz. Bu yüzden hep <code>docker network create</code> ile başlamak altın kuraldır.</p>
 </div>
 
 <div class="code-block">
@@ -470,45 +611,107 @@ EOF
     <pre><code><span class="comment"># 1) Özel bir bridge ağı oluştur:</span>
 <span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">uygulama-ag</span>
 
-<span class="comment"># 2) Redis'i bu ağda başlat (dış port açmaya gerek yok):</span>
+<span class="comment"># 2) Redis sunucusunu bu ağda başlat (dış porta gerek yok):</span>
 <span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">redis</span> \\
     <span class="flag">--network</span> <span class="argument">uygulama-ag redis</span>
 
-<span class="comment"># 3) Başka bir konteynerden "redis" ismiyle eriş:</span>
+<span class="comment"># 3) Aynı ağdan başka bir konteyner, "redis" ismiyle ona erişebilir:</span>
 <span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">--rm -it</span> \\
     <span class="flag">--network</span> <span class="argument">uygulama-ag redis redis-cli -h redis</span>
+<span class="comment">#                                              ↑ Bu "redis" konteyner adıdır,
+#                                                Docker'ın DNS'i otomatik IP'ye çevirir.</span>
 <span class="output">redis:6379&gt;</span> <span class="command">PING</span>
-<span class="output">PONG</span></code></pre>
+<span class="output">PONG</span>
+<span class="comment"># Sunucudan "ben hayattayım" cevabı geldi.</span>
+<span class="output">redis:6379&gt;</span> <span class="command">SET</span> <span class="argument">merhaba "dunya"</span>
+<span class="output">OK</span>
+<span class="output">redis:6379&gt;</span> <span class="command">GET</span> <span class="argument">merhaba</span>
+<span class="output">"dunya"</span></code></pre>
 </div>
 
-<p>Dikkat: Redis konteyneri için <code>-p</code> kullanmadık. Dış dünyaya açmaya gerek yok; sadece aynı ağdaki başka konteynerler erişsin. Bu daha güvenlidir.</p>
+<p><strong>Burada ne yaptık?</strong></p>
+<ol>
+    <li>"uygulama-ag" adında yeni bir sanal ağ kurduk — sadece bu ağa katılan konteynerler birbirini görür, dışarıdan kimse giremez.</li>
+    <li>Redis sunucusunu konteyner olarak başlattık ve bu ağa bağladık. <strong>Dikkat:</strong> <code>-p</code> ile dış porta açmadık — sadece aynı ağdaki kardeş konteynerler erişebilir. Bu güvenlik açısından çok iyi: Redis'iniz internete açık kalmaz.</li>
+    <li>İkinci konteyneri (Redis CLI istemcisi) aynı ağa bağladık ve sunucuya "redis" diyerek bağlandık. Docker'ın iç DNS'i bu ismi otomatik olarak Redis konteynerinin IP'sine çevirdi.</li>
+</ol>
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Gerçek Hayatta Bu Nasıl Görünür?</div>
+    <p>Bir Python web uygulamanız olduğunu düşünün. Redis'e bağlanmak için kodda şöyle yazardınız:</p>
+    <pre><code>import redis
+r = redis.Redis(host="redis", port=6379)  <span class="comment"># "redis" konteynerin adı</span>
+r.set("merhaba", "dünya")</code></pre>
+    <p>Uygulamayı konteynerleştirip aynı ağa bağlayınca "redis" hostname'i otomatik çalışır. Bu yüzden bağlantı dizelerini config'e koyarken konteyner ismini kullanmak yaygın bir desendir.</p>
+</div>
+
+<h3>Diğer Ağ Modları — Sadece Bilgi Olsun</h3>
+<p><code>docker network ls</code> yazınca aşağıdaki gibi varsayılan ağlar görürsünüz:</p>
+<pre><code>NETWORK ID     NAME      DRIVER    SCOPE
+8a3b4c5d6e7f   bridge    bridge    local
+1a2b3c4d5e6f   host      host      local
+9z8y7x6w5v4u   none      null      local</code></pre>
+<ul>
+    <li><strong>bridge</strong> (varsayılan): Yukarıda anlattığımız klasik mod. Yeni başlattığınız konteynerler isim vermediğiniz sürece <code>docker0</code> bridge'ine takılır.</li>
+    <li><strong>host</strong>: Konteyner host'un ağ yığınını <em>doğrudan</em> kullanır. Yalıtım yoktur — konteyner içinde port 80 dinlerseniz host'ta da 80 portu meşgul olur. <code>-p</code> bayrağına gerek kalmaz. Performans biraz daha iyi; ama yalıtım yok ve port çakışmaları yaşarsınız.</li>
+    <li><strong>none</strong>: Konteynerin <em>hiç</em> ağı yoktur. Sadece <code>lo</code> (loopback) arayüzü vardır. Tamamen izole bir hesaplama yapmak istediğinizde kullanılır.</li>
+</ul>
+<p>Pratikte %95 ihtimalle kendi oluşturduğunuz bir <strong>user-defined bridge</strong> ağıyla çalışacaksınız. Diğerleri özel durumlar için.</p>
 
 <div class="code-block">
     <div class="code-block-header"><span>Ağ komutları</span></div>
     <pre><code><span class="prompt">$</span> <span class="command">docker network ls</span>                       <span class="comment"># Tüm ağlar</span>
 <span class="prompt">$</span> <span class="command">docker network create ad</span>                 <span class="comment"># Oluştur</span>
-<span class="prompt">$</span> <span class="command">docker network inspect ad</span>                <span class="comment"># Detay (hangi konteynerler bağlı)</span>
-<span class="prompt">$</span> <span class="command">docker network connect ad konteyner</span>      <span class="comment"># Var olanı ağa ekle</span>
-<span class="prompt">$</span> <span class="command">docker network disconnect ad konteyner</span>   <span class="comment"># Çıkar</span>
-<span class="prompt">$</span> <span class="command">docker network rm ad</span>                     <span class="comment"># Ağı sil</span>
-<span class="prompt">$</span> <span class="command">docker network prune</span>                     <span class="comment"># Kullanılmayan ağlar</span></code></pre>
+<span class="prompt">$</span> <span class="command">docker network inspect ad</span>                <span class="comment"># Detay (hangi konteynerler bağlı, IP'leri)</span>
+<span class="prompt">$</span> <span class="command">docker network connect ad konteyner</span>      <span class="comment"># Var olan konteyneri ağa ekle</span>
+<span class="prompt">$</span> <span class="command">docker network disconnect ad konteyner</span>   <span class="comment"># Ağdan çıkar</span>
+<span class="prompt">$</span> <span class="command">docker network rm ad</span>                     <span class="comment"># Ağı sil (içinde konteyner olmamalı)</span>
+<span class="prompt">$</span> <span class="command">docker network prune</span>                     <span class="comment"># Kullanılmayan ağları toplu sil</span>
+
+<span class="comment"># Bir konteynerin hangi ağlarda olduğunu görmek:</span>
+<span class="prompt">$</span> <span class="command">docker inspect</span> <span class="argument">konteyner</span> <span class="flag">--format</span> <span class="string">'{{json .NetworkSettings.Networks}}'</span></code></pre>
+</div>
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Aynı Konteyner Birden Fazla Ağa Bağlı Olabilir</div>
+    Mesela bir API sunucusu hem "frontend-net" hem "backend-net" ağlarında olsun: frontend ile public konuşur, backend'de veritabanına gizli erişir. <code>docker network connect</code> ile çalışan bir konteynere ek ağ bağlayabilirsiniz.
 </div>
 
 <h3>Mini Uygulama — İki Konteynerli Ziyaretçi Sayacı</h3>
+<p>Şimdi yukarıda öğrendiklerimizi küçük somut bir örnekte deneyelim: bir Redis konteyneri "ziyaretçi sayısı"nı saklayacak, biz başka bir konteynerden ona "1 arttır" diyeceğiz. Bir web sitesinin sayaç servisinin minik versiyonu gibi.</p>
+
 <div class="code-block">
     <div class="code-block-header"><span>Konteynerler arası iletişim</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">mini</span>
+    <pre><code><span class="comment"># 1) Mini bir ağ oluştur:</span>
+<span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">mini</span>
 
+<span class="comment"># 2) Redis'i "sayi" adıyla bu ağa bağla (dış port yok):</span>
 <span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">sayi --network mini redis:alpine</span>
 
-<span class="comment"># Başka bir konteynerden Redis'e yaz-oku:</span>
+<span class="comment"># 3) Geçici bir Redis istemcisi konteyneri başlat ("sayi" hostname'ine bağlan):
+# --rm: çıkınca konteyneri otomatik sil (test etmek için ideal)</span>
 <span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">--rm -it</span> <span class="flag">--network</span> <span class="argument">mini redis:alpine redis-cli -h sayi</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>
+
+<span class="comment"># Komut isteminde artık Redis ile konuşuyoruz:</span>
+<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>      <span class="comment"># "ziyaret" anahtarını 1 arttır</span>
 <span class="output">(integer) 1</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>
+<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>      <span class="comment"># Yine arttır</span>
 <span class="output">(integer) 2</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">GET</span> <span class="argument">ziyaret</span>
-<span class="output">"2"</span></code></pre>
+<span class="output">sayi:6379&gt;</span> <span class="command">GET</span> <span class="argument">ziyaret</span>       <span class="comment"># Şu anki değeri oku</span>
+<span class="output">"2"</span>
+<span class="output">sayi:6379&gt;</span> <span class="command">exit</span></code></pre>
+</div>
+
+<p><strong>Burada güzel olan ne?</strong> Redis konteynerinin IP'sini hiç bilmedik. Sadece <em>"sayi"</em> dedik — Docker'ın iç DNS'i bunu doğru konteynere çevirdi. Konteyner yeniden başlatılsa, IP değişse bile, "sayi" adı duruyor.</p>
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Bonus: Kalıcılık Ekleyelim</div>
+    <p>Yukarıdaki örnekte Redis konteynerini sildiğinizde sayaç sıfırlanır (RAM'de saklıyor). Veriyi kalıcı tutmak için volume ekleyin:</p>
+    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">sayi</span> <span class="flag">--network</span> <span class="argument">mini</span> \\
+    <span class="flag">-v</span> <span class="argument">sayi-disk:/data</span> \\
+    <span class="argument">redis:alpine redis-server --save 60 1</span>
+<span class="comment"># --save 60 1: 60 saniyede en az 1 değişiklik olursa diske yaz</span></code></pre>
+    <p>Artık konteyner silinse bile <code>sayi-disk</code> volume'ünde veri kalır. Yeni konteynerle aynı volume'ü bağlarsanız sayaç kaldığı yerden devam eder.</p>
 </div>
 
 <h2>Adım 14: Konteyneri İzlemek</h2>
@@ -592,7 +795,25 @@ Local Volumes   4         2         4GB       2GB (50%)</span>
 </div>
 
 <h2>Tüm Bu Adımları Birleştirelim — Mini Proje</h2>
-<p>Şimdiye kadar öğrendiklerimizle küçük ama tam bir ortam kuralım: Bir NGINX web sitesi + bir Redis önbellek + özel bir ağ + kalıcı bir volume.</p>
+<p>Şimdiye kadar öğrendiklerimizle küçük ama tam bir ortam kuralım: Bir NGINX web sitesi + bir Redis önbellek + özel bir ağ + kalıcı bir volume. Gerçek bir mimaride benzer parçalar olur; biz "iskelet"i kuruyoruz.</p>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Bu Mini Mimari Hangi Şekilde Düşünülebilir?</div>
+    <pre><code>┌────────────┐   8080:80    ┌────────────────┐
+│   Tarayıcı │ ───────────→ │   NGINX (web)  │  ─→ sayfaları gösterir
+└────────────┘              │   demo-ag      │
+                            └────────┬───────┘
+                                     │ "redis" hostname üzerinden
+                                     │ konteyner-içi ağ
+                                     ▼
+                            ┌────────────────┐
+                            │  Redis         │  ─→ verileri saklar
+                            │  demo-ag       │
+                            │  ↕             │
+                            │  redis-disk    │  ─→ veriler diskte kalıcı
+                            └────────────────┘</code></pre>
+    <p>NGINX 80 portunu dinler ve host'un 8080'ine açıktır — dışarıdan erişilebilir. Redis sadece "demo-ag" iç ağındadır — sadece NGINX (ve aynı ağdaki başka konteynerler) erişebilir. Redis'in verileri "redis-disk" volume'ünde tutulur, böylece konteyner silinse bile veri yok olmaz.</p>
+</div>
 
 <div class="code-block">
     <div class="code-block-header"><span>Her şey bir arada</span></div>

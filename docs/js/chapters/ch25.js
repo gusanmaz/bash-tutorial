@@ -15,6 +15,18 @@ window.CHAPTERS.push({
     Dockerfile, Docker'a <em>"şöyle bir imaj oluşturmanı istiyorum"</em> diye tarif veren düz metin dosyasıdır. Her satırı Docker adım adım çalıştırır ve sonuç olarak bir imaj üretir. Bu imajı sonra istediğiniz makinede konteyner olarak çalıştırabilirsiniz.
 </div>
 
+<div class="info-box tip">
+    <div class="info-box-title">💡 Bu Bölümün Yol Haritası</div>
+    <ol>
+        <li><strong>İlk Dockerfile</strong>: Üç satırla hayata "Merhaba".</li>
+        <li><strong>Talimatları tek tek tanıyalım</strong>: <code>FROM</code>, <code>COPY</code>, <code>RUN</code>, <code>ENV</code>, <code>EXPOSE</code>, vb.</li>
+        <li><strong>Gerçek bir örnek</strong>: Flask web uygulamasını imaja koyalım.</li>
+        <li><strong>İyi alışkanlıklar</strong>: <code>.dockerignore</code>, katman sırası, multi-stage build.</li>
+        <li><strong>Paylaşım</strong>: İmajı Docker Hub'a yükleyip başka makinelerden kullanma.</li>
+    </ol>
+    <p>Acele etmeyin; her bölümün sonunda terminalinizde örneği gerçekten çalıştırın. Docker'ı okuyarak değil, parmaklarınızla öğrenirsiniz.</p>
+</div>
+
 <h2>İlk Dockerfile — Merhaba Dünya</h2>
 <p>En basit başlangıç: küçük bir Python scripti konteyner haline getirelim.</p>
 
@@ -57,7 +69,29 @@ CMD ["python", "app.py"]</code></pre>
     <li><code>CMD ["python", "app.py"]</code>: "Konteyner başlatıldığında şu komutu çalıştır."</li>
 </ul>
 
+<div class="info-box note">
+    <div class="info-box-title">📌 Önce Bir Kavram: Katman (Layer) Nedir?</div>
+    <p>Dockerfile'daki her talimat (<code>FROM</code>, <code>COPY</code>, <code>RUN</code>, vb.) yeni bir <strong>katman</strong> oluşturur. Yani imajınız üst üste yığılmış şeffaf folyolar gibi düşünülebilir: her folyoda bir değişiklik (yeni dosyalar, kurulan paketler, ayarlar) var ve hepsi birleşince son hâli oluşturuyor.</p>
+    <p>Bu yapı iki şey için harika:</p>
+    <ul>
+        <li><strong>Hız:</strong> Bir katman değişmediyse Docker onu yeniden hesaplamaz, önbellekten kullanır. Bir sonraki build saniyeler içinde biter.</li>
+        <li><strong>Paylaşım:</strong> İki imajınız aynı temel imajdan türüyorsa, alttaki katmanlar diskte tek kopya tutulur. 100 farklı Python imajı = 1 ortak Python katmanı + farklı üstler.</li>
+    </ul>
+    <p>İlerleyen bölümlerde "katmana göre sıralama" gibi şeyler göreceksiniz; bu kavramı aklınızda tutmak yardımcı olur.</p>
+</div>
+
 <h2>Dockerfile Talimatları — Tam Liste</h2>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Nasıl Okumalısınız?</div>
+    <p>Aşağıda Dockerfile'da kullanabileceğiniz tüm talimatlar var. <strong>Hepsini ezberlemek zorunda değilsiniz.</strong> Şöyle düşünün:</p>
+    <ul>
+        <li><strong>İlk 5 talimat olmazsa olmaz</strong>: <code>FROM</code>, <code>WORKDIR</code>, <code>COPY</code>, <code>RUN</code>, <code>CMD</code>. Bunlar olmadan neredeyse hiçbir Dockerfile yazılamaz.</li>
+        <li><strong>Sık kullanılan</strong>: <code>ENV</code>, <code>EXPOSE</code>, <code>USER</code>, <code>ENTRYPOINT</code>. Birçok projede karşınıza çıkar.</li>
+        <li><strong>Daha ileri / duruma göre</strong>: <code>ARG</code>, <code>VOLUME</code>, <code>HEALTHCHECK</code>, <code>LABEL</code>, <code>ADD</code>. Önce diğerlerini iyice tanıyın; sonra bunlara ihtiyaç duydukça döneriz.</li>
+    </ul>
+    <p>Her başlıkta: <em>"Bu ne işe yarıyor?"</em> → <em>"Neden ihtiyacımız var?"</em> → <em>"Pratikte nasıl yazılır?"</em> sırasıyla ilerleyeceğiz.</p>
+</div>
 
 <h3>FROM — Temel İmaj</h3>
 <p>Her Dockerfile <code>FROM</code> ile başlar (çok nadir durumlar hariç). Bu, üzerine inşa edeceğiniz imajdır.</p>
@@ -83,25 +117,57 @@ FROM scratch                <span class="comment"># Tamamen boş — sadece iler
 </div>
 
 <h3>WORKDIR — Çalışma Dizini</h3>
-<p>Konteyner içindeki "current directory". <code>cd</code> gibi düşünün ama kalıcı.</p>
-<pre><code>WORKDIR /app
-<span class="comment"># Klasör yoksa otomatik oluşturulur. Sonraki tüm komutlar burada çalışır.</span></code></pre>
+<p>Bir terminal açtığınızda her zaman bir klasördesiniz (<code>pwd</code> ile görebileceğiniz "current directory"). Konteynerin içi de bir Linux sistemidir ve onun da bir "şu an bulunduğu klasörü" vardır. <code>WORKDIR</code> bunu belirler.</p>
+<p><code>cd /app</code> yazıp orada kalmak gibi düşünün — ama bu hem build (imajı oluştururken) hem de runtime (konteyner çalışırken) için kalıcıdır.</p>
+<pre><code>WORKDIR /app</code></pre>
+<ul>
+    <li>Klasör <strong>yoksa otomatik oluşturulur</strong> (önceden <code>mkdir</code> demenize gerek yok).</li>
+    <li>Bu satırdan <strong>sonraki</strong> tüm <code>COPY</code>, <code>RUN</code>, <code>CMD</code> komutları artık bu klasörde çalışır.</li>
+    <li>Dockerfile içinde birden çok <code>WORKDIR</code> kullanabilirsiniz; her biri o noktadan itibaren yeni "şu anki klasör" olur.</li>
+</ul>
+<div class="info-box warning">
+    <div class="info-box-title">⚠️ WORKDIR Yazmazsanız Ne Olur?</div>
+    Komutlarınız konteynerin kök dizininde (<code>/</code>) çalışır. <code>COPY app.py .</code> dediğinizde dosyanız <code>/app.py</code> olarak yerleşir — sistem dosyalarının arasında kaybolur. Bu yüzden her zaman bir <code>WORKDIR</code> belirleyin.
+</div>
 
 <h3>COPY ve ADD — Dosya Kopyalama</h3>
-<pre><code>COPY kaynak hedef
-COPY app.py /app/
-COPY . /app/                <span class="comment"># Tüm build bağlamını</span>
-COPY requirements.txt .     <span class="comment"># . = WORKDIR</span>
-COPY <span class="flag">--chown=user:user</span> ./src /app/src
 
-<span class="comment"># ADD, COPY'nin süper gücü olan versiyonu:
-# - Tar arşivlerini otomatik açar (.tar.gz vs.)
-# - URL'den indirebilir
-# Ama BU ÖZELLİKLER GENELDE İSTENMEZ. En iyi pratik: hep COPY kullanın.</span>
-ADD https://example.com/dosya.tar.gz /app/   <span class="comment"># Genelde önerilmez</span></code></pre>
+<p>İmajınıza dosya nasıl koyarsınız? <code>COPY</code> ile. Ama önce <strong>build context</strong> kavramını anlamamız lazım.</p>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Build Context Nedir?</div>
+    <p><code>docker build -t isim .</code> komutundaki <strong>nokta</strong> (<code>.</code>) bulunduğunuz klasörü işaret eder. Docker bu komutu çalıştırdığınızda, o klasördeki <strong>tüm dosyaları</strong> Docker daemon'una gönderir. Buna <em>build context</em> denir. Dockerfile'ınız sadece <strong>bu context içindeki</strong> dosyalara <code>COPY</code> ile erişebilir.</p>
+    <p>Yani <code>COPY /home/ahmet/gizli.txt /app/</code> yazamazsınız — bu host'taki bir yol, context dışında. Sadece <code>COPY gizli.txt /app/</code> gibi, Dockerfile'ın yanındaki dosyalara erişebilirsiniz.</p>
+</div>
+
+<pre><code><span class="comment"># Genel sözdizimi: COPY kaynak hedef</span>
+COPY app.py /app/                       <span class="comment"># Tek dosya</span>
+COPY app.py .                           <span class="comment"># . = WORKDIR (varsayılan /)</span>
+COPY src/ /app/src/                     <span class="comment"># Tüm klasörü</span>
+COPY . /app/                            <span class="comment"># Context'in tamamı</span>
+COPY *.py /app/                         <span class="comment"># Glob desenleri</span>
+COPY <span class="flag">--chown=app:app</span> src/ /app/      <span class="comment"># Sahipliği değiştirerek</span></code></pre>
+
+<p><strong>ADD nedir, neden çekinmemeli?</strong> <code>ADD</code>, <code>COPY</code>'nin "her şeyi yapan" sürümüdür:</p>
+<ul>
+    <li>Tar arşivlerini (<code>.tar.gz</code>, <code>.tar.bz2</code>) hedefe <strong>otomatik açar</strong>.</li>
+    <li>URL'den dosya indirip kopyalayabilir.</li>
+</ul>
+<p>Kulağa hoş geliyor ama bu otomatik davranışlar <em>"acaba ne olacak?"</em> diye düşündürür. Çoğu zaman tam ne istediğinizi açıkça yazmak (önce <code>RUN curl ...</code>, sonra <code>RUN tar -xzf</code>) daha güvenli ve okunabilirdir. <strong>Tavsiye: dosyalar için her zaman <code>COPY</code> kullanın, <code>ADD</code>'i sadece o özel davranışlarına ihtiyacınız olduğunda tercih edin.</strong></p>
+<pre><code><span class="comment"># ADD'nin yapabildikleri (genelde önerilmez):</span>
+ADD app.tar.gz /app/                              <span class="comment"># /app içine açar</span>
+ADD https://example.com/dosya.zip /app/           <span class="comment"># URL'den indirir (önerilmez)</span></code></pre>
 
 <h3>RUN — Build Sırasında Komut Çalıştır</h3>
-<p>İmajı oluştururken (build aşaması) çalışacak komutlar. Paket kurmak, dosya düzenlemek, derlemek için.</p>
+
+<p>Burada "build" ve "runtime" ayrımını yapmamız lazım. Docker'da iki ayrı an vardır:</p>
+<ul>
+    <li><strong>Build (inşa) anı</strong>: <code>docker build</code> komutunu çalıştırdığınızda Docker, Dockerfile'daki adımları sırayla işler ve bir imaj üretir. Bu aşamada paketler kurulur, kod derlenir, hazırlıklar yapılır.</li>
+    <li><strong>Runtime (çalışma) anı</strong>: <code>docker run</code> ile o imajdan bir konteyner doğduğunda. Bu noktada uygulamanız artık "canlı" çalışıyor.</li>
+</ul>
+<p><code>RUN</code> talimatı <strong>build aşamasında</strong> çalışır. Sonucu imaja yazılır ve orada kalır. <code>CMD</code> ise <strong>runtime'da</strong> çalışır. İkisini karıştırmamak için: "<em>Bu adım imaj hazırlanırken mi olmalı, yoksa konteyner her başlatıldığında mı?</em>" diye sorun.</p>
+
+<p>Tipik <code>RUN</code> kullanımları: paket kurulumu, kod derleme, dosya düzenlemesi, kullanıcı oluşturma.</p>
 <pre><code>RUN apt-get update && apt-get install -y curl git
 RUN pip install --no-cache-dir flask
 RUN mkdir -p /app/data && chown app:app /app/data
@@ -162,46 +228,210 @@ CMD ["app.py"]
     <p>Exec form daha iyidir çünkü sinyalleri (SIGTERM vb.) doğrudan alır. Shell form'da sinyaller <code>sh</code>'ye gider, uygulamaya ulaşmaz.</p>
 </div>
 
-<h3>ENV — Ortam Değişkenleri</h3>
-<pre><code>ENV PYTHON_VERSION=3.12
-ENV PATH="/app/bin:$PATH"
+<div class="info-box tip">
+    <div class="info-box-title">💡 Pratikte Hangisini Seçeyim?</div>
+    <ul>
+        <li><strong>Uygulamayı bir kez kuruyorum, hep aynı şekilde çalışsın:</strong> Sadece <code>CMD</code> yeter. Örn: <code>CMD ["python", "app.py"]</code>.</li>
+        <li><strong>İmajım bir komut satırı aracı gibi davransın</strong> (kullanıcı argüman versin): <code>ENTRYPOINT</code> + <code>CMD</code> kombinasyonu. Örn: <code>ENTRYPOINT ["git"]</code>, <code>CMD ["--help"]</code> — kullanıcı <code>docker run img status</code> yazınca <code>git status</code> çalışır.</li>
+        <li><strong>Hata ayıklama / serbest mod istiyorum:</strong> Sadece <code>CMD</code> kullanmak <code>docker run img bash</code> ile kolayca shell'e düşmenizi sağlar.</li>
+    </ul>
+</div>
+
+<h3>ENV — Ortam Değişkenleri (Environment Variables)</h3>
+<p><strong>Ortam değişkeni nedir?</strong> Bir programın "etrafına" konulan, açıldığında okuyabileceği isim-değer çiftleridir. Tıpkı bir not gibi: <em>"Veritabanı şifresi şudur"</em>, <em>"Dil Türkçe olsun"</em>, <em>"Hata kayıtları şu seviyede olsun"</em>. Programınız bu notları okuyup davranışını ona göre değiştirir.</p>
+<p>Linux terminalinizde de vardır — örneğin terminale <code>echo $HOME</code> yazın, ev dizininizi yazar; bu bir ortam değişkenidir. Tıpkı <code>$USER</code>, <code>$PATH</code> gibi.</p>
+<p><strong>Konteynerlerde neden önemli?</strong> Aynı imajı farklı ortamlarda (geliştirme/üretim) farklı ayarlarla çalıştırmanın en temiz yoludur. Şifreyi, dil ayarını, dış servis adreslerini koda gömmeden dışarıdan değiştirebilirsiniz.</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Dockerfile'da ENV tanımlama</span></div>
+    <pre><code>ENV PYTHON_VERSION=3.12
+ENV PATH="/app/bin:$PATH"             <span class="comment"># Mevcut PATH'i koruyup başına ekleme</span>
+
+<span class="comment"># Tek satırda birden çok değişken:</span>
 ENV NODE_ENV=production \\
-    LOG_LEVEL=info</code></pre>
+    LOG_LEVEL=info \\
+    PORT=8080</code></pre>
+</div>
 
-<h3>EXPOSE — Dokümantasyon Amaçlı Port</h3>
-<pre><code>EXPOSE 8080
-EXPOSE 80 443/tcp 53/udp</code></pre>
-<p><code>EXPOSE</code> sadece <strong>belgeleme</strong> amaçlıdır — "bu imaj bu portu dinler" der. Portu dışarı gerçekten açmaz; onu <code>docker run -p</code> yapar.</p>
+<p><strong>Konteyner içinden nasıl okunur?</strong> Uygulamanız hangi dilde yazılmış olursa olsun bir yolu vardır:</p>
+<pre><code><span class="comment"># Bash içinde:</span>
+echo $LOG_LEVEL
 
-<h3>VOLUME — Mount Noktası Belirtme</h3>
-<pre><code>VOLUME ["/data"]
-<span class="comment"># "Bu klasör volume olmalı" der. docker run sırasında -v ile bağlanması gerektiğini işaret eder.</span></code></pre>
+<span class="comment"># Python:</span>
+import os
+os.getenv("LOG_LEVEL", "default-değer")
 
-<h3>USER — Hangi Kullanıcıyla</h3>
-<pre><code>RUN useradd -m app
+<span class="comment"># Node.js:</span>
+process.env.LOG_LEVEL
+
+<span class="comment"># Go:</span>
+os.Getenv("LOG_LEVEL")</code></pre>
+
+<p><strong>Çalıştırırken üzerine yazmak:</strong> Dockerfile'da varsayılan değer verirsiniz ama <code>docker run</code> sırasında <code>-e</code> bayrağı ile değiştirebilirsiniz:</p>
+<pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-e</span> <span class="argument">LOG_LEVEL=debug</span> <span class="flag">-e</span> <span class="argument">PORT=9000 benim-imaj</span>
+
+<span class="comment"># Veya bir dosyadan toplu olarak:</span>
+<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">--env-file</span> <span class="argument">prod.env benim-imaj</span></code></pre>
+
+<div class="info-box warning">
+    <div class="info-box-title">⚠️ Sırları (şifre, API anahtarı) ENV'e Hard-Code Etmeyin!</div>
+    <code>ENV DB_PASSWORD=12345</code> yazarsanız bu şifre imajın <strong>içinde</strong> kalır; imajı indiren herkes <code>docker history</code> ile görebilir. Bunun yerine: dockerfile'a yazmayın, sadece <code>docker run -e</code> veya <code>--env-file</code> ile çalışma anında verin.
+</div>
+
+<h3>EXPOSE — Hangi Portu Dinlediğimizi Belirtmek</h3>
+
+<p><strong>Önce port nedir?</strong> Bir bilgisayarın "kapı numarası" gibi düşünün. Bir web sunucusu çalışırken belirli bir port üzerinden gelen istekleri dinler — örneğin NGINX genelde 80, Flask 5000, Node.js 3000. Aynı anda farklı programlar farklı portları dinleyebilir.</p>
+
+<p>Bir konteyner kendi içinde bir mini sanal makine gibidir. İçinde bir uygulama port 5000'i dinliyor olabilir, ama bu port konteynerin <strong>içine</strong> aittir — sanki uygulamanız ada üzerinde bir evdedir ve sadece o adadaki bağlantıları kabul eder.</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>EXPOSE örnekleri</span></div>
+    <pre><code>EXPOSE 8080
+EXPOSE 80 443
+EXPOSE 53/udp                         <span class="comment"># Protokol de belirtilebilir (varsayılan tcp)</span></code></pre>
+</div>
+
+<p><strong>Burada kafa karıştırıcı kısım:</strong> <code>EXPOSE</code> <strong>portu gerçekten açmaz</strong>. Tarayıcınızla konteynere bağlanmaz. Peki ne yapar?</p>
+
+<ul>
+    <li><strong>İlan tahtası gibidir:</strong> <em>"Bu imajdaki uygulama 5000 portunu dinler — kullanan kişi bunu bilsin"</em> der. Belgeleme amaçlıdır.</li>
+    <li><code>docker inspect imaj</code> komutuyla bu bilgi görünür; başkaları imajınızı nasıl çalıştıracağını anlar.</li>
+    <li><code>docker run -P</code> (büyük P) kullanırsanız Docker, <code>EXPOSE</code>'da yazan tüm portları rastgele host portlarına bağlar. <code>-p HOST:KONTEYNER</code> (küçük p) ise siz spesifik söylersiniz.</li>
+</ul>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Tipik Bir Senaryo</div>
+    <p>Flask uygulamanız konteyner içinde <code>port 5000</code>'i dinliyor:</p>
+    <pre><code><span class="comment"># Dockerfile:</span>
+EXPOSE 5000                    <span class="comment"># "Bu imaj 5000 dinler" notu</span>
+
+<span class="comment"># Çalıştırma:</span>
+docker run -p 8080:5000 ...    <span class="comment"># Host'taki 8080 ↔ konteynerdeki 5000</span>
+
+<span class="comment"># Tarayıcıdan:</span>
+http://localhost:8080          <span class="comment"># İstek host:8080 → konteyner:5000'e yönlendirilir</span></code></pre>
+    <p>Yani gerçek "kapıyı açan" şey <code>-p</code> bayrağıdır. <code>EXPOSE</code> sadece dökümandır. <code>EXPOSE</code> yazmasanız bile <code>-p</code> ile bağlanabilirsiniz; ama yazmak iyi bir alışkanlıktır.</p>
+</div>
+
+<h3>USER — Konteyneri Hangi Kullanıcıyla Çalıştırmalı?</h3>
+
+<p>Linux'ta her işlem bir kullanıcı adına çalışır. <code>root</code> (kök) kullanıcı her şeye yetkili "süper kullanıcı"dır — herhangi bir dosyayı silebilir, herhangi bir port açabilir, sistem ayarlarını değiştirebilir. Normal kullanıcılar daha kısıtlı yetkilere sahiptir.</p>
+
+<p><strong>Sorun:</strong> Docker konteynerleri varsayılan olarak <code>root</code> kullanıcısı ile çalışır. Konteyner izole olsa da, eğer:</p>
+<ul>
+    <li>Uygulamanızda bir güvenlik açığı varsa,</li>
+    <li>Konteynere host'tan bir klasör <code>-v</code> ile bağladıysanız,</li>
+    <li>Docker'da kaçış (escape) bir CVE varsa,</li>
+</ul>
+<p>...saldırgan <code>root</code> yetkisiyle ciddi zarar verebilir. Bu yüzden iyi pratik: <strong>kendi uygulamanız için sınırlı yetkili bir kullanıcı yaratıp ona geçmektir</strong>.</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Güvenli kullanıcı geçişi</span></div>
+    <pre><code>FROM python:3.12-slim
+
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+
+<span class="comment"># Önce kullanıcıyı oluştur (-m ev dizini açar):</span>
+RUN useradd -m -u 1000 app && chown -R app:app /app
+
+<span class="comment"># Bundan sonra konteyner "app" kullanıcısıyla çalışır:</span>
 USER app
-<span class="comment"># Sonraki komutlar ve konteyner, "app" kullanıcısı olarak çalışır.
-# Üretimde root'ta çalıştırmak güvenlik riskidir — USER kullanın.</span></code></pre>
 
-<h3>ARG — Build Zamanı Değişkeni</h3>
-<pre><code>ARG VERSION=1.0
+CMD ["python", "server.py"]</code></pre>
+</div>
+
+<p><strong>Önemli:</strong> <code>USER</code>'dan sonraki komutlar root olmadığı için artık <code>apt install</code>, <code>chown</code> gibi yetki isteyen şeyleri yapamazsınız. O yüzden önce tüm sistem işlerini bitirin, en sona <code>USER</code> yazın.</p>
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Hazır Hesap: Alpine ve Slim İmajlarında</div>
+    Bazı temel imajlar (örn. <code>node:20-alpine</code>) içinde zaten <code>node</code> adında hazır bir kullanıcı vardır. <code>USER node</code> yazıp doğrudan kullanabilirsiniz; her seferinde yeni kullanıcı yaratmaya gerek yok.
+</div>
+
+<h3>VOLUME — Veriyi Kalıcı Tutmak İçin Bir Klasörü İşaretle</h3>
+
+<p>Bir konteyner silindiğinde içindeki <strong>tüm dosyalar da yok olur</strong>. Bu çoğu zaman istediğimiz şeydir — uygulamayı yeniden başlatmak demek temiz başlangıç demek. Ama bir veritabanı düşünün: kullanıcı kayıtlarınız, ürünleriniz konteyner her durduğunda silinemez!</p>
+
+<p>Çözüm: konteyner içindeki belirli bir klasörü <strong>dışarıdaki</strong> kalıcı bir alana bağlamak. Buna <em>volume</em> denir. <code>docker run -v</code> ile bunu yapıyorduk. <code>VOLUME</code> talimatı ise Dockerfile yazarının okuyucuya şunu söylemesidir: <em>"Bu klasördeki veri kalıcı olmalı — burayı bir volume ile bağlamayı unutmayın!"</em></p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Volume tanımı</span></div>
+    <pre><code>FROM postgres:16
+
+VOLUME ["/var/lib/postgresql/data"]   <span class="comment"># Veritabanı verisinin yaşadığı yer</span>
+
+<span class="comment"># Kullanıcı çalıştırırken:</span>
+<span class="comment"># docker run -v db-veri:/var/lib/postgresql/data postgres:16</span></code></pre>
+</div>
+
+<ul>
+    <li><strong>Hatırlatma niteliğindedir</strong>: <code>EXPOSE</code> gibi, kullanıcı görsün diye yazılır.</li>
+    <li>Eğer kullanıcı <code>-v</code> ile bağlamazsa Docker yine de anonim bir volume oluşturup oraya bağlar — yani veri yine kaybolmaz, ama isimsiz olduğu için bulması zorlaşır.</li>
+    <li>Resmi imajların çoğunda (postgres, mysql, mongo, redis) bu tanım vardır; veritabanlarının ürettiği veriyi koruma altına alır.</li>
+</ul>
+
+<h3>ENTRYPOINT'in Ek Yüzü ve ARG — Build Zamanı Değişkenleri</h3>
+
+<p>Az önce <code>ENV</code>'i gördük; o, <strong>konteyner çalışırken</strong> var olan değişkendi. <code>ARG</code> ise sadece <strong>imaj inşa edilirken</strong> (build) yaşar; konteyner çalıştığında artık yoktur. Build sürecini parametreleştirmek için kullanılır — örneğin "hangi sürümü kuracağım" gibi.</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>ARG örneği</span></div>
+    <pre><code>FROM ubuntu:22.04
+
+<span class="comment"># Varsayılan değer; build sırasında değiştirilebilir:</span>
+ARG NODE_VERSION=20
 ARG BUILD_DATE
-RUN echo "Sürüm: $VERSION, Tarih: $BUILD_DATE"
 
-<span class="comment"># Build sırasında:
-# docker build --build-arg VERSION=2.0 --build-arg BUILD_DATE=2026-01-01 -t x .</span></code></pre>
+RUN echo "Node sürüm: $NODE_VERSION, tarih: $BUILD_DATE"
+RUN curl -fsSL https://deb.nodesource.com/setup_\${NODE_VERSION}.x | bash -
 
-<p><strong>ARG vs ENV farkı</strong>: ARG sadece build sırasında var, konteyner içinde yok. ENV ise konteyner çalışırken de vardır.</p>
+<span class="comment"># Build sırasında değiştirmek:</span>
+<span class="comment"># docker build --build-arg NODE_VERSION=22 --build-arg BUILD_DATE=2026-01-15 -t app .</span></code></pre>
+</div>
 
-<h3>HEALTHCHECK — Sağlık Kontrolü</h3>
-<pre><code>HEALTHCHECK <span class="flag">--interval=30s</span> <span class="flag">--timeout=3s</span> \\
-    CMD curl -f http://localhost/ || exit 1
-<span class="comment"># Docker her 30sn'de uygulamanın yaşadığını kontrol eder.</span></code></pre>
+<div class="info-box note">
+    <div class="info-box-title">📌 ARG vs ENV — Tek Tabloda</div>
+    <table>
+        <tr><th></th><th>ARG</th><th>ENV</th></tr>
+        <tr><td>Build sırasında okunabilir mi?</td><td>✅ Evet</td><td>✅ Evet</td></tr>
+        <tr><td>Konteyner çalışırken erişilebilir mi?</td><td>❌ Hayır</td><td>✅ Evet</td></tr>
+        <tr><td>Nasıl override edilir?</td><td><code>docker build --build-arg X=...</code></td><td><code>docker run -e X=...</code></td></tr>
+        <tr><td>Tipik kullanım</td><td>Build parametreleri (sürüm, mimari)</td><td>Runtime ayarları (log seviyesi, port)</td></tr>
+    </table>
+</div>
 
-<h3>LABEL — Etiket/Metadata</h3>
-<pre><code>LABEL maintainer="ahmet@example.com"
+<h3>HEALTHCHECK — Konteyner Sağ mı? (Sağlık Kontrolü)</h3>
+
+<p>Bir konteyner "çalışıyor" görünüp aslında <strong>askıda</strong> olabilir — süreç dönüyor ama yanıt vermiyor olabilir. <code>HEALTHCHECK</code>, Docker'a şunu söyler: <em>"Belirli aralıklarla şu komutu çalıştır; başarılıysa konteyner sağlıklı, değilse hasta say"</em>.</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>HEALTHCHECK örneği</span></div>
+    <pre><code>FROM nginx:alpine
+
+<span class="comment"># Her 30 saniyede bir, 3 saniye içinde yanıt almazsa hasta say.</span>
+<span class="comment"># 3 üst üste başarısız olunca "unhealthy" durumuna geç:</span>
+HEALTHCHECK <span class="flag">--interval=30s --timeout=3s --retries=3</span> \\
+    CMD curl <span class="flag">-f</span> http://localhost/ || exit 1</code></pre>
+</div>
+
+<p>Bunu kullandığınızda <code>docker ps</code> çıktısında bir kolon belirir: <code>STATUS  Up 2 minutes (healthy)</code> veya <code>(unhealthy)</code>. Docker Swarm, Kubernetes ya da otomatik yeniden başlatma kuralları bu bilgiyi kullanır — hasta konteyneri yeniden başlatabilir.</p>
+
+<h3>LABEL — İmaja Künye Eklemek (Metadata)</h3>
+
+<p>İmajınıza "etiketler" yapıştırmak gibidir. Asıl çalışmayı etkilemez; ama <code>docker inspect</code> ile görünür, kim oluşturmuş, hangi sürüm, hangi kaynak kodu deposundan derlendi gibi bilgileri saklar. CI/CD sistemleri ve otomasyon araçları bu etiketleri sıklıkla okur.</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Yaygın LABEL örnekleri</span></div>
+    <pre><code>LABEL maintainer="ahmet@example.com"
 LABEL version="1.0"
-LABEL description="Benim harika uygulamam"</code></pre>
+LABEL description="Müşteri ödeme servisi"
+
+<span class="comment"># OCI standartı (Open Container Initiative) etiketleri — endüstri standardı:</span>
+LABEL org.opencontainers.image.source="https://github.com/ahmet/odeme"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.version="1.4.2"</code></pre>
+</div>
 
 <h2>Gerçek Bir Örnek — Flask Web Uygulaması</h2>
 

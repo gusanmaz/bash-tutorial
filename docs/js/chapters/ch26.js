@@ -24,8 +24,57 @@ window.CHAPTERS.push({
     Docker Compose, <strong>tek bir YAML dosyasında</strong> tüm konteynerlerinizi, ağlarınızı ve volume'lerinizi tanımlamanıza izin verir. Sonra tek bir komutla hepsini başlatır, durdurur, yönetirsiniz.
 </div>
 
+<div class="info-box note">
+    <div class="info-box-title">📌 Bu Bölümün Yol Haritası</div>
+    <ol>
+        <li><strong>YAML nedir?</strong> — Compose dosyalarının dili.</li>
+        <li><strong>İlk Compose dosyası</strong> — Flask + Redis sayacı.</li>
+        <li><strong>YAML anatomisi</strong> — services, volumes, networks blokları.</li>
+        <li><strong>Compose komutları</strong> — up, down, logs, exec.</li>
+        <li><strong>Önemli özellikler</strong> — depends_on, healthcheck, env, networks.</li>
+        <li><strong>Gerçek dünya örnekleri</strong> — WordPress, tam stack geliştirme ortamı.</li>
+        <li><strong>İpuçları + kaynaklar</strong> — hot reload, dev/prod ayrımı, kitaplar, videolar.</li>
+    </ol>
+</div>
+
+<h2>Önce: YAML Nedir?</h2>
+<p>Compose dosyaları <strong>YAML</strong> (YAML Ain't Markup Language) adında bir formatta yazılır. Adı garip ama mantığı çok basit — bir nevi "girintilerle yazılmış sözlük". Şu üç şeyi bilmeniz yeterli:</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>YAML'in 3 temel yapısı</span></div>
+    <pre><code><span class="comment"># 1) Anahtar-değer çiftleri (iki nokta üst üste ile):</span>
+isim: ahmet
+yas: 30
+
+<span class="comment"># 2) İç içe nesneler (girinti ile, genelde 2 boşluk):</span>
+kullanici:
+  isim: ahmet
+  yas: 30
+  adres:
+    sehir: istanbul
+    posta: 34000
+
+<span class="comment"># 3) Listeler (tire ile):</span>
+meyveler:
+  - elma
+  - armut
+  - portakal
+<span class="comment"># Veya tek satırda: meyveler: [elma, armut, portakal]</span></code></pre>
+</div>
+
+<div class="info-box warning">
+    <div class="info-box-title">⚠️ YAML'de Girinti KUTSALDIR</div>
+    <ul>
+        <li>Girinti için <strong>sadece boşluk</strong> kullanın, asla TAB. Editörünüzü "tab → 2 boşluk" yapacak şekilde ayarlayın.</li>
+        <li>Aynı seviyedeki şeyler aynı miktar girintilenmiş olmalı. 2 boşluk seçtiyseniz hep 2 olsun.</li>
+        <li>İki noktadan sonra <strong>bir boşluk</strong> olmalı: <code>isim: ahmet</code> ✅, <code>isim:ahmet</code> ❌.</li>
+        <li><code>#</code> ile yorum satırı yazabilirsiniz.</li>
+    </ul>
+    <p>YAML hataları genelde "girinti yanlış" yüzünden olur. <code>docker compose config</code> komutu yazımınızı doğrulayıp hataları gösterir.</p>
+</div>
+
 <h2>İlk Compose Dosyası</h2>
-<p>Klasik örnek: Flask uygulaması + Redis önbelleği.</p>
+<p>Klasik örnek: Flask uygulaması + Redis önbelleği. Web sayfasını her açtığınızda Redis'te bir sayaç artar ve "Ben N. ziyaretçiyim" der.</p>
 
 <div class="code-block">
     <div class="code-block-header"><span>Proje yapısı</span></div>
@@ -71,21 +120,33 @@ CMD ["python", "app.py"]</code></pre>
 
 <div class="code-block">
     <div class="code-block-header"><span>docker-compose.yml — sihirli dosya</span></div>
-    <pre><code>services:
-  web:
-    build: .
+    <pre><code>services:                          <span class="comment"># "Şu konteynerleri istiyorum"</span>
+  web:                             <span class="comment"># 1. servis — adı "web"</span>
+    build: .                       <span class="comment"># Bu dizindeki Dockerfile'dan imaj yarat</span>
     ports:
-      - "8080:5000"
+      - "8080:5000"                <span class="comment"># host:8080 → konteyner:5000</span>
     depends_on:
-      - redis
+      - redis                      <span class="comment"># Önce redis servisi başlasın</span>
 
-  redis:
-    image: redis:7-alpine
+  redis:                           <span class="comment"># 2. servis — adı "redis"</span>
+    image: redis:7-alpine          <span class="comment"># Hazır imaj kullan (build etme)</span>
     volumes:
-      - redis-verisi:/data
+      - redis-verisi:/data         <span class="comment"># /data'yı kalıcı volume'e bağla</span>
 
-volumes:
+volumes:                           <span class="comment"># Named volume tanımı</span>
   redis-verisi:</code></pre>
+</div>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Bu Dosyayı Yorumlayalım</div>
+    <p>Dosyanın söylediği şey aslında basit: <em>"Bana iki konteyner çalıştır: birine 'web' de, bu dizindeki Dockerfile'dan inşa et ve 8080 portunu dışa aç. Diğerine 'redis' de, hazır redis imajını kullan ve verisini bir volume'de tut. Web, redis başlamadan başlamasın."</em></p>
+    <p><strong>Önceki bölümlerde <code>docker run</code> ile yaptığımız her şey</strong> burada YAML'a dönüştü:</p>
+    <ul>
+        <li><code>docker run -p 8080:5000</code> → <code>ports: ["8080:5000"]</code></li>
+        <li><code>docker run -v redis-verisi:/data</code> → <code>volumes: [redis-verisi:/data]</code></li>
+        <li><code>docker network create ...</code> → Compose otomatik bir ağ oluşturur ve tüm servisleri ona ekler.</li>
+    </ul>
+    <p>Yani Compose <strong>yeni sihir değil</strong> — sadece <code>docker run</code> komutlarınızın okunabilir bir özetidir.</p>
 </div>
 
 <div class="code-block">
@@ -114,30 +175,41 @@ volumes:
 
 <h2>docker-compose.yml Anatomisi</h2>
 
+<p>Bir Compose dosyasının üç ana bloğu vardır: <code>services</code>, <code>networks</code>, <code>volumes</code>. Her servis için kullanabileceğiniz alanların hepsi aşağıda — paniğe kapılmayın, çoğunu nadiren kullanacaksınız.</p>
+
 <div class="code-block">
     <div class="code-block-header"><span>Tam yapı</span></div>
     <pre><code>services:              <span class="comment"># Konteynerlerinizi burada tanımlarsınız</span>
   servis_ismi:
-    image: ...          <span class="comment"># Hazır imaj kullan</span>
-    build: ...          <span class="comment"># Ya da Dockerfile'dan build</span>
-    container_name: ...
-    ports: [...]        <span class="comment"># Port eşleme</span>
-    environment: {...}  <span class="comment"># Ortam değişkenleri</span>
-    env_file: [...]     <span class="comment"># .env dosyası</span>
-    volumes: [...]      <span class="comment"># Disk bağlama</span>
-    networks: [...]     <span class="comment"># Ağlar</span>
-    depends_on: [...]   <span class="comment"># Bu servis öncesinde başlamalı</span>
-    restart: ...        <span class="comment"># Yeniden başlatma politikası</span>
-    command: ...        <span class="comment"># Imajın CMD'sini geçersiz kıl</span>
-    healthcheck: {...}
-    deploy: {...}       <span class="comment"># Swarm için kaynak sınırı vs.</span>
+    image: ...          <span class="comment"># Hazır imaj kullan (örn: postgres:16)</span>
+    build: ...          <span class="comment"># Ya da bir Dockerfile'dan build et</span>
+    container_name: ... <span class="comment"># İsim ver (yoksa otomatik)</span>
+    ports: [...]        <span class="comment"># Host:konteyner port eşleme</span>
+    environment: {...}  <span class="comment"># Ortam değişkenleri (içeride)</span>
+    env_file: [...]     <span class="comment"># Değişkenleri dış dosyadan oku</span>
+    volumes: [...]      <span class="comment"># Disk bağlama (kalıcılık + bind mount)</span>
+    networks: [...]     <span class="comment"># Hangi ağ(lar)da olsun</span>
+    depends_on: [...]   <span class="comment"># Bundan önce şu servisler başlasın</span>
+    restart: ...        <span class="comment"># Çökerse yeniden başlasın mı?</span>
+    command: ...        <span class="comment"># İmajdaki CMD'nin yerine bu çalışsın</span>
+    healthcheck: {...}  <span class="comment"># "Hazır mıyım?" testi</span>
+    deploy: {...}       <span class="comment"># Swarm/üretim için kaynak sınırı</span>
 
-networks:              <span class="comment"># Özel ağlar</span>
+networks:              <span class="comment"># Özel ağ tanımları</span>
   ag_adi:
-    driver: bridge
+    driver: bridge      <span class="comment"># Varsayılan; nadiren değiştirilir</span>
 
-volumes:               <span class="comment"># Kalıcı diskler</span>
+volumes:               <span class="comment"># Named volume tanımları</span>
   volume_adi:</code></pre>
+</div>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Az Bilinen Üç Alan</div>
+    <ul>
+        <li><strong><code>command</code></strong>: Dockerfile'da <code>CMD ["python", "app.py"]</code> yazıyorsa konteyner onu çalıştırır. Ama Compose'da <code>command: ["python", "test.py"]</code> derseniz onun yerine bu çalışır. İmajı bozmadan farklı bir komut denemek için kullanışlıdır.</li>
+        <li><strong><code>healthcheck</code></strong>: Konteynerin gerçekten yanıt verir halde olup olmadığını periyodik test eder (Bölüm 25'te gördük). Diğer servisler <code>depends_on</code> ile bu sağlık durumunu bekleyebilir.</li>
+        <li><strong><code>deploy</code></strong>: Sadece Docker Swarm (orkestrasyon) ile çalıştırırken anlamlıdır — replica sayısı, CPU/RAM sınırı, yerleşim kuralları. Tek makinede Compose ile çalıştırıyorsanız <code>deploy</code> bloğunu çoğu zaman görmezden gelebilirsiniz (ama kaynak sınırları için bazen yine de yazılır).</li>
+    </ul>
 </div>
 
 <h2>Compose Komutları — Tam Referans</h2>
@@ -209,19 +281,26 @@ volumes:               <span class="comment"># Kalıcı diskler</span>
 
 <div class="info-box tip">
     <div class="info-box-title">💡 .env Dosyasıyla Yapılandırma</div>
-    Compose, çalıştığı dizindeki <code>.env</code> dosyasını otomatik okur:
-    <pre><code><span class="comment"># .env
+    <p>YAML dosyasının içinde <code>\${DEĞİŞKEN}</code> şeklinde "yer tutucular" kullanabilirsiniz. Compose, çalıştığı dizindeki <code>.env</code> adlı dosyayı <strong>otomatik olarak okur</strong> ve bu yer tutucuları gerçek değerlerle değiştirir. Tıpkı Bash'teki <code>\$değişken</code> mantığı gibi.</p>
+    <pre><code><span class="comment"># .env dosyası (proje dizininin kökünde, docker-compose.yml ile aynı yerde):</span>
 DB_PASSWORD=gizli_123
-WEB_PORT=8080</span></code></pre>
-    <pre><code><span class="comment"># docker-compose.yml</span>
+WEB_PORT=8080</code></pre>
+    <pre><code><span class="comment"># docker-compose.yml içinde değişken kullanımı:</span>
 services:
   web:
     ports:
-      - "\${WEB_PORT}:5000"
+      - "\${WEB_PORT}:5000"        <span class="comment"># Çalıştırma anında "8080:5000" olur</span>
   db:
     environment:
-      POSTGRES_PASSWORD: \${DB_PASSWORD}</code></pre>
-    Bu sayede sır bilgilerini YAML'e yazmazsınız; <code>.env</code> .gitignore'da tutulur.
+      POSTGRES_PASSWORD: \${DB_PASSWORD}   <span class="comment"># "gizli_123" olur</span>
+      <span class="comment"># Varsayılan değer:</span>
+      LOG_LEVEL: \${LOG_LEVEL:-info}        <span class="comment"># LOG_LEVEL yoksa "info"</span></code></pre>
+    <p><strong>Faydası:</strong></p>
+    <ul>
+        <li><strong>Sırları YAML'e yazmazsınız</strong>: <code>docker-compose.yml</code>'i git'e koyabilirsiniz; <code>.env</code> dosyasını <code>.gitignore</code>'a eklersiniz.</li>
+        <li><strong>Farklı ortamlar için farklı .env</strong>: <code>.env.dev</code>, <code>.env.prod</code> dosyaları tutup <code>docker compose --env-file .env.prod up</code> ile seçersiniz.</li>
+        <li><strong>Takım çalışması</strong>: <code>.env.example</code> adında "buraya bunlar gelecek" şablonu paylaşır, herkes kendi <code>.env</code>'ini doldurur.</li>
+    </ul>
 </div>
 
 <h3>volumes — Kalıcı Veri</h3>
@@ -245,30 +324,56 @@ volumes:
     <span class="comment"># driver: local   (varsayılan)</span></code></pre>
 </div>
 
-<h3>depends_on — Başlatma Sırası</h3>
+<h3>depends_on — Başlatma Sırası ve "Hazır Olma" Sorunu</h3>
+
+<p>Şu senaryoyu düşünün: bir web uygulaması var, başlar başlamaz veritabanına bağlanmaya çalışıyor. Eğer veritabanı henüz hazır değilse uygulama "bağlantı reddedildi" hatasıyla çöker. Bunu nasıl engelleriz?</p>
+
+<p><strong>İlk çözüm denemesi: <code>depends_on</code> kullanmak.</strong></p>
+
 <div class="code-block">
-    <div class="code-block-header"><span>Basit ve "healthy" formlu</span></div>
+    <div class="code-block-header"><span>Basit depends_on — yetersizdir</span></div>
     <pre><code>services:
   web:
     depends_on:
       - db                  <span class="comment"># db BAŞLATILDIKTAN sonra web başlar</span>
+  db:
+    image: postgres:16</code></pre>
+</div>
 
-  <span class="comment"># DİKKAT: "başlatıldı" ≠ "hazır". Postgres başlamış olabilir
-  # ama henüz bağlantı kabul etmiyor olabilir. İdeal yaklaşım:</span>
+<p>Bu yetmeyebilir. Neden? Çünkü <strong>"başlatıldı" ≠ "hazır"</strong>. <code>depends_on</code> sadece "PostgreSQL konteynerinin <em>süreci</em> başladı mı?" diye bakar. Ama PostgreSQL süreci başlasa da, içeride şu an veritabanı dosyalarını yüklüyor, schema'yı kontrol ediyor olabilir — daha bağlantı kabul etmeye <strong>hazır değil</strong>. Bu aşamada web uygulamanız bağlanmaya çalışırsa hata alır.</p>
 
-  web-daha-iyi:
+<p><strong>Doğru çözüm: <code>healthcheck</code> + <code>condition: service_healthy</code>.</strong></p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Hazır olunca başlat</span></div>
+    <pre><code>services:
+  web:
     depends_on:
       db:
-        condition: service_healthy
-    <span class="comment"># db için healthcheck tanımlıysa, web ONUN "healthy" olmasını bekler</span>
+        condition: service_healthy   <span class="comment"># db "sağlıklı" olunca web başla</span>
 
   db:
     image: postgres:16
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 3s
-      retries: 5</code></pre>
+      <span class="comment"># pg_isready: Postgres'in bağlantı kabul edip etmediğini test eden komut.
+      # Her veritabanı imajının kendi "hazır mıyım?" komutu vardır.</span>
+      interval: 5s              <span class="comment"># Her 5 saniyede bir test et</span>
+      timeout: 3s               <span class="comment"># 3 saniyede cevap gelmezse başarısız say</span>
+      retries: 5                <span class="comment"># 5 üst üste başarısız = "unhealthy"</span></code></pre>
+</div>
+
+<p>Artık akış: Compose db konteynerini başlatır → her 5 saniyede <code>pg_isready</code> ile test eder → ilk başarılı testten sonra db "healthy" işaretlenir → web servisi ancak o zaman başlatılır. Klasik bir "race condition" sorunu çözüldü.</p>
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Healthcheck Komutları — Servise Göre Değişir</div>
+    <ul>
+        <li><strong>PostgreSQL</strong>: <code>pg_isready -U kullanici</code></li>
+        <li><strong>MySQL</strong>: <code>mysqladmin ping -h localhost</code></li>
+        <li><strong>Redis</strong>: <code>redis-cli ping</code></li>
+        <li><strong>HTTP servisleri</strong>: <code>curl -f http://localhost/sağlık</code> veya <code>wget --spider ...</code></li>
+    </ul>
+    <p>Her resmi imajın Docker Hub sayfasında genelde örnek healthcheck'i de yer alır.</p>
 </div>
 
 <h3>restart — Konteyner Çökerse</h3>
@@ -277,27 +382,45 @@ restart: always            <span class="comment"># Her durumda yeniden başlat (
 restart: on-failure        <span class="comment"># Sadece 0'dan farklı exit kodda</span>
 restart: unless-stopped    <span class="comment"># always gibi ama "docker stop" saygı</span></code></pre>
 
-<h3>networks — Özel Ağlar</h3>
+<h3>networks — Özel Ağlar ve Güvenlik Bölmeleri</h3>
+
+<p>Varsayılan olarak Compose, tüm servisleriniz için tek bir ağ oluşturur ve hepsini ona koyar. Çoğu durumda bu yeter. Ama büyük projelerde <strong>güvenlik için</strong> ağları bölmek isteyebilirsiniz: bir geminin su geçirmez bölmeleri gibi.</p>
+
+<p>Tipik desen: bir "ön ağ" (load balancer, web sunucusu) + bir "arka ağ" (veritabanı, cache). Veritabanı sadece arka ağda olur — böylece <strong>dış dünyayla konuşan</strong> servisler kazara DB'ye düz erişemez.</p>
+
 <div class="code-block">
-    <div class="code-block-header"><span>Servisleri farklı ağlara ayırmak</span></div>
+    <div class="code-block-header"><span>İki katmanlı mimari</span></div>
     <pre><code>services:
-  web:
+  lb:                            <span class="comment"># Load balancer / NGINX (dışa açık)</span>
+    image: nginx
+    ports: ["80:80"]
     networks:
-      - arka
-      - on
+      - on                       <span class="comment"># Sadece ön ağda</span>
 
-  db:
+  web:                           <span class="comment"># Uygulama sunucusu</span>
+    build: ./app
     networks:
-      - arka         <span class="comment"># db sadece arka ağda → web erişir, dış dünya erişmez</span>
+      - on                       <span class="comment"># Ön ağda (lb'den istek alır)</span>
+      - arka                     <span class="comment"># Arka ağda da (db'ye bağlanır)</span>
 
-  lb:
+  db:                            <span class="comment"># Veritabanı</span>
+    image: postgres:16
     networks:
-      - on
+      - arka                     <span class="comment"># SADECE arka ağda — lb göremez</span>
 
 networks:
-  arka:
-  on:</code></pre>
+  on:                            <span class="comment"># Ön ağ (frontend)</span>
+  arka:                          <span class="comment"># Arka ağ (backend)</span></code></pre>
 </div>
+
+<p><strong>Sonuç:</strong></p>
+<ul>
+    <li><code>lb</code> ve <code>web</code> birbirine "on" ağında konuşabilir.</li>
+    <li><code>web</code> ve <code>db</code> birbirine "arka" ağında konuşabilir.</li>
+    <li><code>lb</code> ile <code>db</code> aynı ağda olmadığı için birbirini <strong>göremez bile</strong>. Bu güvenlik açısından harika: dışa açık bir servis derinlerdeki veritabanına direkt bağlanamaz.</li>
+</ul>
+
+<p>Bu desen, OWASP gibi güvenlik kılavuzlarının önerdiği <em>"defense in depth"</em> (katmanlı savunma) prensibinin Docker'daki uygulamasıdır.</p>
 
 <h2>Gerçek Dünya Örneği 1 — WordPress + MySQL</h2>
 
@@ -431,22 +554,33 @@ networks:
 </div>
 
 <h3>Profiles — İsteğe Bağlı Servisler</h3>
+<p>Bazı servisleri sadece <strong>belirli durumlarda</strong> çalıştırmak isteyebilirsiniz. Mesela bir veritabanı yönetim paneli (pgAdmin) sadece geliştirme sırasında lazım — üretime çıkarken bunu çalıştırmak hem boşa kaynak yer hem güvenlik riski. <code>profiles</code> alanı bunu yönetir.</p>
+
 <div class="code-block">
     <div class="code-block-header"><span>Sadece istediğinizde çalışsın</span></div>
     <pre><code>services:
-  api: { ... }
-  db:  { ... }
+  api: { ... }                    <span class="comment"># Profile yok → her zaman başlar</span>
+  db:  { ... }                    <span class="comment"># Profile yok → her zaman başlar</span>
 
   pgadmin:
     image: dpage/pgadmin4
-    profiles: ["dev"]
+    profiles: ["dev"]             <span class="comment"># Sadece "dev" profilindeyken başlar</span>
 
-<span class="comment"># Varsayılan (profile olmadan) pgadmin başlamaz:</span>
+  loadtester:
+    image: locustio/locust
+    profiles: ["test"]            <span class="comment"># Sadece "test" profilindeyken başlar</span>
+
+<span class="comment"># Varsayılan kullanım (api + db başlar, pgadmin/loadtester başlamaz):</span>
 <span class="prompt">$</span> <span class="command">docker compose up</span>
 
-<span class="comment"># Dev profilinde pgadmin de başlar:</span>
-<span class="prompt">$</span> <span class="command">docker compose</span> <span class="flag">--profile</span> <span class="argument">dev up</span></code></pre>
+<span class="comment"># Geliştirme: api + db + pgadmin başlar:</span>
+<span class="prompt">$</span> <span class="command">docker compose</span> <span class="flag">--profile</span> <span class="argument">dev up</span>
+
+<span class="comment"># Yük testi: api + db + loadtester başlar:</span>
+<span class="prompt">$</span> <span class="command">docker compose</span> <span class="flag">--profile</span> <span class="argument">test up</span></code></pre>
 </div>
+
+<p>Yani aynı <code>docker-compose.yml</code> dosyası ile birden çok kullanım senaryosu yönetirsiniz — ayrı dosyalar tutmaktansa.</p>
 
 <h2>Hazır Popüler Docker İmajları ve Tek-Komut Denemeler</h2>
 
