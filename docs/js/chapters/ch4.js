@@ -215,32 +215,57 @@ install (1) - copy files and set attributes</span>
     quiz: [
         {
             question: "'man' komutunun açılımı nedir?",
-            options: ["Manager", "Manual", "Mandatory", "Manipulate"],
-            correct: 1,
+            options: [
+                "Mandatory",
+                "Manager",
+                "Manipulate",
+                "Manual"
+            ],
+            correct: 3,
             explanation: "man = Manual (Kılavuz). Linux'un dahili yardım sistemidir."
         },
         {
             question: "man sayfasında arama yapmak için hangi tuş kullanılır?",
-            options: ["Ctrl+F", "/ (eğik çizgi)", "s tuşu", "f tuşu"],
-            correct: 1,
+            options: [
+                "/ (eğik çizgi)",
+                "Ctrl+F ve işlemi sonlandırır",
+                "s tuşu",
+                "f tuşu"
+            ],
+            correct: 0,
             explanation: "man sayfasında / tuşuna basıp aranacak kelimeyi yazarsınız. n ile sonraki eşleşmeye gidersiniz."
         },
         {
             question: "ls [SEÇENEK]... [DOSYA]... söz diziminde [ ] ne anlama gelir?",
-            options: ["Zorunlu", "İsteğe bağlı (optional)", "Tekrarlanamaz", "Sadece bir kez kullanılır"],
-            correct: 1,
+            options: [
+                "Tekrarlanamaz",
+                "Sadece bir kez kullanılır",
+                "Zorunlu ve işlemi sonlandırır",
+                "İsteğe bağlı (optional)"
+            ],
+            correct: 3,
             explanation: "Köşeli parantez [ ] içindeki parametreler isteğe bağlıdır (optional). Kullanılmayabilir."
         },
         {
             question: "'man -k copy' komutu ne yapar?",
-            options: ["copy komutunun kılavuzunu açar", "Tüm kılavuzlarda 'copy' kelimesini arar", "Dosya kopyalar", "man sayfasını kopyalar"],
-            correct: 1,
+            options: [
+                "Tüm kılavuzlarda 'copy' kelimesini arar",
+                "man sayfasını kopyalar — bu davranış beklenmez",
+                "Dosya kopyalar yerine farklı bir komut",
+                "copy komutunun kılavuzunu açar"
+            ],
+            correct: 0,
             explanation: "-k (keyword) tüm man sayfalarının açıklamalarında anahtar kelime araması yapar."
         },
         {
             question: "Bir komutun dahili mi, harici mi olduğunu hangi komutla öğrenirsiniz?",
-            options: ["which", "type", "file", "man"],
-            correct: 1,
+            options: [
+                "type",
+                "man",
+                "file",
+                "which"
+            ],
+            correct: 0,
             explanation: "'type' komutu, bir komutun shell builtin (dahili), alias (takma ad) veya harici program mı olduğunu söyler."
         }
     ]

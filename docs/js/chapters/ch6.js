@@ -375,56 +375,101 @@ window.CHAPTERS.push({
     quiz: [
         {
             question: "Vi'da metin yazmaya başlamak için hangi tuşa basılır?",
-            options: ["w", "e", "i", "t"],
-            correct: 2,
+            options: [
+                "t",
+                "w",
+                "e",
+                "i"
+            ],
+            correct: 3,
             explanation: "'i' tuşu Insert (Ekleme) moduna geçirir. Bu modda metin yazabilirsiniz."
         },
         {
             question: "Nano'da dosyayı kaydetmek için hangi kısayol kullanılır?",
-            options: ["Ctrl+S", "Ctrl+O", "Ctrl+W", ":w"],
-            correct: 1,
+            options: [
+                "Ctrl+W",
+                ":w",
+                "Ctrl+S",
+                "Ctrl+O"
+            ],
+            correct: 3,
             explanation: "Nano'da Ctrl+O (Write Out) dosyayı kaydeder. Ctrl+S değil!"
         },
         {
             question: "Vi'da dosyayı kaydedip çıkmak için hangi komut kullanılır?",
-            options: [":q!", ":wq", "Ctrl+X", ":save"],
+            options: [
+                ":q!",
+                ":wq",
+                "Ctrl+X",
+                ":save"
+            ],
             correct: 1,
             explanation: ":wq = write (kaydet) + quit (çık). Dosyayı kaydeder ve Vi'den çıkar."
         },
         {
             question: "Emacs'tan çıkmak için hangi kısayol kullanılır?",
-            options: [":q!", "Ctrl+X Ctrl+C", "Ctrl+Q", "Alt+F4"],
-            correct: 1,
+            options: [
+                "Alt+F4",
+                ":q! ve işlemi sonlandırır",
+                "Ctrl+Q",
+                "Ctrl+X Ctrl+C"
+            ],
+            correct: 3,
             explanation: "Emacs'ta C-x C-c (Ctrl+X, ardından Ctrl+C) editörden çıkar."
         },
         {
             question: "Hangi editör neredeyse her Linux/Unix sisteminde varsayılan olarak bulunur?",
-            options: ["Nano", "Emacs", "Vi/Vim", "VS Code"],
-            correct: 2,
+            options: [
+                "Emacs",
+                "Vi/Vim",
+                "VS Code",
+                "Nano"
+            ],
+            correct: 1,
             explanation: "Vi (veya Vim) neredeyse her Linux/Unix sisteminde bulunur. Minimal sunucularda bile mevcuttur."
         },
         {
             question: "Vim'i interaktif olarak öğrenmek için terminalde hangi komut çalıştırılır?",
-            options: ["vim --help", "vimtutor", "man vim", "vim --learn"],
-            correct: 1,
+            options: [
+                "vim --help",
+                "vim --learn",
+                "vimtutor",
+                "man vim"
+            ],
+            correct: 2,
             explanation: "vimtutor komutu ~30 dakikalık interaktif bir eğitim başlatır. Vim öğrenmenin en iyi yoludur."
         },
         {
             question: "GUI alışkanlıklarını (Ctrl+S, Ctrl+C, Ctrl+V) terminal'de kullanmak isteyen biri hangi editörü tercih etmeli?",
-            options: ["vi", "emacs", "ed", "micro"],
+            options: [
+                "vi",
+                "ed",
+                "emacs",
+                "micro"
+            ],
             correct: 3,
             explanation: "micro editörü Ctrl+S (kaydet), Ctrl+C/Ctrl+V (kopyala/yapıştır), Ctrl+Z (geri al) gibi bilindik GUI kısayollarını terminal'de kullanmanızı sağlar."
         },
         {
             question: "Unix'in ilk metin editörü hangisidir ve hangi yılda yazılmıştır?",
-            options: ["vi (1976)", "ed (1969)", "nano (1999)", "emacs (1976)"],
-            correct: 1,
+            options: [
+                "emacs (1976)",
+                "vi (1976)",
+                "nano (1999)",
+                "ed (1969)"
+            ],
+            correct: 3,
             explanation: "ed, Ken Thompson tarafından 1969'da yazılmıştır. Bir satır editörüdür — ekranı yenilemez, satır numarasıyla çalışırsınız. vi, sed ve grep'in atasıdır."
         },
         {
             question: "SSH ile uzak sunucuya bağlandığınızda bir yapılandırma dosyasını düzenlemeniz gerekiyor. Neden terminal editörü bilmek zorunludur?",
-            options: ["GUI editörler daha yavaştır", "SSH bağlantısında GUI yoktur", "Terminal editörleri dosya izinlerini otomatik ayarlar", "Sunucularda dosya sistemi farklıdır"],
-            correct: 1,
+            options: [
+                "GUI editörler daha yavaştır ve işlemi sonlandırır",
+                "Sunucularda dosya sistemi farklıdır",
+                "Terminal editörleri dosya izinlerini otomatik ayarlar",
+                "SSH bağlantısında GUI yoktur"
+            ],
+            correct: 3,
             explanation: "SSH bağlantısı sadece metin tabanlı terminal erişimi sağlar. GUI (grafik arayüz) yoktur, bu yüzden VI, nano gibi terminal editörlerini bilmeniz gerekir."
         }
     ]

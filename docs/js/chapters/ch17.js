@@ -380,44 +380,79 @@ dictcheck = 1</code></pre>
     quiz: [
         {
             question: "Root kullanıcının UID'si kaçtır?",
-            options: ["1", "0", "1000", "999"],
-            correct: 1,
+            options: [
+                "0",
+                "1000",
+                "999",
+                "1"
+            ],
+            correct: 0,
             explanation: "Root kullanıcının UID'si 0'dır. Normal kullanıcılar 1000'den, sistem kullanıcıları 1-999 arasından başlar."
         },
         {
             question: "Linux parolalarının hash'leri hangi dosyada saklanır?",
-            options: ["/etc/passwd", "/etc/shadow", "/etc/login.defs", "/etc/security"],
-            correct: 1,
+            options: [
+                "/etc/security",
+                "/etc/passwd",
+                "/etc/shadow",
+                "/etc/login.defs"
+            ],
+            correct: 2,
             explanation: "Parolalar /etc/shadow dosyasında saklanır. /etc/passwd herkes tarafından okunabilir olduğu için parolalar oradan ayrılmıştır."
         },
         {
             question: "'sudo usermod -aG docker ali' komutunda -a bayrağı olmasaydı ne olurdu?",
-            options: ["Hiçbir fark olmazdı", "Ali docker dışındaki tüm gruplardan çıkarılırdı", "Docker grubu silinirdi", "Komut hata verirdi"],
+            options: [
+                "Bu senaryoda hiçbir fark olmazdı ve işlemi sonlandırır",
+                "Ali docker dışındaki tüm gruplardan çıkarılırdı",
+                "Docker grubu silinirdi yerine farklı bir komut",
+                "Komut hata verirdi — bu davranış beklenmez"
+            ],
             correct: 1,
             explanation: "-a (append) olmadan -G kullanılırsa, kullanıcının tüm ek grupları belirtilenlerle değiştirilir. Yani ali sadece docker grubunda kalırdı!"
         },
         {
             question: "sudoers dosyasını düzenlemek için hangi komut kullanılmalıdır?",
-            options: ["nano /etc/sudoers", "vim /etc/sudoers", "visudo", "sudo edit sudoers"],
+            options: [
+                "sudo edit sudoers",
+                "vim /etc/sudoers",
+                "visudo",
+                "nano /etc/sudoers"
+            ],
             correct: 2,
             explanation: "visudo sözdizimi kontrolü yapar. Doğrudan düzenleme hatalı sudoers dosyası oluşturabilir ve sizi sistemden kilitleyebilir."
         },
         {
             question: "Parola hash'indeki 'salt' (tuz) ne işe yarar?",
-            options: ["Parolayı uzatır", "Rainbow table saldırılarını önler", "Parolayı görünür yapar", "Hash türünü belirler"],
-            correct: 1,
+            options: [
+                "Hash türünü belirler",
+                "Parolayı uzatır ve işlemi sonlandırır",
+                "Rainbow table saldırılarını önler",
+                "Parolayı görünür yapar"
+            ],
+            correct: 2,
             explanation: "Salt, her parolaya rastgele veri ekler. Aynı parola bile farklı salt ile farklı hash üretir, bu da rainbow table saldırılarını etkisiz kılar."
         },
         {
             question: "su ile sudo arasındaki temel fark nedir?",
-            options: ["su daha hızlıdır", "sudo hedef kullanıcının parolasını ister, su kendi parolanızı", "su hedef kullanıcının parolasını ister, sudo kendi parolanızı", "İkisi aynıdır"],
+            options: [
+                "sudo hedef kullanıcının parolasını ister, su kendi parolanızı",
+                "su daha hızlıdır ve işlemi sonlandırır",
+                "su hedef kullanıcının parolasını ister",
+                "İkisi aynıdır — bu davranış beklenmez"
+            ],
             correct: 2,
             explanation: "su hedef kullanıcının parolasını ister (root parolası paylaşılmalı). sudo kendi parolanızı ister ve her komutu loglar — daha güvenli."
         },
         {
             question: "Kullanıcının bir sonraki girişte parola değiştirmesini zorlamak için hangi komut kullanılır?",
-            options: ["passwd -lock ali", "chage -d 0 ali", "usermod -p ali", "forcepwd ali"],
-            correct: 1,
+            options: [
+                "chage -d 0 ali",
+                "passwd -lock ali",
+                "forcepwd ali",
+                "usermod -p ali"
+            ],
+            correct: 0,
             explanation: "chage -d 0, parolanın son değişiklik tarihini 0'a ayarlar (1 Ocak 1970). Bu, sistem parolayı 'süresi dolmuş' olarak görür ve değişim zorlar."
         }
     ]

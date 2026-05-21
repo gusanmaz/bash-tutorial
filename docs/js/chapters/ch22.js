@@ -715,6 +715,20 @@ info locals                → frame variable</code></pre>
     <tr><td>Kütüphane sorunu</td><td>ltrace, ldd</td><td>Hangi lib çağrılıyor, doğru versiyonda mı?</td></tr>
 </table>
 
+<h2>Sonraki Adımlar — Linux CLI Tamamlama (Bölüm 23–27)</h2>
+<div class="info-box tip">
+    <div class="info-box-title">💡 DevOps öncesi son parça</div>
+    Geliştirme araçlarını ve hata ayıklamayı öğrendiniz. Docker'a geçmeden önce sunucuda her gün kullanılan operasyonel komutları tamamlayın:
+    <ul style="margin:0.5em 0;padding-left:1.2em">
+        <li><strong>Bölüm 23</strong> — Disk, RAM, mount (<code>df</code>, <code>du</code>, <code>free</code>, <code>lsblk</code>)</li>
+        <li><strong>Bölüm 24</strong> — Arşiv ve sıkıştırma (<code>tar</code>, <code>gzip</code>, <code>zip</code>)</li>
+        <li><strong>Bölüm 25</strong> — Ağ ve DNS (<code>ping</code>, <code>ip</code>, <code>ss</code>, <code>dig</code>)</li>
+        <li><strong>Bölüm 26</strong> — Loglar ve temel güvenlik (<code>/var/log</code>, <code>ufw</code>)</li>
+        <li><strong>Bölüm 27</strong> — <code>locate</code>, <code>less</code>, <code>diff</code></li>
+    </ul>
+    Ardından <strong>Bölüm 28</strong>'den itibaren Docker, CI/CD ve Kubernetes yolculuğu başlar.
+</div>
+
 <h2>Dış Kaynaklar</h2>
 <div class="info-box tip">
     <div class="info-box-title">📚 İleri Okuma</div>
@@ -732,56 +746,101 @@ info locals                → frame variable</code></pre>
     quiz: [
         {
             question: "'Bug' (hata) kelimesinin yazılımda kullanımı nereden geliyor?",
-            options: ["Bir programlama dili komutundan", "Grace Hopper'ın bilgisayarda gerçek bir böcek bulmasından", "UNIX'in kurucusunun soyadından", "İngilizce 'big' kelimesinin yanlış yazımından"],
-            correct: 1,
+            options: [
+                "Bir programlama dili komutundan ve işlemi sonlandırır",
+                "UNIX'in kurucusunun soyadından yerine farklı bir komut",
+                "İngilizce 'big' kelimesinin yanlış yazımından — bu davranış beklenmez",
+                "Grace Hopper'ın bilgisayarda gerçek bir böcek bulmasından"
+            ],
+            correct: 3,
             explanation: "1947'de Grace Hopper ve ekibi Harvard Mark II bilgisayarında arıza ararken gerçek bir güve (moth) buldular. O günden beri yazılım hatalarına 'bug', hata ayıklamaya 'debugging' denir."
         },
         {
             question: "Call Stack (Çağrı Yığını) ne işe yarar?",
-            options: ["Dosyaları sıralar", "Fonksiyonların birbirini çağırma zincirini ve yerel değişkenleri takip eder", "Bellek sızıntılarını bulur", "Ağ bağlantılarını izler"],
+            options: [
+                "Ağ bağlantılarını izler — bu davranış beklenmez",
+                "Fonksiyonların birbirini çağırma zincirini ve yerel",
+                "Bu senaryoda dosyaları sıralar ve işlemi sonlandırır",
+                "Bellek sızıntılarını bulur yerine farklı bir komut"
+            ],
             correct: 1,
             explanation: "Call Stack, 'main() → hesapla() → topla()' gibi fonksiyon çağrı zincirini tutar. Her çağrıda stack'e bir 'frame' (yerel değişkenler + dönüş adresi) eklenir. GDB'de 'backtrace' komutu ile bu zinciri görebilirsiniz."
         },
         {
             question: "Stack ile Heap arasındaki temel fark nedir?",
-            options: ["Stack daha büyüktür", "Stack otomatik yönetilir, Heap'i programcı yönetir (malloc/free)", "Heap daha hızlıdır", "Fark yoktur"],
-            correct: 1,
+            options: [
+                "Fark yoktur — bu davranış beklenmez",
+                "Heap daha hızlıdır",
+                "Stack otomatik yönetilir",
+                "Stack daha büyüktür"
+            ],
+            correct: 2,
             explanation: "Stack'teki değişkenler fonksiyon bitince otomatik silinir. Heap'te ise malloc() ile aldığınız belleği free() ile geri vermeniz gerekir — unutursanız memory leak oluşur."
         },
         {
             question: "IDE'lerdeki 'kod tamamlama' özelliği arka planda hangi teknolojiyi kullanır?",
-            options: ["GDB", "Language Server Protocol (LSP)", "strace", "Valgrind"],
-            correct: 1,
+            options: [
+                "Language Server Protocol (LSP)",
+                "GDB ve işlemi sonlandırır",
+                "strace yerine farklı bir komut",
+                "Valgrind"
+            ],
+            correct: 0,
             explanation: "LSP (Language Server Protocol), editör ile dil analiz sunucusu (clangd, pyright, gopls vb.) arasındaki iletişim protokolüdür. Kod tamamlama, hata gösterimi, tanıma gitme gibi özellikler LSP aracılığıyla sağlanır."
         },
         {
             question: "strace ne izler?",
-            options: ["Kütüphane çağrılarını", "Sistem çağrılarını (syscalls) — programın çekirdeğe yaptığı istekleri", "Bellek sızıntılarını", "Ağ trafiğini"],
-            correct: 1,
+            options: [
+                "Ağ trafiğini — bu davranış beklenmez",
+                "Kütüphane çağrılarını",
+                "Bellek sızıntılarını",
+                "Sistem çağrılarını (syscalls)"
+            ],
+            correct: 3,
             explanation: "strace, programın çekirdeğe (kernel) yaptığı sistem çağrılarını (open, read, write, mmap vb.) izler. Programın hangi dosyaları açtığını, ağa nasıl bağlandığını gösterir. Kütüphane çağrıları için ltrace kullanılır."
         },
         {
             question: "Valgrind'in Memcheck aracı ne tespit eder?",
-            options: ["CPU kullanımını", "Ağ hatalarını", "Bellek sızıntılarını ve hatalı bellek erişimlerini", "Disk performansını"],
-            correct: 2,
+            options: [
+                "Bellek sızıntılarını ve hatalı bellek",
+                "Disk performansını — bu davranış beklenmez",
+                "Ağ hatalarını (Docker CLI'da yoktur)",
+                "CPU kullanımını ve işlemi sonlandırır"
+            ],
+            correct: 0,
             explanation: "Memcheck; bellek sızıntılarını (memory leak), başlatılmamış bellek kullanımını, serbest bırakılmış belleğe erişimi ve buffer overflow'ları tespit eder."
         },
         {
             question: "GDB'de 'backtrace' komutu ne gösterir?",
-            options: ["Bellekteki tüm değişkenleri", "Program çöktüğünde hangi fonksiyonun hangi fonksiyonu çağırdığını (çağrı zinciri)", "Disk kullanımını", "Ağ bağlantılarını"],
-            correct: 1,
+            options: [
+                "Bellekteki tüm değişkenleri ve işlemi sonlandırır",
+                "Ağ bağlantılarını — bu davranış beklenmez",
+                "Disk kullanımını yerine farklı bir komut",
+                "Program çöktüğünde hangi fonksiyonun hangi"
+            ],
+            correct: 3,
             explanation: "backtrace (veya bt), call stack'in o anki durumunu — yani fonksiyon çağrı zincirini — gösterir. Program çöktüğünde 'buraya nasıl geldik?' sorusunu cevaplar: #0 topla() → #1 hesapla() → #2 main()."
         },
         {
             question: "Bir program 'Permission denied' hatası veriyor ama hangi dosyada olduğunu söylemiyor. Hangi aracı kullanırsınız?",
-            options: ["GDB", "Valgrind", "strace", "perf"],
-            correct: 2,
+            options: [
+                "GDB",
+                "perf",
+                "Valgrind",
+                "strace"
+            ],
+            correct: 3,
             explanation: "strace -e trace=file ./program 2>&1 | grep EACCES komutu ile programın hangi dosyaya erişmeye çalışıp reddedildiğini görebilirsiniz. strace, programın çekirdeğe yaptığı tüm dosya işlemlerini izler."
         },
         {
             question: "AddressSanitizer'ın Valgrind'e göre avantajı nedir?",
-            options: ["Daha fazla hata türü bulur", "Kurulum gerektirmez", "Çok daha az yavaşlatır (~2x vs 10-50x)", "Sadece C için çalışır"],
-            correct: 2,
+            options: [
+                "Daha fazla hata türü bulur",
+                "Sadece C için çalışır — bu davranış beklenmez",
+                "Kurulum gerektirmez (Docker CLI'da yoktur)",
+                "Çok daha az yavaşlatır (~2x vs 10-50x)"
+            ],
+            correct: 3,
             explanation: "ASan derleme zamanında eklenir (-fsanitize=address) ve programı sadece ~2x yavaşlatır. Valgrind ise simülasyon tabanlıdır ve 10-50x yavaşlatır. ASan daha hızlı ama Valgrind daha kapsamlıdır."
         }
     ]

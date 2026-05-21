@@ -567,44 +567,79 @@ ayirici
     quiz: [
         {
             question: "Bir bash script'in ilk satırındaki '#!/bin/bash' ne anlama gelir?",
-            options: ["Yorum satırı", "Bu dosyayı /bin/bash ile çalıştır (shebang)", "Dosyanın sahibini belirtir", "Dosyanın şifrelenmiş olduğunu gösterir"],
-            correct: 1,
+            options: [
+                "Bu dosyayı /bin/bash ile çalıştır (shebang)",
+                "Yorum satırı ve işlemi sonlandırır",
+                "Dosyanın sahibini belirtir yerine farklı bir komut",
+                "Dosyanın şifrelenmiş olduğunu gösterir"
+            ],
+            correct: 0,
             explanation: "#! (shebang/hashbang), işletim sistemine bu betiği hangi yorumlayıcı (interpreter) ile çalıştıracağını söyler."
         },
         {
             question: "'isim = \"Ahmet\"' ifadesindeki sorun nedir?",
-            options: ["Çift tırnak kullanılmamalı", "Eşittir işareti etrafında boşluk olmamalı", "Değişken adı Türkçe olamaz", "Sorun yok, doğru yazılmış"],
-            correct: 1,
+            options: [
+                "Sorun yok, doğru yazılmış",
+                "Değişken adı Türkçe olamaz",
+                "Çift tırnak kullanılmamalı",
+                "Eşittir işareti etrafında"
+            ],
+            correct: 3,
             explanation: "Bash'te değişken atamasında = etrafında boşluk OLMAMALDIR. Doğrusu: isim=\"Ahmet\". Boşluk olursa shell 'isim' adlı bir komut aramaya çalışır."
         },
         {
             question: "'$?' ne döndürür?",
-            options: ["Mevcut kullanıcı adı", "Son çalıştırılan komutun çıkış kodu", "Script'in dosya yolu", "Rastgele bir sayı"],
-            correct: 1,
+            options: [
+                "Mevcut kullanıcı adı",
+                "Script'in dosya yolu",
+                "Rastgele bir sayı — bu davranış beklenmez",
+                "Son çalıştırılan komutun çıkış kodu"
+            ],
+            correct: 3,
             explanation: "$? son komutun çıkış kodunu (exit code) döndürür. 0 = başarı, sıfır olmayan = hata."
         },
         {
             question: "for dosya in *.txt; do echo $dosya; done — bu ne yapar?",
-            options: ["Tüm .txt dosyalarını siler", "Tüm .txt dosyalarının adlarını yazdırır", "Yeni .txt dosyası oluşturur", "Dosyaları .txt uzantısıyla yeniden adlandırır"],
+            options: [
+                "Yeni .txt dosyası oluşturur yerine farklı bir komut",
+                "Tüm .txt dosyalarının adlarını yazdırır",
+                "Dosyaları .txt uzantısıyla yeniden adlandırır",
+                "Tüm .txt dosyalarını siler ve işlemi sonlandırır"
+            ],
             correct: 1,
             explanation: "Bu for döngüsü mevcut dizindeki tüm .txt dosyaları üzerinde dolaşır ve her birinin adını ekrana yazdırır."
         },
         {
             question: "'set -e' scriptin başına eklendiğinde ne olur?",
-            options: ["Script daha hızlı çalışır", "Herhangi bir komut başarısız olursa script durur", "Tüm değişkenler export edilir", "Hata mesajları gizlenir"],
-            correct: 1,
+            options: [
+                "Herhangi bir komut başarısız olursa script durur",
+                "Hata mesajları gizlenir — bu davranış beklenmez",
+                "Script daha hızlı çalışır ve işlemi sonlandırır",
+                "Tüm değişkenler export edilir yerine farklı bir komut"
+            ],
+            correct: 0,
             explanation: "'set -e' (exit on error) herhangi bir komut sıfır olmayan çıkış kodu döndürdüğünde scriptin hemen durmasını sağlar. Dikkat: if içindeki komutlar bundan etkilenmez."
         },
         {
             question: "'trap komut EXIT' ne yapar?",
-            options: ["Scripti hemen durdurur", "Script çıkışında (normal/hata) belirtilen komutu çalıştırır", "Çıkış kodunu değiştirir", "Hata mesajlarını yakalar"],
+            options: [
+                "Scripti hemen durdurur",
+                "Script çıkışında",
+                "Hata mesajlarını yakalar",
+                "Çıkış kodunu değiştirir"
+            ],
             correct: 1,
             explanation: "trap ... EXIT, script her çıktığında (başarılı, hata, Ctrl+C) belirtilen komutu çalıştırır. Geçici dosyaları temizlemek için idealdir."
         },
         {
             question: "'source ~/.bashrc' ile 'bash ~/.bashrc' arasındaki fark nedir?",
-            options: ["Fark yoktur", "source mevcut shell'de çalışır, bash alt kabuk açar", "bash daha hızlıdır", "source sadece root için çalışır"],
-            correct: 1,
+            options: [
+                "bash daha hızlıdır",
+                "Fark yoktur ve işlemi sonlandırır",
+                "source sadece root için çalışır",
+                "source mevcut shell'de çalışır"
+            ],
+            correct: 3,
             explanation: "source (veya .) dosyayı mevcut shell'de çalıştırır — değişkenler kalır. bash ise alt kabuk (subshell) açar — değişkenler alt kabukla birlikte kaybolur."
         }
     ]

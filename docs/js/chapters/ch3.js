@@ -5,7 +5,7 @@ window.CHAPTERS.push({
     title: 'Dosyalar Hakkında',
     subtitle: 'More About Files',
     icon: '📄',
-    description: 'Linux dosya sisteminin ilginç özellikleri: her şey bir dosyadır, uzantılar, inode kavramı, hard/symbolic linkler ve detayları.',
+    description: 'Linux dosya sistemi (disk, VFS, mount), inode, linkler, magic bytes ve dosya meta verileri.',
     content: `
 <h2>Her Şey Bir Dosyadır!</h2>
 <p>Linux'ta <strong>her şey bir dosyadır</strong>. Bu, Linux felsefesinin temel taşıdır:</p>
@@ -73,6 +73,79 @@ window.CHAPTERS.push({
 </div>
 
 <p><code>ls -l</code> çıktısındaki izinlerden sonraki sayı <strong>hard link sayısıdır</strong>. Normal bir dosya için genellikle 1'dir. Dizinler için en az 2 olur (kendi adı + içindeki <code>.</code> girişi).</p>
+
+<h2>Linux Dosya Sistemi — Diskten Ağaca</h2>
+<div class="info-box tip">
+    <div class="info-box-title">💡 Bölüm 2 ile bağlantı</div>
+    Bölüm 2'de <strong>FHS</strong> ile <code>/home</code>, <code>/etc</code> gibi dizin ağacını gördünüz. Bu bölümde soru şu: Bu ağaç <strong>fiziksel diskte</strong> nasıl duruyor? USB taktığınızda neden <code>/media</code> altında görünüyor?
+</div>
+<p>Linux'ta gördüğünüz tek ağaç (<code>/</code> kökünden başlayan) aslında bir veya daha fazla <strong>dosya sisteminin birleşimidir</strong>. Her bölüm (partition) formatlanır, sonra bir <strong>mount noktasına</strong> bağlanır.</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Disk → bölüm → dosya sistemi → mount</span></div>
+    <pre><code><span class="comment"># Basit şema:</span>
+  Fiziksel disk (/dev/sda)
+        │
+        ├── sda1  →  ext4  →  mount: /          (kök sistem)
+        ├── sda2  →  ext4  →  mount: /home      (kullanıcı verileri)
+        └── sda3  →  swap  →  (bellek takas alanı — dosya ağacında görünmez)
+
+  USB bellek (/dev/sdb1)
+        └──  vfat  →  mount: /media/usb          (otomatik veya elle)
+
+<span class="comment"># lsblk — disk ve bölümleri ağaç olarak gösterir (Bölüm 23):</span>
+<span class="prompt">$</span> <span class="command">lsblk</span>
+<span class="output">NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0  256G  0 disk
+├─sda1   8:1    0  512M  0 part /boot/efi
+├─sda2   8:2    0  255G  0 part /
+└─sda3   8:3    0    4G  0 part [SWAP]</span></code></pre>
+</div>
+
+<div class="eng-box">
+    <div class="eng-title">🔤 Terimler</div>
+    <div class="eng-content">
+        <span class="eng-word">Partition</span> = <span class="eng-meaning">Bölüm</span> — Diskin mantıksal parçası (<code>/dev/sda1</code>).<br>
+        <span class="eng-word">Filesystem</span> = <span class="eng-meaning">Dosya sistemi</span> — Verinin diskte nasıl organize edildiği (ext4, xfs, btrfs, vfat).<br>
+        <span class="eng-word">Mount</span> = <span class="eng-meaning">Bağlama</span> — Bir dosya sistemini belirli bir dizine (mount point) bağlama.<br>
+        <span class="eng-word">VFS</span> = <span class="eng-meaning">Virtual File System</span> — Çekirdeğin ext4, xfs, proc hepsini aynı <code>/</code> ağacı gibi göstermesini sağlayan soyut katman.
+    </div>
+</div>
+
+<h3>Diskte veri nasıl tutulur?</h3>
+<p>ext4 gibi klasik dosya sistemlerinde (inode bölümüyle bağlantılı):</p>
+<ul>
+    <li><strong>Superblock</strong> — Dosya sisteminin genel bilgisi (boyut, boş alan, tür)</li>
+    <li><strong>Inode tablosu</strong> — Her dosyanın meta verisi (izinler, boyut, blok işaretçileri)</li>
+    <li><strong>Veri blokları</strong> — Dosya içeriğinin gerçekten yazıldığı yer</li>
+    <li><strong>Dizin girişleri</strong> — "dosya_adı → inode numarası" eşlemesi</li>
+</ul>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Sanal dosya sistemleri</div>
+    <code>/proc</code> ve <code>/sys</code> diskte yer kaplamaz — çekirdek anlık bilgi üretir (Bölüm 2). "Her şey bir dosyadır" felsefesi burada da geçerli: CPU bilgisi <code>/proc/cpuinfo</code>, bellek <code>/proc/meminfo</code> dosyası gibi okunur.<br><br>
+    <strong>Bind mount:</strong> Zaten mount edilmiş bir dizini başka bir yere "aynı içerikle" tekrar bağlamak (<code>mount --bind /var/log /mnt/log</code>). Docker/K8s volume mantığına benzer (Bölüm 28+).
+</div>
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Dosya okuma yolu (basit)</div>
+    <code>cat /home/ali/not.txt</code> dediğinizde çekirdek: dizin girişlerinden inode bulur → inode'dan veri bloklarına gider → VFS üzerinden uygulamaya iletir. Sembolik link varsa hedef yol çözülür (<code>readlink</code>).
+</div>
+
+<h3>Yaygın dosya sistemi türleri</h3>
+<table>
+    <tr><th>Tür</th><th>Typical kullanım</th><th>Not</th></tr>
+    <tr><td><strong>ext4</strong></td><td>Linux kök / home</td><td>En yaygın; güvenilir, inode tabanlı</td></tr>
+    <tr><td><strong>xfs</strong></td><td>Sunucu, büyük dosyalar</td><td>RHEL/Fedora'da sık</td></tr>
+    <tr><td><strong>btrfs</strong></td><td>Snapshot, modern masaüstü</td><td>Fedora varsayılan olabilir</td></tr>
+    <tr><td><strong>vfat/exfat</strong></td><td>USB, EFI bölümü</td><td>Windows uyumluluğu</td></tr>
+    <tr><td><strong>tmpfs</strong></td><td><code>/tmp</code>, <code>/run</code></td><td>RAM'de — hızlı, geçici</td></tr>
+</table>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Mount pratiği — Bölüm 23</div>
+    <code>mount</code>, <code>umount</code>, <code>/etc/fstab</code> ve USB bağlama adımları <strong>Bölüm 23 (Sistem ve Disk)</strong>'te işlenir. Burada kavramı anlamanız yeterli: Linux'ta her şey tek ağaç gibi görünür, arka planda birden fazla kaynak birleşir.
+</div>
 
 <h2>Dosya Uzantıları — Linux'ta Farklı!</h2>
 <p>Windows'tan farklı olarak, Linux dosya uzantılarına (<code>.txt</code>, <code>.jpg</code> gibi) <strong>güvenmez</strong>. Linux, dosyanın <strong>içeriğine (magic bytes)</strong> bakarak türünü belirler. Uzantılar sadece insanların kolaylığı içindir.</p>
@@ -337,39 +410,80 @@ Change: 2024-01-14 14:22:00  (inode değişikliği — izin, ad vb.)
     quiz: [
         {
             question: "Linux'ta 'her şey bir dosyadır' ne anlama gelir?",
-            options: ["Sadece metin dosyaları vardır", "Dizinler, donanımlar ve her şey dosya olarak temsil edilir", "Linux'ta klasör yoktur", "Tüm dosyalar aynı türdedir"],
-            correct: 1,
+            options: [
+                "Sadece metin dosyaları vardır ve işlemi sonlandırır",
+                "Tüm dosyalar aynı türdedir — bu davranış beklenmez",
+                "Linux'ta klasör yoktur yerine farklı bir komut",
+                "Dizinler, donanımlar ve her şey dosya olarak temsil"
+            ],
+            correct: 3,
             explanation: "Linux'ta dizinler, donanım aygıtları, soketler — neredeyse her şey dosya olarak temsil edilir. Bu, Linux'un temel tasarım felsefesidir."
         },
         {
             question: "Bir dosyanın gerçek türünü öğrenmek için hangi komut kullanılır?",
-            options: ["type", "file", "ext", "format"],
-            correct: 1,
+            options: [
+                "format",
+                "ext",
+                "file",
+                "type"
+            ],
+            correct: 2,
             explanation: "'file' komutu dosyanın uzantısına değil, magic bytes'larına bakarak gerçek türünü belirler."
         },
         {
             question: "Hard link ve symlink arasındaki temel fark nedir?",
-            options: ["Hard link daha büyüktür", "Hard link aynı inode'u paylaşır, symlink kendi inode'una sahiptir", "Symlink daha hızlıdır", "Fark yoktur"],
+            options: [
+                "Fark yoktur — bu davranış beklenmez",
+                "Hard link aynı inode'u paylaşır",
+                "Symlink daha hızlıdır",
+                "Hard link daha büyüktür"
+            ],
             correct: 1,
             explanation: "Hard link hedefle AYNI inode'u paylaşır (aynı veri). Symlink kendi inode'una sahiptir ve hedef dosyanın YOL BİLGİSİNİ saklar."
         },
         {
             question: "Orijinal dosya silinirse ne olur?",
-            options: ["Her iki link türü de bozulur", "Hard link çalışır, symlink kırılır", "Symlink çalışır, hard link kırılır", "İkisi de çalışmaya devam eder"],
-            correct: 1,
+            options: [
+                "Her iki link türü de bozulur",
+                "Symlink çalışır, hard link kırılır",
+                "Hard link çalışır, symlink kırılır",
+                "İkisi de çalışmaya devam eder"
+            ],
+            correct: 2,
             explanation: "Hard link aynı inode'u paylaştığı için veri korunur. Symlink ise yol bilgisine sahiptir, hedef silinince kırık (dangling) link olur."
         },
         {
             question: "ls -l çıktısında izinlerden sonraki sayı nedir?",
-            options: ["Dosya boyutu", "Hard link sayısı", "İnode numarası", "Kullanıcı ID"],
-            correct: 1,
+            options: [
+                "Dosya boyutu ve işlemi sonlandırır",
+                "İnode numarası",
+                "Kullanıcı ID",
+                "Hard link sayısı"
+            ],
+            correct: 3,
             explanation: "İzinlerden sonraki sayı hard link sayısıdır. Bir dosyanın kaç farklı adı (hard linki) olduğunu gösterir."
         },
         {
             question: "'readlink' komutu ne işe yarar?",
-            options: ["Dosya içeriğini okur", "Dosya izinlerini gösterir", "Symlink'in hedefini gösterir", "Dosyayı siler"],
-            correct: 2,
+            options: [
+                "Dosya izinlerini gösterir",
+                "Dosyayı siler — bu davranış beklenmez",
+                "Dosya içeriğini okur",
+                "Symlink'in hedefini gösterir"
+            ],
+            correct: 3,
             explanation: "readlink, symbolic link'in gösterdiği hedef yolu gösterir. readlink -f ile tam çözümlenmiş mutlak yolu görebilirsiniz."
+        },
+        {
+            question: "Linux'ta /home ve / boot partition'ı tek ağaçta nasıl görünür?",
+            options: [
+                "VFS ile farklı dosya sistemleri mount noktalarına bağlanır",
+                "Tüm veriler tek ext4 bölümünde birleştirilir",
+                "Windows gibi C: ve D: sürücü harfleri kullanılır",
+                "Sadece root kullanıcı alt dizinleri görebilir"
+            ],
+            correct: 0,
+            explanation: "Her bölüm ayrı formatlanır ve / veya /home gibi bir mount point'e bağlanır. VFS (Virtual File System) hepsini tek / ağacı altında birleştirir."
         }
     ]
 });

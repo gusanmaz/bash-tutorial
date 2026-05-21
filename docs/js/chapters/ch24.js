@@ -1,1023 +1,225 @@
-// ===== Bölüm 24: Docker Komutları — Adım Adım Yolculuk =====
+// ===== Bölüm 24: Arşiv ve Sıkıştırma =====
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
     id: 24,
-    title: 'Docker Komutları — Adım Adım',
-    subtitle: 'Docker CLI: Step by Step',
-    icon: '⚓',
-    description: 'Önce imaj indirin, sonra çalıştırın, sonra içine girin... Docker komutlarını kolaydan zora doğru, resmi dokümantasyonun izlediği yolla öğrenin.',
+    title: 'Arşiv ve Sıkıştırma',
+    subtitle: 'tar, gzip, zip & Compression',
+    icon: '📦',
+    description: 'tar ile arşiv oluşturma ve açma, gzip/xz/zip sıkıştırma ve yedekleme senaryoları.',
     content: `
-<h2>Bu Bölümün Mantığı</h2>
-<p>Docker'ın resmi dokümantasyonu sizi tek bir komut patlamasıyla bombardımana tutmaz. Aksine, her şey küçük adımlarla ilerler: önce bir imaj indirirsiniz, sonra onu çalıştırırsınız, sonra durumunu gözlemlersiniz, sonra içine girersiniz... Biz de aynı yolu izleyeceğiz.</p>
-
+<h2>Arşiv vs Sıkıştırma</h2>
 <div class="info-box tip">
-    <div class="info-box-title">💡 Bu Bölümü Nasıl Okumalısınız?</div>
-    Her adımı terminalinizde <strong>gerçekten yazın</strong>. Okuyup geçmeyin. Docker'ın sihri kendi ellerinizle yazdığınızda anlamlanır. Tüm örnekler kopyala-yapıştır yapılıp anında çalışacak şekilde hazırlandı.
+    <div class="info-box-title">💡 İki farklı işlem</div>
+    <strong>Arşiv</strong> = Birden fazla dosyayı tek pakette toplamak (<code>tar</code>).<br>
+    <strong>Sıkıştırma</strong> = Veriyi küçültmek (<code>gzip</code>, <code>xz</code>, <code>zip</code>).<br>
+    Genelde ikisi birlikte: <code>tar -czf yedek.tar.gz klasor/</code>
 </div>
 
-<div class="info-box note">
-    <div class="info-box-title">📌 Bu Bölümün Yol Haritası</div>
-    <ol>
-        <li><strong>Adım 0–5</strong>: Docker'ın hayatta olduğunu doğrulayıp ilk konteyneri çalıştırma.</li>
-        <li><strong>Adım 6–9</strong>: Konteynerleri arka planda çalıştırma, yönetme (start/stop/rm).</li>
-        <li><strong>Adım 10–11</strong>: Konteyneri dışarıyla bağlama: portlar ve ortam değişkenleri.</li>
-        <li><strong>Adım 12</strong>: <strong>Volumes</strong> — veriyi konteyner silinse de tutmak.</li>
-        <li><strong>Adım 13</strong>: <strong>Networks</strong> — konteynerlerin birbiriyle konuşması (Redis + NGINX örneği).</li>
-        <li><strong>Adım 14–17</strong>: İzleme, dosya transferi, kaynak sınırları, temizlik.</li>
-        <li><strong>Mini Proje</strong>: Tüm bunları tek bir uygulamada birleştirme.</li>
-    </ol>
-    <p>"Veri" ve "ağ" bölümlerine geldiğimizde geri durup biraz daha derin nefes alacağız — çünkü bunlar Docker'ı gerçekten anlamanın anahtarı.</p>
+<div class="eng-box">
+    <div class="eng-title">🔤 Terim</div>
+    <div class="eng-content">
+        <span class="eng-word">tar</span> = <span class="eng-meaning">Tape Archive</span> — Dosyaları arşivler (sıkıştırma opsiyonel).<br>
+        <span class="eng-word">.tar.gz / .tgz</span> = tar arşivi + gzip sıkıştırması (en yaygın Linux formatı).
+    </div>
 </div>
 
-<h2>Adım 0: Docker Çalışıyor mu?</h2>
-<p>Kaymadan önce koşmaya çalışmayalım. Önce Docker'ın hayatta olduğundan emin olalım.</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Sürüm ve durum kontrolü</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker</span> <span class="flag">--version</span>
-<span class="output">Docker version 24.0.7, build afdd53b</span>
-
-<span class="prompt">$</span> <span class="command">docker</span> <span class="argument">info</span>
-<span class="comment"># Uzun bir rapor: kaç konteyner çalışıyor, imaj sayısı,
-# Docker'ın hangi sürücüleri kullandığı, vs.</span>
-
-<span class="prompt">$</span> <span class="command">docker</span> <span class="argument">run hello-world</span>
-<span class="output">Hello from Docker!
-This message shows that your installation appears to be working correctly.</span></code></pre>
-</div>
-
-<p><code>hello-world</code> çıktısı görebildiyseniz, Docker sağlıklı çalışıyor demektir. "Cannot connect to the Docker daemon" hatası alıyorsanız Docker servisi başlatılmamıştır:</p>
-
-<pre><code><span class="prompt">$</span> <span class="command">sudo systemctl start docker</span>
-<span class="prompt">$</span> <span class="command">sudo systemctl status docker</span></code></pre>
-
-<h2>Adım 1: Bir İmaj İndirelim — <code>docker pull</code></h2>
-<p>Docker'ın sevgili terimi: <strong>imaj</strong>. Her konteyner bir imajdan türer. İlk işimiz, kullanmak istediğimiz imajı Docker Hub'dan kendi makinemize indirmek.</p>
-
-<p>Başlangıç olarak en küçük ve en meşhur Linux dağıtımlarından <strong>Alpine</strong>'ı seçelim (sadece ~5 MB):</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>İmaj indirme</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker pull</span> <span class="argument">alpine</span>
-<span class="output">Using default tag: latest
-latest: Pulling from library/alpine
-c926b61bad3b: Pull complete
-Digest: sha256:51b67269f354137895d43f3b3d810bfacd3945438e94dc5ac55fdac340352f48
-Status: Downloaded newer image for alpine:latest
-docker.io/library/alpine:latest</span></code></pre>
-</div>
-
-<div class="info-box note">
-    <div class="info-box-title">📌 Ne Oldu?</div>
-    <ol>
-        <li>Docker, <code>alpine</code> imajını yerelde arıyor. Bulamıyor.</li>
-        <li>Varsayılan registry olan Docker Hub'a (<code>docker.io</code>) sorup soruyor.</li>
-        <li>Tag vermediğimiz için varsayılan olarak <code>latest</code>'i alıyor.</li>
-        <li>İmajı yerel önbelleğe indiriyor — artık sizin makinenizde.</li>
-    </ol>
-    Bir daha aynı imajı çağırdığınızda indirmez; önbellekten anında kullanır.
-</div>
-
-<p>Belirli bir sürüm istiyorsanız <strong>tag</strong> ekleyin:</p>
-<div class="code-block">
-    <div class="code-block-header"><span>Belirli sürüm ve farklı imajlar</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker pull</span> <span class="argument">alpine:3.19</span>         <span class="comment"># Belirli sürüm</span>
-<span class="prompt">$</span> <span class="command">docker pull</span> <span class="argument">ubuntu:22.04</span>
-<span class="prompt">$</span> <span class="command">docker pull</span> <span class="argument">python:3.12-slim</span>
-<span class="prompt">$</span> <span class="command">docker pull</span> <span class="argument">nginx</span>                <span class="comment"># tag yoksa "latest"</span></code></pre>
-</div>
-
-<h2>Adım 2: İndirdiğimiz İmajları Görelim — <code>docker images</code></h2>
-<p>Yerelde hangi imajlar var?</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>İmaj listesi</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker images</span>
-<span class="output">REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
-alpine       latest    a606584aa9aa   4 days ago     7.8MB
-alpine       3.19      abc123def456   2 weeks ago    7.7MB
-ubuntu       22.04     a6d7b24c3555   3 weeks ago    77.8MB
-python       3.12-slim 5a2f30d9b5e1   6 days ago     127MB
-nginx        latest    605c77e624dd   1 week ago     141MB</code></pre>
-</div>
-
-<p>Her satır bir imaj. Önemli sütunlar:</p>
-<ul>
-    <li><strong>REPOSITORY</strong>: İmajın ismi (ör. <code>alpine</code>).</li>
-    <li><strong>TAG</strong>: Versiyonu (ör. <code>3.19</code>, <code>latest</code>).</li>
-    <li><strong>IMAGE ID</strong>: Hash benzeri benzersiz kimlik.</li>
-    <li><strong>SIZE</strong>: Diskte kapladığı yer.</li>
-</ul>
-
-<h2>Adım 3: İlk Konteynerimizi Çalıştıralım — <code>docker run</code></h2>
-<p>İmaj indi. Şimdi ondan bir konteyner çıkaralım. En basit haliyle:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Konteyner içinde tek komut çalıştırmak</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="argument">alpine echo "Merhaba Docker!"</span>
-<span class="output">Merhaba Docker!</span></code></pre>
-</div>
-
-<p>Saniyeden kısa sürede şu olaylar gerçekleşti:</p>
-<ol>
-    <li>Docker, <code>alpine</code> imajından yeni bir konteyner oluşturdu.</li>
-    <li>Konteynerin içinde <code>echo "Merhaba Docker!"</code> komutunu çalıştırdı.</li>
-    <li>Çıktı terminalinize geldi.</li>
-    <li>Komut bitince konteyner durdu. (Ama silinmedi — göreceğiz.)</li>
-</ol>
-
-<div class="info-box tip">
-    <div class="info-box-title">💡 Konteynerin "Ömrü" Neye Bağlı?</div>
-    Konteyner, içindeki <strong>ana süreç</strong> yaşadığı sürece yaşar. <code>echo</code> hemen bittiği için konteyner de hemen durdu. <code>nginx</code> gibi sonsuza kadar dinleyen bir süreç başlatırsanız konteyner ayakta kalır.
-</div>
-
-<h2>Adım 4: Konteynerin İçine Girelim — Etkileşimli Mod</h2>
-<p>Konteyneri bir Linux sisteminde gezmek ister gibi kullanmak istiyor musunuz? <code>-it</code> bayraklarıyla interaktif shell açın:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Alpine konteynerinin içinde shell</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-it</span> <span class="argument">alpine sh</span>
-
-<span class="comment"># Konteynerin içindesiniz!</span>
-<span class="output">/ #</span> <span class="command">cat</span> <span class="argument">/etc/os-release</span>
-<span class="output">NAME="Alpine Linux"
-VERSION_ID=3.19.0
-...</span>
-
-<span class="output">/ #</span> <span class="command">hostname</span>
-<span class="output">a1b2c3d4e5f6</span>       <span class="comment"># Konteynerin kendi hostname'i</span>
-
-<span class="output">/ #</span> <span class="command">ls</span>
-<span class="output">bin dev etc home lib media mnt opt proc root run sbin srv sys tmp usr var</span>
-
-<span class="output">/ #</span> <span class="command">exit</span>                 <span class="comment"># Shell'den çık — konteyner durur</span>
-<span class="prompt">$</span></code></pre>
-</div>
-
-<div class="info-box note">
-    <div class="info-box-title">📌 <code>-it</code> Ne Demek?</div>
-    <ul>
-        <li><strong>-i</strong> (interactive): Standart girdiyi (stdin) açık tut. Klavyeden yazdıklarımız konteynere gitsin.</li>
-        <li><strong>-t</strong> (tty): Sanal bir terminal aç. Böylece prompt, cursor hareketleri, renkler düzgün çalışır.</li>
-    </ul>
-    İkisini <code>-it</code> olarak birleştirmek yaygın kısaltmadır.
-</div>
-
-<p>Bash seven misiniz? Ubuntu imajı <code>bash</code>'i hazır getirir:</p>
-<pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-it</span> <span class="argument">ubuntu bash</span>
-<span class="output">root@b2c3d4e5f6a7:/#</span></code></pre>
-
-<div class="info-box warning">
-    <div class="info-box-title">⚠️ Alpine'da <code>bash</code> Yoktur</div>
-    Alpine minimal bir Linux'tur, varsayılan shell'i <code>sh</code>'dir. <code>docker run -it alpine bash</code> yazarsanız "executable not found" hatası alırsınız. Ya <code>sh</code> kullanın ya da <code>docker exec -it ad apk add bash</code> ile kurun.
-</div>
-
-<h2>Adım 5: Şu An Ne Var Ne Yok? — <code>docker ps</code></h2>
-<p>Bir konteyner başlattık, sonra çıktık. Ne oldu ona? İki komut kritik:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Çalışanlar ve tümü</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker ps</span>
-<span class="output">CONTAINER ID   IMAGE   COMMAND   CREATED   STATUS   PORTS   NAMES</span>
-<span class="comment"># Boş! Çalışan konteyner yok.</span>
-
-<span class="prompt">$</span> <span class="command">docker ps</span> <span class="flag">-a</span>
-<span class="output">CONTAINER ID   IMAGE    COMMAND                 CREATED          STATUS                     PORTS   NAMES
-b2c3d4e5f6a7   ubuntu   "bash"                  2 minutes ago    Exited (0) 2 minutes ago           sharp_wiles
-a1b2c3d4e5f6   alpine   "sh"                    5 minutes ago    Exited (0) 4 minutes ago           jovial_curie
-f9e8d7c6b5a4   alpine   "echo 'Merhaba D...'"   8 minutes ago    Exited (0) 8 minutes ago           modest_yalow</span></code></pre>
-</div>
-
-<p>İlginç noktalar:</p>
-<ul>
-    <li>Oluşturduğumuz her konteyner hâlâ yaşıyor — sadece <strong>durmuş</strong> (Exited).</li>
-    <li>İsim vermediysek Docker kendiliğinden eğlenceli isimler üretir (<code>sharp_wiles</code>, <code>jovial_curie</code>).</li>
-    <li><strong>Exited (0)</strong>: Başarılı çıkış. 0'dan farklı sayı hata demektir.</li>
-</ul>
-
-<h2>Adım 6: İsim Verelim ve Arka Planda Çalıştıralım</h2>
-<p>Gerçek senaryolarda konteynerler uzun süre ayakta durur (web sunucu, veritabanı...). Onları <strong>arka planda</strong> başlatırız. Ve terminalin ürettiği rastgele isimler yerine <strong>kendi isimlerimizi</strong> veririz.</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>NGINX'i arka planda başlat</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">websunucu nginx</span>
-<span class="output">8f7e6d5c4b3a...(uzun ID)</span>
-
-<span class="prompt">$</span> <span class="command">docker ps</span>
-<span class="output">CONTAINER ID   IMAGE   COMMAND                  STATUS         PORTS     NAMES
-8f7e6d5c4b3a   nginx   "/docker-entrypoint.…"   Up 10 seconds  80/tcp    websunucu</span></code></pre>
-</div>
-
-<div class="info-box note">
-    <div class="info-box-title">📌 Yeni Bayrakları Tanıyalım</div>
-    <ul>
-        <li><strong>-d</strong> (detached): Konteyner arka planda çalışsın, terminalim bloke olmasın.</li>
-        <li><strong>--name</strong>: Konteynere anlamlı bir isim ver. Sonradan "websunucu" diyerek ona ulaşırız.</li>
-    </ul>
-</div>
-
-<p>NGINX çalışıyor... ama web sitesine nasıl bakacağız? <code>PORTS</code> sütununda <code>80/tcp</code> yazıyor ama bunu tarayıcıdan açamayız çünkü port <em>host'a</em> açılmadı. Bir sonraki adımda çözeceğiz — önce görmek istediğimiz şeyler olsun.</p>
-
-<h2>Adım 7: Konteynerin Logları — <code>docker logs</code></h2>
-<p>NGINX arka planda çalışıyor. Ne yaptığını görmek istiyoruz. Konteynerin standart çıktısı (<code>stdout</code>/<code>stderr</code>) <code>docker logs</code> ile okunur:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Log okuma varyasyonları</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker logs</span> <span class="argument">websunucu</span>
-<span class="output">/docker-entrypoint.sh: Configuration complete; ready for start up
-...</span>
-
-<span class="comment"># -f: follow, canlı takip (tail -f gibi)</span>
-<span class="prompt">$</span> <span class="command">docker logs</span> <span class="flag">-f</span> <span class="argument">websunucu</span>
-<span class="comment"># Ctrl+C ile çık</span>
-
-<span class="comment"># Son 20 satır:</span>
-<span class="prompt">$</span> <span class="command">docker logs</span> <span class="flag">--tail 20</span> <span class="argument">websunucu</span>
-
-<span class="comment"># Son 10 dakika:</span>
-<span class="prompt">$</span> <span class="command">docker logs</span> <span class="flag">--since 10m</span> <span class="argument">websunucu</span>
-
-<span class="comment"># Sadece hata içerenleri süz:</span>
-<span class="prompt">$</span> <span class="command">docker logs</span> <span class="argument">websunucu</span> <span class="operator">2&gt;&amp;1</span> <span class="operator">|</span> <span class="command">grep</span> <span class="flag">-i</span> <span class="argument">error</span></code></pre>
-</div>
-
-<h2>Adım 8: Çalışan Konteynere Girelim — <code>docker exec</code></h2>
-<p>Arka planda çalışan bir konteynerin <em>içine</em> girip etrafına bakmak istiyorsak? Yeni bir konteyner başlatmıyoruz — zaten çalışan olana bir kapı açıyoruz:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Çalışan konteynere shell açmak</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker exec</span> <span class="flag">-it</span> <span class="argument">websunucu bash</span>
-<span class="output">root@8f7e6d5c4b3a:/#</span> <span class="command">nginx</span> <span class="flag">-v</span>
-<span class="output">nginx version: nginx/1.25.3</span>
-
-<span class="output">root@8f7e6d5c4b3a:/#</span> <span class="command">cat</span> <span class="argument">/etc/nginx/nginx.conf</span>
-<span class="comment"># Konfigürasyon dosyasını görürsünüz</span>
-
-<span class="output">root@8f7e6d5c4b3a:/#</span> <span class="command">ls</span> <span class="argument">/usr/share/nginx/html</span>
-<span class="output">50x.html  index.html</span>
-
-<span class="output">root@8f7e6d5c4b3a:/#</span> <span class="command">exit</span>
-<span class="prompt">$</span>           <span class="comment"># Çıktık ama websunucu hâlâ çalışıyor!</span></code></pre>
-</div>
-
-<p><code>docker run</code> ile <code>docker exec</code> farkını unutmayın:</p>
+<h2>tar — Temel Bayraklar</h2>
 <table>
-    <tr><th>Komut</th><th>Ne Yapar</th></tr>
-    <tr><td><code>docker run imaj ...</code></td><td>İmajdan <strong>yeni</strong> konteyner oluşturup içinde komut çalıştırır.</td></tr>
-    <tr><td><code>docker exec konteyner ...</code></td><td><strong>Zaten çalışan</strong> bir konteynerde ek komut çalıştırır.</td></tr>
+    <tr><th>Bayrak</th><th>Anlam</th></tr>
+    <tr><td><code>-c</code></td><td><strong>C</strong>reate — arşiv oluştur</td></tr>
+    <tr><td><code>-x</code></td><td>e<strong>X</strong>tract — arşiv aç</td></tr>
+    <tr><td><code>-t</code></td><td>lis<strong>T</strong> — içeriği listele (açmadan)</td></tr>
+    <tr><td><code>-f</code></td><td><strong>F</strong>ile — arşiv dosya adı (hemen sonra gelmeli)</td></tr>
+    <tr><td><code>-z</code></td><td>gzip ile sıkıştır/aç</td></tr>
+    <tr><td><code>-J</code></td><td>xz ile sıkıştır/aç</td></tr>
+    <tr><td><code>-v</code></td><td>verbose — işlenen dosyaları göster</td></tr>
+    <tr><td><code>-C</code></td><td>hedef dizine geç (extract sırasında)</td></tr>
+    <tr><td><code>--exclude</code></td><td>Dışarıda bırak (ör. <code>node_modules</code>)</td></tr>
+    <tr><td><code>--strip-components=N</code></td><td>Açarken üst N dizin seviyesini atla</td></tr>
+    <tr><td><code>-p</code></td><td>İzinleri koru (root yedeklerde)</td></tr>
 </table>
 
-<p>Konteyner içinde tek komut çalıştırmak için <code>-it</code>'ye gerek yok:</p>
-<pre><code><span class="prompt">$</span> <span class="command">docker exec</span> <span class="argument">websunucu ls /etc/nginx</span>
-<span class="prompt">$</span> <span class="command">docker exec</span> <span class="argument">websunucu date</span></code></pre>
-
-<h2>Adım 9: Durdur, Yeniden Başlat, Sil</h2>
-<p>Konteynerleri yönetmek — bir evcil hayvan gibi:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Yaşam döngüsü komutları</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker stop</span> <span class="argument">websunucu</span>
-<span class="comment"># Nazikçe durdur — önce SIGTERM (kendini kapat sinyali),
-# 10 saniye sonra SIGKILL (zorla öldür).</span>
-
-<span class="prompt">$</span> <span class="command">docker ps</span>
-<span class="comment"># websunucu artık listede yok</span>
-
-<span class="prompt">$</span> <span class="command">docker ps</span> <span class="flag">-a</span>
-<span class="comment"># Ama "Exited" durumda duruyor — silmedik, sadece durdurduk.</span>
-
-<span class="prompt">$</span> <span class="command">docker start</span> <span class="argument">websunucu</span>
-<span class="comment"># Yeniden canlandır (aynı konteyner, aynı ayarlar)</span>
-
-<span class="prompt">$</span> <span class="command">docker restart</span> <span class="argument">websunucu</span>
-<span class="comment"># stop + start birleşik</span>
-
-<span class="prompt">$</span> <span class="command">docker stop</span> <span class="argument">websunucu</span>
-<span class="prompt">$</span> <span class="command">docker rm</span> <span class="argument">websunucu</span>
-<span class="comment"># Silindi. docker ps -a'da artık görünmez.</span>
-
-<span class="comment"># Kısayol: çalışırken zorla sil</span>
-<span class="prompt">$</span> <span class="command">docker rm</span> <span class="flag">-f</span> <span class="argument">websunucu</span>
-
-<span class="comment"># Tüm duran konteynerleri toplu sil:</span>
-<span class="prompt">$</span> <span class="command">docker container prune</span></code></pre>
-</div>
-
-<h2>Adım 10: Şimdi Portları Açalım — <code>-p</code></h2>
-<p>NGINX'i başlattık ama tarayıcıdan erişemedik. Çünkü konteynerin kendi ağ alanı var — 80 portu <em>konteynerin içinde</em> dinleniyor, hostumuzdan erişilmiyor. Bağlantıyı kurmak için <code>-p</code> bayrağı:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Port eşleme</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">web</span> <span class="flag">-p</span> <span class="argument">8080:80 nginx</span>
-<span class="comment">#                              ↑    ↑
-#                              │    └─ Konteynerin içindeki port
-#                              └───── Hostunuzdaki port</span>
-
-<span class="prompt">$</span> <span class="command">curl</span> <span class="argument">http://localhost:8080</span>
-<span class="output">&lt;!DOCTYPE html&gt;
-&lt;html&gt;&lt;head&gt;&lt;title&gt;Welcome to nginx!&lt;/title&gt;...</span></code></pre>
-</div>
-
-<p>Tarayıcınızda <code>http://localhost:8080</code> — NGINX hoş geldin sayfası. İşte Docker'ın gücü: 3 saniyede bir web sunucusu çalıştırıp eriştiniz.</p>
-
-<div class="info-box note">
-    <div class="info-box-title">📌 Port Kavramı — Hızlı Hatırlatma</div>
-    <p>Bilgisayarın IP adresi "sokak adresi" ise, <strong>port</strong> "daire numarasıdır". Aynı bilgisayarda farklı servisler farklı portlarda dinler:</p>
-    <ul>
-        <li><strong>80</strong> — HTTP</li>
-        <li><strong>443</strong> — HTTPS</li>
-        <li><strong>22</strong> — SSH</li>
-        <li><strong>5432</strong> — PostgreSQL</li>
-        <li><strong>3306</strong> — MySQL</li>
-        <li><strong>6379</strong> — Redis</li>
-    </ul>
-    <code>-p HOST:KONTEYNER</code> diyerek "hostun 8080 portuna gelen isteği konteynerin 80'ine yönlendir" demiş oluruz. Host portu istediğiniz gibi seçebilirsiniz (izinliyse); konteynerin portu imajın nasıl yazıldığına bağlıdır.</p>
-</div>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Port varyasyonları</span></div>
-    <pre><code><span class="comment"># Aynı portu iki tarafta da kullan (yaygın):</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d -p</span> <span class="argument">80:80 nginx</span>
-
-<span class="comment"># Birden fazla port:</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d -p</span> <span class="argument">80:80</span> <span class="flag">-p</span> <span class="argument">443:443 nginx</span>
-
-<span class="comment"># Sadece localhost'a bağla (dışardan erişim olmasın — güvenli):</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d -p</span> <span class="argument">127.0.0.1:5432:5432 postgres</span>
-
-<span class="comment"># Docker rastgele host portu seçsin (host portunu yazmayın):</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d -p</span> <span class="argument">80 nginx</span>
-<span class="prompt">$</span> <span class="command">docker port</span> <span class="argument">&lt;konteyner&gt;</span>
-<span class="output">80/tcp -&gt; 0.0.0.0:49153</span></code></pre>
-</div>
-
-<div class="info-box warning">
-    <div class="info-box-title">⚠️ "Address Already in Use"</div>
-    <p><code>docker: Error ... port is already allocated</code> hatası görüyorsanız, hostta o portu başka bir şey zaten kullanıyor demektir. Çözüm:</p>
-    <pre><code><span class="prompt">$</span> <span class="command">sudo lsof</span> <span class="flag">-i</span> <span class="argument">:8080</span>      <span class="comment"># Kim kullanıyor?</span>
-<span class="prompt">$</span> <span class="command">sudo ss</span> <span class="flag">-tlnp</span> <span class="operator">|</span> <span class="command">grep</span> <span class="argument">:8080</span></code></pre>
-    Ya o süreci durdurun ya da farklı bir host portu seçin (<code>-p 8081:80</code> gibi).
-</div>
-
-<h2>Adım 11: Ortam Değişkenleri — <code>-e</code></h2>
-<p>Çoğu imaj yapılandırmasını <strong>ortam değişkenleriyle</strong> alır. Veritabanı şifresi, portu, modu... Kodda sabit yazmak yerine dışardan veriyoruz.</p>
-
-<div class="info-box note">
-    <div class="info-box-title">📌 Ortam Değişkeni Nedir? (Kısa Hatırlatma)</div>
-    <p>Programa "etrafından" verilen isim-değer çiftleridir — programa bir not bırakmak gibi: <em>"Şifre şudur"</em>, <em>"Log seviyesi info olsun"</em>. Linux'ta <code>echo $HOME</code>, <code>echo $USER</code> da birer ortam değişkeni okumadır. Aynı imajı farklı ortamlarda (geliştirme/üretim) farklı ayarlarla çalıştırmak için en temiz yoldur.</p>
-</div>
-
-<p><strong>Hangi değişkenleri ayarlamam gerek nereden bilirim?</strong> Her resmi Docker imajının Docker Hub sayfasında <em>"Environment Variables"</em> bölümü vardır. Örneğin PostgreSQL imajı <code>POSTGRES_PASSWORD</code>, <code>POSTGRES_USER</code>, <code>POSTGRES_DB</code> değişkenlerini bekler. Bu isimler imaj geliştiricileri tarafından belirlenir, biz keşfederiz. En klasik örnek: PostgreSQL.</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>PostgreSQL'i ortam değişkenleriyle başlat</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d</span> \\
-    <span class="flag">--name</span> <span class="argument">pg</span> \\
-    <span class="flag">-p</span> <span class="argument">5432:5432</span> \\
-    <span class="flag">-e</span> <span class="argument">POSTGRES_PASSWORD=gizli</span> \\
-    <span class="flag">-e</span> <span class="argument">POSTGRES_USER=admin</span> \\
-    <span class="flag">-e</span> <span class="argument">POSTGRES_DB=uygulama</span> \\
-    <span class="argument">postgres:16</span>
-
-<span class="comment"># Konteyner içinden psql'e bağlan:</span>
-<span class="prompt">$</span> <span class="command">docker exec</span> <span class="flag">-it</span> <span class="argument">pg psql -U admin -d uygulama</span>
-<span class="output">uygulama=#</span> <span class="command">\\l</span>
-<span class="output">uygulama=#</span> <span class="command">\\q</span></code></pre>
-</div>
-
-<h3>Çok Değişken Varsa: <code>--env-file</code></h3>
-<p>Komuta 5-10 tane <code>-e</code> bayrağı yazmak yorucudur. Daha temizi: değişkenleri bir <strong>düz metin dosyasına</strong> koymak. Önce <code>db.env</code> adında bir dosya oluşturalım. Bunu nano, vim ya da herhangi bir metin düzenleyiciyle yapabilirsiniz — örneğin:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>db.env dosyasını oluşturmak</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">nano</span> <span class="argument">db.env</span>
-<span class="comment"># Aşağıdaki üç satırı yazıp Ctrl+O ile kaydet, Ctrl+X ile çık:</span>
-
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=gizli
-POSTGRES_DB=uygulama</code></pre>
-</div>
-
-<p>Format basit: her satırda <code>ANAHTAR=DEGER</code>. Boşluk yok, tırnak yok, satır başına bir tane. Yorum satırı için <code>#</code> kullanılabilir.</p>
-
 <div class="info-box tip">
-    <div class="info-box-title">💡 Alternatif: Tek Komutla Dosya Yazmak (heredoc)</div>
-    <p>Editör açmadan terminalden hızlıca dosya oluşturmak için Bash'in <strong>heredoc</strong> özelliği vardır:</p>
-    <pre><code><span class="prompt">$</span> <span class="command">cat</span> <span class="operator">&gt;</span> <span class="path">db.env</span> <span class="operator">&lt;&lt;</span> <span class="string">EOF</span>
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=gizli
-POSTGRES_DB=uygulama
-<span class="string">EOF</span></code></pre>
-    <p>Bu sözdizimi şunu der: <em>"Aşağıdaki satırları, <code>EOF</code> kelimesini gördüğüm yere kadar oku ve <code>db.env</code> dosyasına yaz."</em></p>
-    <ul>
-        <li><code>&gt; db.env</code>: çıktıyı bu dosyaya yönlendir (varsa üzerine yaz).</li>
-        <li><code>&lt;&lt; EOF</code>: "burada başlıyor, EOF satırı geldiğinde bitir" demek. <em>End Of File</em>'ın kısaltmasıdır ama aslında herhangi bir kelime olabilir (<code>&lt;&lt; SON</code> da olur); kapanış da aynı kelime olmalı.</li>
-        <li>Bu, bu eğitimin önceki bölümlerinde gördüğümüz <strong>I/O yönlendirme</strong> mantığının bir uzantısıdır. İlk gördüğünüzde yabancı gelir, ama betik yazarken çok hayat kurtarır.</li>
-    </ul>
+    <div class="info-box-title">💡 Ezber ipucu</div>
+    <strong>c</strong>reate, e<strong>x</strong>tract, lis<strong>t</strong> — üç ana işlem. <strong>f</strong>ile her zaman dosya adından hemen önce: <code>-czf dosya.tar.gz</code>
 </div>
 
 <div class="code-block">
-    <div class="code-block-header"><span>.env dosyasıyla konteyner başlatmak</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">cat</span> <span class="argument">db.env</span>           <span class="comment"># Dosyayı görmek için</span>
-<span class="output">POSTGRES_USER=admin
-POSTGRES_PASSWORD=gizli
-POSTGRES_DB=uygulama</span>
+    <div class="code-block-header"><span>tar örnekleri</span></div>
+    <pre><code><span class="comment"># Arşiv oluştur + gzip sıkıştır:</span>
+<span class="prompt">$</span> <span class="command">tar -czvf</span> <span class="path">yedek.tar.gz</span> <span class="path">proje/</span>
 
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">pg</span> \\
-    <span class="flag">--env-file</span> <span class="argument">db.env</span> \\
-    <span class="flag">-p</span> <span class="argument">5432:5432 postgres:16</span>
+<span class="comment"># Aç (mevcut dizine):</span>
+<span class="prompt">$</span> <span class="command">tar -xzvf</span> <span class="path">yedek.tar.gz</span>
 
-<span class="comment"># Konteynerin gördüğü tüm env değişkenleri:</span>
-<span class="prompt">$</span> <span class="command">docker exec</span> <span class="argument">pg env</span></code></pre>
+<span class="comment"># Belirli dizine aç:</span>
+<span class="prompt">$</span> <span class="command">tar -xzvf</span> <span class="path">yedek.tar.gz</span> <span class="argument">-C</span> <span class="path">/tmp/restore</span>
+
+<span class="comment"># İçeriği listele (açmadan):</span>
+<span class="prompt">$</span> <span class="command">tar -tzvf</span> <span class="path">yedek.tar.gz</span>
+
+<span class="comment"># Tek dosya çıkar:</span>
+<span class="prompt">$</span> <span class="command">tar -xzvf</span> <span class="path">yedek.tar.gz</span> <span class="path">proje/config.env</span>
+
+<span class="comment"># Sıkıştırmadan arşiv (.tar):</span>
+<span class="prompt">$</span> <span class="command">tar -cvf</span> <span class="path">arsiv.tar</span> <span class="path">dosyalar/</span>
+
+<span class="comment"># Yedekten node_modules hariç:</span>
+<span class="prompt">$</span> <span class="command">tar -czvf</span> <span class="path">proje.tar.gz</span> <span class="argument">--exclude='*/node_modules'</span> <span class="argument">--exclude='.git'</span> <span class="path">proje/</span>
+
+<span class="comment"># xz ile daha iyi sıkıştırma (daha yavaş):</span>
+<span class="prompt">$</span> <span class="command">tar -cJvf</span> <span class="path">yedek.tar.xz</span> <span class="path">veri/</span>
+
+<span class="comment"># Arşiv bütünlüğünü test et (açmadan):</span>
+<span class="prompt">$</span> <span class="command">tar -tzvf</span> <span class="path">yedek.tar.gz</span> <span class="argument">&gt;/dev/null</span> <span class="argument">&amp;&amp;</span> <span class="command">echo</span> <span class="string">"OK"</span></code></pre>
 </div>
 
 <div class="info-box warning">
-    <div class="info-box-title">⚠️ .env Dosyalarını Git'e Eklemeyin!</div>
-    İçinde şifre, API anahtarı gibi sırlar olur. Projenizin <code>.gitignore</code> dosyasına <code>.env</code> ve <code>*.env</code> satırlarını eklemeyi unutmayın. <code>.dockerignore</code>'a da koymanız iyi olur.
-</div>
-
-<h2>Adım 12: Veriler Uçmasın! — Volume'ler</h2>
-<p>Yukarıdaki PostgreSQL konteynerine bir tablo oluşturup veri ekleyin. Sonra konteyneri silip yeniden oluşturun. Ne oldu? <strong>Her şey gitti.</strong> Çünkü konteynerin içine yazılan veri, konteyner silindiğinde yok olur.</p>
-
-<div class="info-box warning">
-    <div class="info-box-title">⚠️ Konteyner Silindiğinde Her Şey Silinir</div>
-    Docker konteynerleri varsayılan olarak "uçucu"dur (ephemeral). Veritabanı dosyaları, yüklenen dosyalar, loglar — konteyner rm'lendiğinde hepsi gider. Kalıcı tutmak için <strong>volume</strong> kullanmalısınız.
+    <div class="info-box-title">⚠️ Tar bomb ve güvenli açma</div>
+    Güvenilmeyen <code>.tar.gz</code> dosyalarını açarken dikkat: içinde <code>../../etc/passwd</code> gibi yollar olabilir (path traversal).<br>
+    • Önce <code>tar -tzvf arsiv.tar.gz | head</code> ile içeriğe bakın<br>
+    • Güvenli dizinde açın: <code>mkdir tmp &amp;&amp; tar -xzf arsiv.tar.gz -C tmp --strip-components=1</code><br>
+    • Kök dizine (<code>/</code>) asla körlemesine <code>tar -xzf</code> yapmayın
 </div>
 
 <div class="info-box note">
-    <div class="info-box-title">📌 Önce Anlamamız Gereken: Konteynerin "Yazılabilir Katmanı"</div>
-    <p>İmajlar değişmez (read-only) katmanların yığınıdır. Konteyner çalışırken Docker bu yığının üstüne <strong>yazılabilir bir katman daha</strong> koyar — siz dosya oluşturdukça, veritabanına veri yazdıkça bu üst katmana yazılır.</p>
-    <p>Şeffaf folyolar metaforuna dönelim: imajınız 5 sabit folyonun üst üste konulmuş hâli; en üste yenisi konuyor ve değişiklikler oraya işleniyor. Konteyner silindiğinde Docker o üst folyoyu çöpe atar — alttaki imaj sağlam kalır, ama yazdıklarınız gider.</p>
-    <p>Volume'ler tam burada devreye girer: yazılabilir katmana yazmak yerine, konteyner içindeki belirli bir klasörü <strong>dışarıda, konteynerin ömründen bağımsız bir yere</strong> bağlarız. Konteyner silinse bile o klasördeki veri orada kalır.</p>
+    <div class="info-box-title">📌 -f bayrağının yeri</div>
+    <code>-f</code> hemen arşiv dosya adından önce gelmeli: <code>tar -czvf yedek.tar.gz klasor/</code>. Yanlış sıra (ör. <code>tar -cfz</code> eski sürümlerde) beklenmedik davranışa yol açabilir.
 </div>
 
-<h3>Üç Mount Tipi — Hangisi Ne İçin?</h3>
-<p>Docker'da konteynere "dışarıdan" veri bağlamanın üç yolu vardır. Karıştırılmasın:</p>
+<h2>Sıkıştırma formatları karşılaştırması</h2>
 <table>
-    <tr><th>Tip</th><th>Yer</th><th>Tipik Kullanım</th></tr>
-    <tr><td><strong>Named volume</strong></td><td>Docker'ın yönettiği özel bir alan (Linux'ta genelde <code>/var/lib/docker/volumes/</code>)</td><td>Veritabanı verileri, kalıcı uygulama verisi</td></tr>
-    <tr><td><strong>Bind mount</strong></td><td>Sizin seçtiğiniz bir host klasörü (örn. <code>/home/ahmet/projem</code>)</td><td>Geliştirme sırasında kod yansıtma, config dosyası verme</td></tr>
-    <tr><td><strong>tmpfs mount</strong></td><td>Sadece RAM'de, diske hiç yazılmaz</td><td>Hassas/geçici veri (örn. anahtarlar, cache)</td></tr>
+    <tr><th>Format</th><th>tar bayrağı</th><th>Hız</th><th>Oran</th><th>Not</th></tr>
+    <tr><td>gzip (.gz)</td><td><code>-z</code></td><td>Hızlı</td><td>İyi</td><td>En yaygın, günlük yedek</td></tr>
+    <tr><td>bzip2 (.bz2)</td><td><code>-j</code></td><td>Orta</td><td>Daha iyi</td><td>Eski arşivlerde</td></tr>
+    <tr><td>xz (.xz)</td><td><code>-J</code></td><td>Yavaş</td><td>En iyi</td><td>Uzun süreli arşiv, dağıtım</td></tr>
+    <tr><td>zstd (.zst)</td><td><code>--zstd</code></td><td>Çok hızlı</td><td>İyi</td><td>Modern tar sürümlerinde</td></tr>
+    <tr><td>zip</td><td>ayrı <code>zip</code></td><td>Orta</td><td>Orta</td><td>Windows uyumu</td></tr>
 </table>
 
-<h3>Volume — Docker'ın Yönettiği Disk</h3>
+<h2>gzip, bzip2, xz</h2>
 <div class="code-block">
-    <div class="code-block-header"><span>Named volume ile veri kalıcılığı</span></div>
-    <pre><code><span class="comment"># 1) Volume oluştur:</span>
-<span class="prompt">$</span> <span class="command">docker volume create</span> <span class="argument">pg-verisi</span>
+    <div class="code-block-header"><span>Tek dosya sıkıştırma</span></div>
+    <pre><code><span class="prompt">$</span> <span class="command">gzip</span> <span class="path">buyuk.log</span>       <span class="comment"># → buyuk.log.gz (orijinal silinir)</span>
+<span class="prompt">$</span> <span class="command">gunzip</span> <span class="path">buyuk.log.gz</span>   <span class="comment"># geri aç</span>
 
-<span class="comment"># 2) Konteyneri volume'e bağlayarak başlat:</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">pg</span> \\
-    <span class="flag">-v</span> <span class="argument">pg-verisi:/var/lib/postgresql/data</span> \\
-    <span class="flag">-e</span> <span class="argument">POSTGRES_PASSWORD=gizli</span> \\
-    <span class="flag">-p</span> <span class="argument">5432:5432 postgres:16</span>
+<span class="prompt">$</span> <span class="command">xz</span> <span class="path">rapor.csv</span>          <span class="comment"># daha iyi sıkıştırma, daha yavaş</span>
+<span class="prompt">$</span> <span class="command">bzip2</span> <span class="path">veri.txt</span>       <span class="comment"># .bz2 — orta hız/sıkıştırma</span>
 
-<span class="comment"># -v KAYNAK:HEDEF
-# Sol: volume adı (veya host klasörü)
-# Sağ: konteyner içinde nereye bağlanacağı</span>
-
-<span class="comment"># 3) İçine bir şey yazın (psql ile veritabanı yaratın):</span>
-<span class="prompt">$</span> <span class="command">docker exec</span> <span class="flag">-it</span> <span class="argument">pg psql -U postgres -c "CREATE DATABASE test;"</span>
-
-<span class="comment"># 4) Konteyneri silin:</span>
-<span class="prompt">$</span> <span class="command">docker rm</span> <span class="flag">-f</span> <span class="argument">pg</span>
-
-<span class="comment"># 5) Aynı volume ile yeniden başlatın:</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">pg</span> \\
-    <span class="flag">-v</span> <span class="argument">pg-verisi:/var/lib/postgresql/data</span> \\
-    <span class="flag">-e</span> <span class="argument">POSTGRES_PASSWORD=gizli</span> \\
-    <span class="flag">-p</span> <span class="argument">5432:5432 postgres:16</span>
-
-<span class="prompt">$</span> <span class="command">docker exec</span> <span class="argument">pg psql -U postgres -c "\\l"</span>
-<span class="comment"># "test" veritabanı hâlâ orada! Veriler kaybolmadı.</span></code></pre>
+<span class="comment"># Orijinali koruyarak sıkıştır:</span>
+<span class="prompt">$</span> <span class="command">gzip -k</span> <span class="path">dosya.txt</span></code></pre>
 </div>
 
-<h3>Bind Mount — Host Klasörü Bağlama</h3>
-<p>Volume yerine hosttan bir klasör bağlamak da mümkün — geliştirme sırasında özellikle kullanışlı:</p>
+<h2>zip / unzip — Windows uyumluluğu</h2>
 <div class="code-block">
-    <div class="code-block-header"><span>Yerel klasörü konteynere yansıt</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">mkdir</span> <span class="argument">site</span>
-<span class="prompt">$</span> <span class="command">echo</span> <span class="string">'&lt;h1&gt;Benim sitem!&lt;/h1&gt;'</span> <span class="operator">&gt;</span> <span class="path">site/index.html</span>
+    <div class="code-block-header"><span>zip arşivleri</span></div>
+    <pre><code><span class="prompt">$</span> <span class="command">zip -r</span> <span class="path">arsiv.zip</span> <span class="path">klasor/</span>
+<span class="prompt">$</span> <span class="command">unzip</span> <span class="path">arsiv.zip</span>
+<span class="prompt">$</span> <span class="command">unzip -l</span> <span class="path">arsiv.zip</span>   <span class="comment"># listele</span>
 
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">web</span> \\
-    <span class="flag">-p</span> <span class="argument">8080:80</span> \\
-    <span class="flag">-v</span> <span class="argument">$(pwd)/site:/usr/share/nginx/html</span> \\
-    <span class="argument">nginx</span>
+<span class="prompt">$</span> <span class="command">unzip</span> <span class="path">arsiv.zip</span> <span class="path">tek_dosya.txt</span>  <span class="comment"># tek dosya çıkar</span>
 
-<span class="prompt">$</span> <span class="command">curl</span> <span class="argument">http://localhost:8080</span>
-<span class="output">&lt;h1&gt;Benim sitem!&lt;/h1&gt;</span>
-
-<span class="comment"># site/index.html'i şimdi düzenleyin — sonuç anında yansır!</span></code></pre>
+<span class="prompt">$</span> <span class="command">zip -r -9</span> <span class="path">buyuk.zip</span> <span class="path">klasor/</span>  <span class="comment"># -9 max sıkıştırma</span></code></pre>
 </div>
 
 <div class="info-box note">
-    <div class="info-box-title">📌 Volume mu, Bind Mount mu? — Hangisini Ne Zaman Seçeyim?</div>
-    <ul>
-        <li><strong>Veritabanı verisi (Postgres, MySQL, Redis)</strong> → Named volume. Docker yönetir; başka makineye taşınabilir (volume dump alıp aktarabilirsiniz).</li>
-        <li><strong>Geliştirme sırasında "kodumu canlı düzenleyip konteynerde göreyim"</strong> → Bind mount. Host klasörü direk konteynere yansır.</li>
-        <li><strong>Config dosyası tek dosya halinde vermek</strong> → Bind mount (tek dosya da olabilir): <code>-v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro</code>. Sondaki <code>:ro</code> = read-only.</li>
-        <li><strong>Geçici / hassas veri</strong> → tmpfs mount (sadece RAM, hiç diske yazılmaz).</li>
-    </ul>
+    <div class="info-box-title">📌 tar.gz vs zip — ne zaman hangisi?</div>
+    <strong>Linux sunucu yedek / deploy:</strong> <code>tar.gz</code> veya <code>tar.xz</code> — izinler, symlink korunur.<br>
+    <strong>Windows/macOS paylaşım:</strong> <code>zip</code> — evrensel destek.<br>
+    <strong>Tek büyük log:</strong> <code>gzip log</code> — hızlı, tek dosya.
 </div>
-
-<h3>Volume'üm Aslında Nerede Yaşıyor?</h3>
-<p>Named volume yarattığınızda merak ediyor olabilirsiniz: "Bu dosyalar nerede?" <code>docker volume inspect</code> ile öğrenebilirsiniz:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Volume'ün fiziksel adresi</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker volume create</span> <span class="argument">deneme</span>
-<span class="prompt">$</span> <span class="command">docker volume inspect</span> <span class="argument">deneme</span>
-<span class="output">[
-    {
-        "CreatedAt": "2026-01-15T10:30:00Z",
-        "Driver": "local",
-        "Mountpoint": "/var/lib/docker/volumes/deneme/_data",
-        "Name": "deneme"
-    }
-]</span>
-<span class="comment"># Linux'ta volume verisi genelde:
-# /var/lib/docker/volumes/&lt;volume-adi&gt;/_data
-# altında durur. Root yetkisi gerekir görüntülemek için.</span></code></pre>
-</div>
-
-<p><strong>Önemli not:</strong> Bu yolu bilmek ilginçtir ama oraya elle dokunmayın — Docker'ın yönetimine bırakın. Volume'leri taşımak için <code>docker run --rm -v eski:/from -v yeni:/to alpine cp -a /from/. /to/</code> gibi temiz yollar var.</p>
-
-<h3>tmpfs Mount — Sadece RAM'de Geçici Veri</h3>
-<p>Bazen veriyi <strong>hiç</strong> diske yazmak istemezsiniz: hassas anahtarlar, geçici hesaplama dosyaları, performans kritik cache. <code>--tmpfs</code> ile konteyner içindeki bir klasörü tamamen RAM'de tutarsınız:</p>
-<div class="code-block">
-    <div class="code-block-header"><span>tmpfs örneği</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">cache</span> \\
-    <span class="flag">--tmpfs</span> <span class="argument">/tmp:size=100m</span> \\
-    <span class="argument">nginx</span>
-<span class="comment"># Konteyner içindeki /tmp 100 MB'lık bir RAM diski.
-# Konteyner durunca her şey buhar olur — kalıcılık YOK.</span></code></pre>
-</div>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Volume yönetim komutları</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker volume ls</span>                      <span class="comment"># Tüm volume'leri listele</span>
-<span class="prompt">$</span> <span class="command">docker volume inspect pg-verisi</span>      <span class="comment"># Detay (host'taki yer dahil)</span>
-<span class="prompt">$</span> <span class="command">docker volume rm pg-verisi</span>           <span class="comment"># Tek volume'ü sil</span>
-<span class="prompt">$</span> <span class="command">docker volume prune</span>                   <span class="comment"># Kimseye bağlı olmayanları toplu sil</span>
-
-<span class="comment"># Bir volume'ün boyutunu görmek (root yetkisi):</span>
-<span class="prompt">$</span> <span class="command">sudo du</span> <span class="flag">-sh</span> <span class="argument">/var/lib/docker/volumes/pg-verisi/_data</span></code></pre>
-</div>
-
-<div class="info-box warning">
-    <div class="info-box-title">⚠️ Volume Silinmeden Konteyner Silmek "Yetim Volume" Yaratır</div>
-    <code>docker rm -f pg</code> dediğinizde sadece konteyner gider, volume hâlâ orada durur. Bu güvenliğiniz için iyidir (yanlışlıkla veritabanı silmezsiniz) ama unutursanız diskte sessizce birikir. Kullanılmadığından emin olduktan sonra <code>docker volume rm</code> ya da <code>docker volume prune</code> ile temizleyin.
-</div>
-
-<h2>Adım 13: Konteynerler Arası İletişim — Ağlar</h2>
-<p>Şu ana kadar konteynerlerimizi tek tek başlattık. Peki iki konteynerin birbiriyle konuşması gerekirse? Örneğin bir API sunucusunun bir veritabanına bağlanması, ya da bir web uygulamasının bir cache servisine istek atması. Bu <strong>ağlar (networks)</strong> alanına girer.</p>
-
-<p>Bu adımda Redis'i sıkça kullanacağımız için önce onu bir tanıtalım:</p>
 
 <div class="info-box note">
-    <div class="info-box-title">📌 Bu Arada — Redis Nedir?</div>
-    <p><strong>Redis</strong> (Remote Dictionary Server) çok hızlı bir <em>anahtar-değer (key-value)</em> veri saklayıcısıdır. Klasik veritabanı gibi tablo/sütun mantığı yoktur; basitçe <em>"anahtar şu, değer şu"</em> şeklinde veri tutar:</p>
-    <pre><code>SET kullanici:42 "ahmet"
-GET kullanici:42        → "ahmet"
-INCR ziyaret-sayisi     → 1, sonra 2, sonra 3...</code></pre>
-    <p><strong>Neden bu kadar popüler?</strong> Verileri RAM'de tuttuğu için saniyede yüz binlerce işlem yapabilir. Tipik kullanımları:</p>
-    <ul>
-        <li><strong>Önbellek (cache)</strong>: Veritabanından çekilen yavaş sonuçları geçici olarak Redis'e koyarsınız; bir dahaki istekte oradan saniyenin binde biri sürede gelir.</li>
-        <li><strong>Sayaçlar</strong>: Ziyaret sayısı, oy sayısı, "şu kadar saniyede şu kadar istek" gibi şeyler.</li>
-        <li><strong>Oturum (session) saklama</strong>: Giriş yapan kullanıcının token'ı, sepeti vs.</li>
-        <li><strong>Kuyruk / mesajlaşma</strong>: İşlemler arasında basit mesaj geçirme.</li>
-    </ul>
-    <p>Aşağıda "Redis'e PING gönderiyoruz, PONG dönüyor" derken: bir konteynerden başka konteynerdeki Redis sunucusuna ağ üzerinden mesaj atıp cevap alıyoruz. <code>redis-cli</code> ise Redis'le konuşmak için kullanılan komut satırı istemcisidir (PostgreSQL'in <code>psql</code>'i gibi).</p>
+    <div class="info-box-title">📌 Bölüm 15 extract() fonksiyonu</div>
+    Bölüm 15'te <code>~/.bashrc</code>'ye eklenen <code>extract</code> kısayolu bu formatları otomatik tanır. Arkada yine <code>tar</code>, <code>unzip</code>, <code>gunzip</code> çalışır — hangi komutun ne yaptığını bilmek hata ayıklamada şarttır.
 </div>
 
-<h3>Konteynerler Birbirini Nasıl Bulur?</h3>
-<p>Normal bir bilgisayar ağında iki makine birbirini iki şekilde bulabilir:</p>
-<ul>
-    <li><strong>IP adresi ile</strong> (örn. <code>192.168.1.42</code>) — sayısal, ezberlemesi zor, değişebilir.</li>
-    <li><strong>İsim ile</strong> (örn. <code>google.com</code>) — okunur, kalıcı. Bunu mümkün kılan şey <strong>DNS</strong>'tir: isimleri IP'lere çeviren bir telefon rehberi gibi.</li>
-</ul>
-<p>Docker, konteynerleri için aynı şeyi yapar — ama bir <strong>şart vardır</strong>: aynı kullanıcı tarafından oluşturulan ağ üzerinde olmaları lazım.</p>
-
-<h3>Bridge Nedir?</h3>
-<div class="info-box note">
-    <div class="info-box-title">📌 Sanal Ağ Köprüsü</div>
-    <p>Düşünün: bir router'a dört kablo taktınız, dört bilgisayar birbirine konuşabilir. <strong>Bridge</strong>, yazılım tarafındaki bu router'dır (teknik olarak "switch"). Docker kurulunca <code>docker0</code> adlı bir varsayılan bridge oluşturur. Bu ağda her konteynere bir iç IP atanır (örn. <code>172.17.0.2</code>) ve aynı köprüye takılı oldukları için birbirlerine IP üzerinden erişebilirler.</p>
-    <p><strong>Ama varsayılan <code>docker0</code> bridge'inde bir sorun var:</strong> konteynerler birbirini <em>isimle bulamaz</em>, sadece IP ile. Üstelik IP'ler konteyner her yeniden başladığında değişebilir. Kodunuzda <code>db.host = "172.17.0.3"</code> yazmak çok kırılgan olur.</p>
-    <p>Çözüm: <strong>kendi ağınızı (user-defined bridge) oluşturmak</strong>. Docker burada bir bonus olarak <em>otomatik DNS</em> sağlar — konteynerleri isimle bulabilirsiniz. Bu yüzden hep <code>docker network create</code> ile başlamak altın kuraldır.</p>
-</div>
-
+<h2>Pipe ile tar</h2>
 <div class="code-block">
-    <div class="code-block-header"><span>Kendi ağınızla konteynerleri birbirine bağlamak</span></div>
-    <pre><code><span class="comment"># 1) Özel bir bridge ağı oluştur:</span>
-<span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">uygulama-ag</span>
+    <div class="code-block-header"><span>Uzak yedekleme örneği</span></div>
+    <pre><code><span class="comment"># Dizini stdout'a tar'la, gzip'le, dosyaya yaz:</span>
+<span class="prompt">$</span> <span class="command">tar -czf -</span> <span class="path">/etc/nginx</span> <span class="argument">&gt;</span> <span class="path">nginx-yedek.tar.gz</span>
 
-<span class="comment"># 2) Redis sunucusunu bu ağda başlat (dış porta gerek yok):</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">redis</span> \\
-    <span class="flag">--network</span> <span class="argument">uygulama-ag redis</span>
+<span class="comment"># rsync alternatifi — Bölüm 19 ile birlikte düşünün</span>
+<span class="prompt">$</span> <span class="command">tar -czf -</span> <span class="path">./site</span> <span class="argument">|</span> <span class="command">ssh sunucu</span> <span class="string">"cat > /yedek/site.tar.gz"</span>
 
-<span class="comment"># 3) Aynı ağdan başka bir konteyner, "redis" ismiyle ona erişebilir:</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">--rm -it</span> \\
-    <span class="flag">--network</span> <span class="argument">uygulama-ag redis redis-cli -h redis</span>
-<span class="comment">#                                              ↑ Bu "redis" konteyner adıdır,
-#                                                Docker'ın DNS'i otomatik IP'ye çevirir.</span>
-<span class="output">redis:6379&gt;</span> <span class="command">PING</span>
-<span class="output">PONG</span>
-<span class="comment"># Sunucudan "ben hayattayım" cevabı geldi.</span>
-<span class="output">redis:6379&gt;</span> <span class="command">SET</span> <span class="argument">merhaba "dunya"</span>
-<span class="output">OK</span>
-<span class="output">redis:6379&gt;</span> <span class="command">GET</span> <span class="argument">merhaba</span>
-<span class="output">"dunya"</span></code></pre>
+<span class="comment"># Bölüm 19 rsync ile birlikte — büyük veri: rsync, tek seferlik paket: tar</span></code></pre>
 </div>
 
-<p><strong>Burada ne yaptık?</strong></p>
-<ol>
-    <li>"uygulama-ag" adında yeni bir sanal ağ kurduk — sadece bu ağa katılan konteynerler birbirini görür, dışarıdan kimse giremez.</li>
-    <li>Redis sunucusunu konteyner olarak başlattık ve bu ağa bağladık. <strong>Dikkat:</strong> <code>-p</code> ile dış porta açmadık — sadece aynı ağdaki kardeş konteynerler erişebilir. Bu güvenlik açısından çok iyi: Redis'iniz internete açık kalmaz.</li>
-    <li>İkinci konteyneri (Redis CLI istemcisi) aynı ağa bağladık ve sunucuya "redis" diyerek bağlandık. Docker'ın iç DNS'i bu ismi otomatik olarak Redis konteynerinin IP'sine çevirdi.</li>
-</ol>
-
-<div class="info-box tip">
-    <div class="info-box-title">💡 Gerçek Hayatta Bu Nasıl Görünür?</div>
-    <p>Bir Python web uygulamanız olduğunu düşünün. Redis'e bağlanmak için kodda şöyle yazardınız:</p>
-    <pre><code>import redis
-r = redis.Redis(host="redis", port=6379)  <span class="comment"># "redis" konteynerin adı</span>
-r.set("merhaba", "dünya")</code></pre>
-    <p>Uygulamayı konteynerleştirip aynı ağa bağlayınca "redis" hostname'i otomatik çalışır. Bu yüzden bağlantı dizelerini config'e koyarken konteyner ismini kullanmak yaygın bir desendir.</p>
-</div>
-
-<h3>Diğer Ağ Modları — Sadece Bilgi Olsun</h3>
-<p><code>docker network ls</code> yazınca aşağıdaki gibi varsayılan ağlar görürsünüz:</p>
-<pre><code>NETWORK ID     NAME      DRIVER    SCOPE
-8a3b4c5d6e7f   bridge    bridge    local
-1a2b3c4d5e6f   host      host      local
-9z8y7x6w5v4u   none      null      local</code></pre>
-<ul>
-    <li><strong>bridge</strong> (varsayılan): Yukarıda anlattığımız klasik mod. Yeni başlattığınız konteynerler isim vermediğiniz sürece <code>docker0</code> bridge'ine takılır.</li>
-    <li><strong>host</strong>: Konteyner host'un ağ yığınını <em>doğrudan</em> kullanır. Yalıtım yoktur — konteyner içinde port 80 dinlerseniz host'ta da 80 portu meşgul olur. <code>-p</code> bayrağına gerek kalmaz. Performans biraz daha iyi; ama yalıtım yok ve port çakışmaları yaşarsınız.</li>
-    <li><strong>none</strong>: Konteynerin <em>hiç</em> ağı yoktur. Sadece <code>lo</code> (loopback) arayüzü vardır. Tamamen izole bir hesaplama yapmak istediğinizde kullanılır.</li>
-</ul>
-<p>Pratikte %95 ihtimalle kendi oluşturduğunuz bir <strong>user-defined bridge</strong> ağıyla çalışacaksınız. Diğerleri özel durumlar için.</p>
-
+<h2>Pratik yedekleme tarifleri</h2>
 <div class="code-block">
-    <div class="code-block-header"><span>Ağ komutları</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker network ls</span>                       <span class="comment"># Tüm ağlar</span>
-<span class="prompt">$</span> <span class="command">docker network create ad</span>                 <span class="comment"># Oluştur</span>
-<span class="prompt">$</span> <span class="command">docker network inspect ad</span>                <span class="comment"># Detay (hangi konteynerler bağlı, IP'leri)</span>
-<span class="prompt">$</span> <span class="command">docker network connect ad konteyner</span>      <span class="comment"># Var olan konteyneri ağa ekle</span>
-<span class="prompt">$</span> <span class="command">docker network disconnect ad konteyner</span>   <span class="comment"># Ağdan çıkar</span>
-<span class="prompt">$</span> <span class="command">docker network rm ad</span>                     <span class="comment"># Ağı sil (içinde konteyner olmamalı)</span>
-<span class="prompt">$</span> <span class="command">docker network prune</span>                     <span class="comment"># Kullanılmayan ağları toplu sil</span>
+    <div class="code-block-header"><span>3 senaryo</span></div>
+    <pre><code><span class="comment"># 1) Ev dizini yedek (hariç tutmalarla):</span>
+<span class="prompt">$</span> <span class="command">tar -czvf</span> <span class="path">home-$(date +%F).tar.gz</span> <span class="argument">--exclude='.cache'</span> <span class="argument">--exclude='.local/share/Trash'</span> <span class="argument">-C /home</span> <span class="path">kullanici</span>
 
-<span class="comment"># Bir konteynerin hangi ağlarda olduğunu görmek:</span>
-<span class="prompt">$</span> <span class="command">docker inspect</span> <span class="argument">konteyner</span> <span class="flag">--format</span> <span class="string">'{{json .NetworkSettings.Networks}}'</span></code></pre>
+<span class="comment"># 2) /etc yapılandırma yedek (sunucu):</span>
+<span class="prompt">$</span> <span class="command">sudo tar -czvf</span> <span class="path">etc-yedek.tar.gz</span> <span class="path">/etc</span>
+
+<span class="comment"># 3) Veritabanı dump + arşiv (script içinde):</span>
+<span class="prompt">$</span> <span class="command">pg_dump mydb</span> <span class="argument">|</span> <span class="command">gzip</span> <span class="argument">&gt;</span> <span class="path">mydb-$(date +%F).sql.gz</span></code></pre>
 </div>
 
-<div class="info-box tip">
-    <div class="info-box-title">💡 Aynı Konteyner Birden Fazla Ağa Bağlı Olabilir</div>
-    Mesela bir API sunucusu hem "frontend-net" hem "backend-net" ağlarında olsun: frontend ile public konuşur, backend'de veritabanına gizli erişir. <code>docker network connect</code> ile çalışan bir konteynere ek ağ bağlayabilirsiniz.
-</div>
-
-<h3>Mini Uygulama — İki Konteynerli Ziyaretçi Sayacı</h3>
-<p>Şimdi yukarıda öğrendiklerimizi küçük somut bir örnekte deneyelim: bir Redis konteyneri "ziyaretçi sayısı"nı saklayacak, biz başka bir konteynerden ona "1 arttır" diyeceğiz. Bir web sitesinin sayaç servisinin minik versiyonu gibi.</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Konteynerler arası iletişim</span></div>
-    <pre><code><span class="comment"># 1) Mini bir ağ oluştur:</span>
-<span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">mini</span>
-
-<span class="comment"># 2) Redis'i "sayi" adıyla bu ağa bağla (dış port yok):</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">sayi --network mini redis:alpine</span>
-
-<span class="comment"># 3) Geçici bir Redis istemcisi konteyneri başlat ("sayi" hostname'ine bağlan):
-# --rm: çıkınca konteyneri otomatik sil (test etmek için ideal)</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">--rm -it</span> <span class="flag">--network</span> <span class="argument">mini redis:alpine redis-cli -h sayi</span>
-
-<span class="comment"># Komut isteminde artık Redis ile konuşuyoruz:</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>      <span class="comment"># "ziyaret" anahtarını 1 arttır</span>
-<span class="output">(integer) 1</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>      <span class="comment"># Yine arttır</span>
-<span class="output">(integer) 2</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">GET</span> <span class="argument">ziyaret</span>       <span class="comment"># Şu anki değeri oku</span>
-<span class="output">"2"</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">exit</span></code></pre>
-</div>
-
-<p><strong>Burada güzel olan ne?</strong> Redis konteynerinin IP'sini hiç bilmedik. Sadece <em>"sayi"</em> dedik — Docker'ın iç DNS'i bunu doğru konteynere çevirdi. Konteyner yeniden başlatılsa, IP değişse bile, "sayi" adı duruyor.</p>
-
-<div class="info-box tip">
-    <div class="info-box-title">💡 Bonus: Kalıcılık Ekleyelim</div>
-    <p>Yukarıdaki örnekte Redis konteynerini sildiğinizde sayaç sıfırlanır (RAM'de saklıyor). Veriyi kalıcı tutmak için volume ekleyin:</p>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">sayi</span> <span class="flag">--network</span> <span class="argument">mini</span> \\
-    <span class="flag">-v</span> <span class="argument">sayi-disk:/data</span> \\
-    <span class="argument">redis:alpine redis-server --save 60 1</span>
-<span class="comment"># --save 60 1: 60 saniyede en az 1 değişiklik olursa diske yaz</span></code></pre>
-    <p>Artık konteyner silinse bile <code>sayi-disk</code> volume'ünde veri kalır. Yeni konteynerle aynı volume'ü bağlarsanız sayaç kaldığı yerden devam eder.</p>
-</div>
-
-<h2>Adım 14: Konteyneri İzlemek</h2>
-<p>Konteynerler çalışıyor. Kaynak kullanımları ne alemde? Bellek mi patlıyor? CPU mu yiyor? İşte size izleme komutları:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Canlı izleme</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker stats</span>
-<span class="comment"># Canlı tablo — top komutunun Docker versiyonu.
-# CPU%, MEM%, MEM kullanımı, ağ I/O, disk I/O.</span>
-
-<span class="prompt">$</span> <span class="command">docker stats</span> <span class="argument">pg redis</span>         <span class="comment"># Sadece belirli konteynerler</span>
-<span class="prompt">$</span> <span class="command">docker stats</span> <span class="flag">--no-stream</span>       <span class="comment"># Tek seferlik anlık değer</span>
-
-<span class="prompt">$</span> <span class="command">docker top</span> <span class="argument">pg</span>
-<span class="comment"># Konteynerin içindeki süreçler (ps gibi)</span>
-
-<span class="prompt">$</span> <span class="command">docker inspect</span> <span class="argument">pg</span>
-<span class="comment"># JSON formatında her şey: IP, ağlar, volume'ler, env, restart sayısı...</span>
-
-<span class="prompt">$</span> <span class="command">docker inspect</span> <span class="argument">pg</span> <span class="flag">--format</span> <span class="string">'{{.NetworkSettings.IPAddress}}'</span>
-<span class="comment"># Sadece IP'yi al (script yazarken ideal)</span></code></pre>
-</div>
-
-<h2>Adım 15: Dosya Kopyalama — <code>docker cp</code></h2>
-<p>Konteynerden hosta veya hosttan konteynere dosya taşımak:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>İki yönlü dosya transferi</span></div>
-    <pre><code><span class="comment"># Konteynerden hosta:</span>
-<span class="prompt">$</span> <span class="command">docker cp</span> <span class="argument">web:/etc/nginx/nginx.conf ./nginx.conf</span>
-
-<span class="comment"># Hosttan konteynere:</span>
-<span class="prompt">$</span> <span class="command">docker cp</span> <span class="argument">./yeni.html web:/usr/share/nginx/html/index.html</span>
-
-<span class="comment"># Dizin kopyalamak (otomatik rekürsif):</span>
-<span class="prompt">$</span> <span class="command">docker cp</span> <span class="argument">./statik web:/usr/share/nginx/html</span></code></pre>
-</div>
-
-<h2>Adım 16: Kaynak Sınırları</h2>
-<p>Konteyner, hostun tüm RAM/CPU'sunu tüketmesin. Sınırlar koyun:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Bellek ve CPU kısıtı</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d</span> \\
-    <span class="flag">--memory</span> <span class="argument">512m</span> \\
-    <span class="flag">--cpus</span> <span class="argument">1.5</span> \\
-    <span class="flag">--name</span> <span class="argument">sinirli nginx</span>
-
-<span class="comment"># 512 MB RAM, 1.5 CPU çekirdeği kadar kullanabilir.</span>
-
-<span class="comment"># Otomatik yeniden başlatma politikası:</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --restart</span> <span class="argument">unless-stopped</span> <span class="flag">--name</span> <span class="argument">web nginx</span>
-<span class="comment"># Değerler: no (varsayılan), always, unless-stopped, on-failure</span></code></pre>
-</div>
-
-<h2>Adım 17: Temizlik — Diski Geri Kazanın</h2>
-<p>Günlük kullanımda Docker GB'larca yer kaplayabilir. Zaman zaman temizleyin:</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Temizlik komutları</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker system df</span>
-<span class="output">TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
-Images          23        5         12GB      8GB (66%)
-Containers      7         2         1.3GB     1.2GB (92%)
-Local Volumes   4         2         4GB       2GB (50%)</span>
-
-<span class="comment"># Güvenli — duran konteynerler, tag'siz imajlar, kullanılmayan ağlar:</span>
-<span class="prompt">$</span> <span class="command">docker system prune</span>
-
-<span class="comment"># Daha agresif — kullanılmayan TÜM imajlar dahil:</span>
-<span class="prompt">$</span> <span class="command">docker system prune</span> <span class="flag">-a</span>
-
-<span class="comment"># Volume'leri de (DİKKAT: VERİ KAYBI!):</span>
-<span class="prompt">$</span> <span class="command">docker system prune</span> <span class="flag">-a --volumes</span></code></pre>
-</div>
-
-<div class="info-box danger">
-    <div class="info-box-title">🚨 prune Komutlarına Dikkat</div>
-    <code>--volumes</code> bayrağıyla veritabanı volume'lerinizi silebilirsiniz. Üretim makinesinde <strong>asla</strong> düşünmeden çalıştırmayın.
-</div>
-
-<h2>Tüm Bu Adımları Birleştirelim — Mini Proje</h2>
-<p>Şimdiye kadar öğrendiklerimizle küçük ama tam bir ortam kuralım: Bir NGINX web sitesi + bir Redis önbellek + özel bir ağ + kalıcı bir volume. Gerçek bir mimaride benzer parçalar olur; biz "iskelet"i kuruyoruz.</p>
-
-<div class="info-box note">
-    <div class="info-box-title">📌 Bu Mini Mimari Hangi Şekilde Düşünülebilir?</div>
-    <pre><code>┌────────────┐   8080:80    ┌────────────────┐
-│   Tarayıcı │ ───────────→ │   NGINX (web)  │  ─→ sayfaları gösterir
-└────────────┘              │   demo-ag      │
-                            └────────┬───────┘
-                                     │ "redis" hostname üzerinden
-                                     │ konteyner-içi ağ
-                                     ▼
-                            ┌────────────────┐
-                            │  Redis         │  ─→ verileri saklar
-                            │  demo-ag       │
-                            │  ↕             │
-                            │  redis-disk    │  ─→ veriler diskte kalıcı
-                            └────────────────┘</code></pre>
-    <p>NGINX 80 portunu dinler ve host'un 8080'ine açıktır — dışarıdan erişilebilir. Redis sadece "demo-ag" iç ağındadır — sadece NGINX (ve aynı ağdaki başka konteynerler) erişebilir. Redis'in verileri "redis-disk" volume'ünde tutulur, böylece konteyner silinse bile veri yok olmaz.</p>
-</div>
-
-<div class="code-block">
-    <div class="code-block-header"><span>Her şey bir arada</span></div>
-    <pre><code><span class="comment"># 1) Ağ ve volume hazırla:</span>
-<span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">demo-ag</span>
-<span class="prompt">$</span> <span class="command">docker volume create</span> <span class="argument">redis-disk</span>
-
-<span class="comment"># 2) Redis başlat (sadece iç ağda, dışa port yok):</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">redis</span> \\
-    <span class="flag">--network</span> <span class="argument">demo-ag</span> \\
-    <span class="flag">-v</span> <span class="argument">redis-disk:/data</span> \\
-    <span class="flag">--restart</span> <span class="argument">unless-stopped</span> \\
-    <span class="argument">redis:7-alpine</span>
-
-<span class="comment"># 3) NGINX başlat (80 portunu host'un 8080'ine açık):</span>
-<span class="prompt">$</span> <span class="command">mkdir</span> <span class="argument">siteyim</span> && <span class="command">echo</span> <span class="string">'&lt;h1&gt;Çalışıyor!&lt;/h1&gt;'</span> <span class="operator">&gt;</span> <span class="path">siteyim/index.html</span>
-
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">web</span> \\
-    <span class="flag">--network</span> <span class="argument">demo-ag</span> \\
-    <span class="flag">-v</span> <span class="argument">$(pwd)/siteyim:/usr/share/nginx/html:ro</span> \\
-    <span class="flag">-p</span> <span class="argument">8080:80</span> \\
-    <span class="flag">--restart</span> <span class="argument">unless-stopped</span> \\
-    <span class="argument">nginx:alpine</span>
-
-<span class="comment"># 4) Test edin:</span>
-<span class="prompt">$</span> <span class="command">curl</span> <span class="argument">http://localhost:8080</span>
-<span class="prompt">$</span> <span class="command">docker exec</span> <span class="flag">-it</span> <span class="argument">web sh -c "ping -c 2 redis"</span>
-<span class="comment"># NGINX konteyneri "redis" ismiyle diğer konteynere ping atabilir.</span>
-
-<span class="comment"># 5) Her şeyi gör:</span>
-<span class="prompt">$</span> <span class="command">docker ps</span>
-<span class="prompt">$</span> <span class="command">docker network inspect demo-ag</span>
-<span class="prompt">$</span> <span class="command">docker stats</span> <span class="flag">--no-stream</span>
-
-<span class="comment"># 6) Temizlik:</span>
-<span class="prompt">$</span> <span class="command">docker rm</span> <span class="flag">-f</span> <span class="argument">web redis</span>
-<span class="prompt">$</span> <span class="command">docker network rm demo-ag</span>
-<span class="prompt">$</span> <span class="command">docker volume rm redis-disk</span></code></pre>
-</div>
-
-<p>Bu sadece başlangıç! Bir sonraki bölümde kendi Dockerfile'ınızı yazıp bu sürece kendi uygulamanızı ekleyeceksiniz.</p>
-
-<h2>Sık Kullanılan Bayrakların Hızlı Referansı</h2>
+<h2>Özet tablo</h2>
 <table>
-    <tr><th>Bayrak</th><th>Anlamı</th><th>Örnek</th></tr>
-    <tr><td><code>-d</code></td><td>Arka planda (detached)</td><td><code>-d</code></td></tr>
-    <tr><td><code>-it</code></td><td>İnteraktif + terminal</td><td><code>-it ubuntu bash</code></td></tr>
-    <tr><td><code>--name</code></td><td>Konteyner ismi</td><td><code>--name db</code></td></tr>
-    <tr><td><code>-p</code></td><td>Port eşleme</td><td><code>-p 8080:80</code></td></tr>
-    <tr><td><code>-v</code></td><td>Volume/bind mount</td><td><code>-v veri:/data</code></td></tr>
-    <tr><td><code>-e</code></td><td>Ortam değişkeni</td><td><code>-e DEBUG=1</code></td></tr>
-    <tr><td><code>--env-file</code></td><td>Dosyadan env</td><td><code>--env-file .env</code></td></tr>
-    <tr><td><code>--network</code></td><td>Belirli ağ</td><td><code>--network app</code></td></tr>
-    <tr><td><code>--restart</code></td><td>Yeniden başlatma</td><td><code>--restart unless-stopped</code></td></tr>
-    <tr><td><code>--rm</code></td><td>Durunca sil</td><td><code>--rm</code></td></tr>
-    <tr><td><code>-w</code></td><td>Çalışma dizini</td><td><code>-w /app</code></td></tr>
-    <tr><td><code>-u</code></td><td>Kullanıcı</td><td><code>-u 1000</code></td></tr>
-    <tr><td><code>--memory</code></td><td>RAM sınırı</td><td><code>--memory 512m</code></td></tr>
-    <tr><td><code>--cpus</code></td><td>CPU sınırı</td><td><code>--cpus 1.5</code></td></tr>
+    <tr><th>İşlem</th><th>Komut</th></tr>
+    <tr><td>Oluştur (.tar.gz)</td><td><code>tar -czvf yedek.tar.gz dizin/</code></td></tr>
+    <tr><td>Aç</td><td><code>tar -xzvf yedek.tar.gz</code></td></tr>
+    <tr><td>Listele</td><td><code>tar -tzvf yedek.tar.gz</code></td></tr>
+    <tr><td>Zip oluştur</td><td><code>zip -r arsiv.zip dizin/</code></td></tr>
+    <tr><td>Tek dosya gzip</td><td><code>gzip dosya</code></td></tr>
 </table>
-
-<h2>Sık Rastlanan Sorunlar</h2>
-<table>
-    <tr><th>Sorun</th><th>Ne Yapılmalı?</th></tr>
-    <tr><td>"Cannot connect to the Docker daemon"</td><td><code>sudo systemctl start docker</code></td></tr>
-    <tr><td>Konteyner hemen duruyor</td><td><code>docker logs &lt;ad&gt;</code> — hata genelde orada</td></tr>
-    <tr><td>"port is already allocated"</td><td>Başka şey o portu kullanıyor; farklı port seç</td></tr>
-    <tr><td>"executable not found" (bash)</td><td>Alpine imajında bash yok; <code>sh</code> kullan</td></tr>
-    <tr><td>Veri kayboldu</td><td>Volume kullanmamışsınız; konteyner rm'lenince her şey gitti</td></tr>
-    <tr><td>İki konteyner birbirini görmüyor</td><td>Aynı özel ağda mı? <code>docker network inspect</code> kontrol et</td></tr>
-    <tr><td>"No space left on device"</td><td><code>docker system df</code> + <code>docker system prune -a</code></td></tr>
-    <tr><td>Konteyner root çalışıyor, güvensiz</td><td><code>-u 1000</code> bayrağı veya Dockerfile'da <code>USER</code></td></tr>
-</table>
-
-<h2>Özet — Öğrendiğimiz Yol</h2>
-<ol>
-    <li><strong>pull</strong> ile imaj indir</li>
-    <li><strong>images</strong> ile yerel imajları gör</li>
-    <li><strong>run</strong> ile konteyner çalıştır (tek komut / interaktif / arka plan)</li>
-    <li><strong>ps / ps -a</strong> ile durumları izle</li>
-    <li><strong>logs</strong> ile çıktıyı oku</li>
-    <li><strong>exec</strong> ile çalışan konteynere gir</li>
-    <li><strong>stop / start / rm</strong> ile yaşam döngüsünü yönet</li>
-    <li><strong>-p</strong> ile port aç</li>
-    <li><strong>-e / --env-file</strong> ile ortam değişkenleri ver</li>
-    <li><strong>-v</strong> + <strong>volume create</strong> ile veri kalıcılığı</li>
-    <li><strong>network create</strong> + <strong>--network</strong> ile konteynerler arası iletişim</li>
-    <li><strong>stats / inspect / top</strong> ile izleme</li>
-    <li><strong>cp</strong> ile dosya transferi</li>
-    <li><strong>--memory / --cpus / --restart</strong> ile kontrol</li>
-    <li><strong>system prune</strong> ile temizlik</li>
-</ol>
-<p>Bir sonraki bölümde <strong>kendi imajlarımızı</strong> Dockerfile ile yazmayı ve Docker Hub'a yüklemeyi öğreneceğiz.</p>
 `,
     quiz: [
         {
-            question: "Bir Docker imajını Docker Hub'dan indirmek için hangi komutu kullanırsınız?",
-            options: [
-                "docker get",
-                "docker pull",
-                "docker download",
-                "docker fetch"
-            ],
-            correct: 1,
-            explanation: "docker pull, varsayılan registry olan Docker Hub'dan imajı indirip yerel önbelleğe ekler. Tag belirtmezseniz varsayılan olarak :latest alınır."
+            question: "tar -czvf yedek.tar.gz proje/ komutundaki -z ne yapar?",
+            options: ["gzip ile sıkıştırır", "Şifreler", "Sadece listeler", "Silme onayı ister"],
+            correct: 0,
+            explanation: "-z gzip sıkıştırması kullanır. Sonuç .tar.gz formatıdır."
         },
         {
-            question: "docker run komutu çalıştırıldığında, imaj yerelde yoksa ne olur?",
-            options: [
-                "Hata verir ve durur",
-                "Otomatik olarak Docker Hub'dan indirir, sonra çalıştırır",
-                "Boş bir imaj oluşturur",
-                "Komut hiçbir şey yapmaz"
-            ],
-            correct: 1,
-            explanation: "docker run, imaj yerelde yoksa arka planda docker pull çalıştırıp indirir. Bu yüzden pull atmayı unutsanız da çalışır."
+            question: "Arşiv içeriğini açmadan görmek için hangi bayrak kullanılır?",
+            options: ["-t", "-x", "-c", "-v"],
+            correct: 0,
+            explanation: "tar -t (list) arşivdeki dosya listesini gösterir."
         },
         {
-            question: "docker ps ile docker ps -a arasındaki fark nedir?",
+            question: "gzip dosya.txt çalıştırıldığında ne olur?",
             options: [
-                "Fark yoktur",
-                "docker ps sadece ÇALIŞAN konteynerleri, docker ps -a DURMUŞ olanları da dahil TÜMÜNÜ gösterir",
-                "docker ps imajları gösterir",
-                "docker ps -a daha yavaştır"
+                "dosya.txt.gz oluşur, orijinal dosya.txt silinir",
+                "Her iki dosya da kalır",
+                "Dosya şifrelenir",
+                "Sadece boyut gösterilir"
             ],
-            correct: 1,
-            explanation: "docker ps varsayılan olarak sadece çalışan (running) konteynerleri gösterir. Durmuş konteynerler yine var (sildiğiniz sürece); -a (all) bayrağıyla hepsini görürsünüz."
+            correct: 0,
+            explanation: "Varsayılan gzip orijinali siler. Korumak için gzip -k kullanın."
         },
         {
-            question: "docker run -it alpine sh komutundaki -it bayrağı ne işe yarar?",
-            options: [
-                "Konteyneri arka planda çalıştırır",
-                "Interaktif giriş + sanal terminal (tty) açar; shell kullanmaya uygun hale getirir",
-                "İnternet bağlantısını açar",
-                "Imajı indirir"
-            ],
-            correct: 1,
-            explanation: "-i (interactive) stdin'i açık tutar, -t (tty) sanal terminal oluşturur. İkisini birlikte kullanarak konteyner içinde bir shell'e girip yazmak mümkün olur."
+            question: "Windows kullanıcılarıyla paylaşım için en uyumlu format hangisi?",
+            options: ["zip", "tar.xz", "bzip2", "cpio"],
+            correct: 0,
+            explanation: "zip hem Linux'ta hem Windows'ta yerleşik veya kolay açılır."
         },
         {
-            question: "docker run ile docker exec arasındaki temel fark nedir?",
+            question: "tar --exclude='*/node_modules' ne işe yarar?",
             options: [
-                "Aynı şeydir",
-                "docker run YENİ bir konteyner oluşturur; docker exec ZATEN ÇALIŞAN bir konteynerde komut çalıştırır",
-                "docker run daha hızlıdır",
-                "docker exec sadece root için çalışır"
+                "Arşive node_modules klasörlerini dahil etmez",
+                "Sadece node_modules arşivler",
+                "node_modules'i siler",
+                "Şifreler"
             ],
-            correct: 1,
-            explanation: "docker run her seferinde imajdan yepyeni bir konteyner yaratır. docker exec ise mevcut, çalışan bir konteynere ek komutlar (mesela bash) gönderir. İnceleme/debug için docker exec -it ad bash kullanırsınız."
+            correct: 0,
+            explanation: "--exclude desenle eşleşen dosya/dizinleri arşiv dışında bırakır — yedek boyutunu küçültür."
         },
         {
-            question: "docker run -d -p 8080:80 nginx komutundaki 80 nerede dinlenir?",
+            question: "Güvenilmeyen arşivi açmadan önce ne yapmalısınız?",
             options: [
-                "Host makinede",
-                "Konteynerin içinde (NGINX 80'i dinliyor); host'un 8080'i oraya yönlendirilir",
-                "Hem host hem konteynerde aynı anda",
-                "İnternette rastgele bir yerde"
+                "tar -t ile içeriği listele, şüpheli ../ yollarına dikkat et",
+                "Doğrudan sudo tar -xzf / ile aç",
+                "chmod 777 arsiv.tar.gz",
+                "unzip -o ile zorla aç"
             ],
-            correct: 1,
-            explanation: "Format HOST:CONTAINER şeklindedir. Konteynerin içinde NGINX 80'i dinler; host'un 8080 portuna gelen istekler buraya yönlenir. Tarayıcıda localhost:8080 yazılır."
-        },
-        {
-            question: "Konteyner silindiğinde içindeki veriler ne olur?",
-            options: [
-                "Otomatik olarak Docker Hub'a yedeklenir",
-                "Volume veya bind mount kullanmadıysanız KAYBOLUR",
-                "Hiçbir şey olmaz, veri kalır",
-                "30 gün arşivde tutulur"
-            ],
-            correct: 1,
-            explanation: "Konteyner uçucudur (ephemeral) — sildiğinizde yazılabilir katman da silinir. Kalıcı veri için named volume veya bind mount kullanmanız gerekir."
-        },
-        {
-            question: "İki konteynerin birbirini İSİMLE bulabilmesi için ne gerekir?",
-            options: [
-                "Aynı host'ta olmaları yeterli",
-                "Kullanıcı tarafından oluşturulan bir ağda (docker network create) birlikte olmaları",
-                "Aynı imajdan türemiş olmaları",
-                "Port eşlemesi yapılmış olması"
-            ],
-            correct: 1,
-            explanation: "Varsayılan bridge (docker0) konteynerler arası DNS sağlamaz. docker network create ile özel bir ağ oluşturulup konteynerler oraya bağlanınca Docker'ın dahili DNS'i devreye girer ve konteynerler birbirini \"isim\" ile bulur."
-        },
-        {
-            question: "Çalışan bir konteynerin loglarını canlı takip etmek için hangisi kullanılır?",
-            options: [
-                "docker watch",
-                "docker logs -f ad",
-                "docker monitor",
-                "docker tail"
-            ],
-            correct: 1,
-            explanation: "-f (follow) bayrağı, konteynerin stdout/stderr akışını canlı gösterir. Ctrl+C ile ayrılırsınız. tail -f komutunun Docker sürümü gibidir."
-        },
-        {
-            question: "docker system prune -a --volumes komutu tehlikeli olabilir çünkü:",
-            options: [
-                "Docker'ı kaldırır",
-                "Kullanılmayan volume'leri de siler ve bu veritabanı verisi kaybına yol açabilir",
-                "Ağ adaptörünü bozar",
-                "Çalışan konteynerleri de siler"
-            ],
-            correct: 1,
-            explanation: "--volumes bayrağı \"o anda kullanılmıyor\" görünen tüm volume'leri siler. Bir konteyner durmuşsa onun volume'ü \"kullanılmıyor\" sayılır ve yanlışlıkla veritabanı verisi kaybedilebilir. Üretimde asla düşünmeden çalıştırılmamalıdır."
+            correct: 0,
+            explanation: "Path traversal saldırılarına karşı önce listele, ayrı dizinde ve --strip-components ile açın."
         }
     ]
 });

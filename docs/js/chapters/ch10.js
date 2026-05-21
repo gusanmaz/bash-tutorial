@@ -199,32 +199,57 @@ window.CHAPTERS.push({
     quiz: [
         {
             question: "'grep' komutunun açılımı nedir?",
-            options: ["Get Regular Expression Pattern", "Global Regular Expression Print", "General Retrieve Expression Pattern", "Grab Regular Expression Parse"],
-            correct: 1,
+            options: [
+                "General Retrieve Expression Pattern",
+                "Get Regular Expression Pattern",
+                "Global Regular Expression Print",
+                "Grab Regular Expression Parse"
+            ],
+            correct: 2,
             explanation: "grep = Global Regular Expression Print. Dosyalarda düzenli ifade kalıplarına uyan satırları bulur ve yazdırır."
         },
         {
             question: "'grep -i linux dosya.txt' komutundaki '-i' ne yapar?",
-            options: ["Sadece ilk eşleşmeyi gösterir", "Eşleşmeyi tersine çevirir", "Büyük/küçük harf farkını yok sayar", "Satır numarası gösterir"],
-            correct: 2,
+            options: [
+                "Eşleşmeyi tersine çevirir",
+                "Büyük/küçük harf farkını yok sayar",
+                "Satır numarası gösterir — bu davranış beklenmez",
+                "Sadece ilk eşleşmeyi gösterir"
+            ],
+            correct: 1,
             explanation: "-i = ignore case (harf duyarsız). 'linux', 'Linux', 'LINUX' hepsini bulur."
         },
         {
             question: "'^Merhaba' regex'i ne anlama gelir?",
-            options: ["'Merhaba' kelimesini her yerde bul", "Satır başında 'Merhaba' olan satırları bul", "'^' karakteri ve 'Merhaba' kelimesini bul", "'Merhaba' ile biten satırları bul"],
-            correct: 1,
+            options: [
+                "'Merhaba' kelimesini her yerde bul",
+                "'^' karakteri ve 'Merhaba' kelimesini bul",
+                "Satır başında 'Merhaba' olan satırları bul",
+                "'Merhaba' ile biten satırları bul — bu davranış beklenmez"
+            ],
+            correct: 2,
             explanation: "^ (caret) satır başını temsil eder. ^Merhaba = satırın başında 'Merhaba' olan satırlar."
         },
         {
             question: "'grep -v yorum dosya.txt' ne yapar?",
-            options: ["Sadece 'yorum' geçen satırları gösterir", "'yorum' geçMEYEN satırları gösterir", "Dosyadaki yorumları siler", "Verbose mod açar"],
+            options: [
+                "Dosyadaki yorumları siler",
+                "'yorum' geçMEYEN satırları gösterir",
+                "Sadece 'yorum' geçen satırları gösterir",
+                "Verbose mod açar — bu davranış beklenmez"
+            ],
             correct: 1,
             explanation: "-v = invert match (ters eşleşme). Kalıba UYMAYAN satırları gösterir."
         },
         {
             question: "'grep -oE \"[0-9]+\" dosya.txt' komutundaki '-o' ne yapar?",
-            options: ["Çıktıyı dosyaya yazar", "Tüm satırı değil sadece eşleşen kısmı gösterir", "Büyük/küçük harf duyarsız arar", "Eşleşme sayısını gösterir"],
-            correct: 1,
+            options: [
+                "Büyük/küçük harf duyarsız arar",
+                "Çıktıyı dosyaya yazar ve işlemi sonlandırır",
+                "Eşleşme sayısını gösterir — bu davranış beklenmez",
+                "Tüm satırı değil sadece eşleşen kısmı gösterir"
+            ],
+            correct: 3,
             explanation: "-o (only matching) sadece regex'e eşleşen kısmı çıktı olarak verir, satırın tamamını değil. Veri çıkartma (extraction) için çok kullanışlıdır."
         }
     ]

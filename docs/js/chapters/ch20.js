@@ -300,37 +300,67 @@ git: /usr/bin/git
     quiz: [
         {
             question: "'sudo apt update' komutu ne yapar?",
-            options: ["Kurulu paketleri günceller", "Paket listesini (index) yeniler", "Yeni paket kurar", "Sistemi yeniden başlatır"],
-            correct: 1,
+            options: [
+                "Paket listesini (index) yeniler",
+                "Kurulu paketleri günceller",
+                "Yeni paket kurar yerine farklı bir komut",
+                "Sistemi yeniden başlatır"
+            ],
+            correct: 0,
             explanation: "'apt update' depolardan paket listesini yeniler. Kurulu paketleri güncellemez — bunun için 'apt upgrade' gerekir."
         },
         {
             question: "Fedora'da paket kurmak için hangi komut kullanılır?",
-            options: ["apt install", "yum install", "dnf install", "pacman -S"],
-            correct: 2,
+            options: [
+                "apt install",
+                "pacman -S",
+                "yum install",
+                "dnf install"
+            ],
+            correct: 3,
             explanation: "Fedora, DNF (Dandified YUM) paket yöneticisini kullanır. YUM eski sürüm olup artık DNF tercih edilir."
         },
         {
             question: "Arch Linux'ta sistemi tamamen güncellemek için hangi komut kullanılır?",
-            options: ["pacman -U", "pacman -Syu", "pacman -R", "pacman -Q"],
-            correct: 1,
+            options: [
+                "pacman -R",
+                "pacman -Q",
+                "pacman -Syu",
+                "pacman -U ve işlemi sonlandırır"
+            ],
+            correct: 2,
             explanation: "-Syu: S(sync) veritabanını senkronize et, y(refresh) paket listesini yenile, u(upgrade) güncelle. Arch'ın en temel komutu."
         },
         {
             question: "APT ile DNF arasındaki temel fark nedir?",
-            options: ["Farklı dağıtım aileleri için geliştirilmişlerdir (deb vs rpm)", "Biri ücretsiz diğeri ücretli", "APT daha hızlıdır", "DNF sadece sunucularda çalışır"],
-            correct: 0,
+            options: [
+                "DNF sadece sunucularda çalışır",
+                "Biri ücretsiz diğeri ücretli",
+                "Farklı dağıtım aileleri için",
+                "APT daha hızlıdır yerine farklı bir komut"
+            ],
+            correct: 2,
             explanation: "APT, Debian tabanlı dağıtımlarda (.deb paketleri), DNF ise Red Hat tabanlı dağıtımlarda (.rpm paketleri) kullanılır."
         },
         {
             question: "Flatpak, Snap ve AppImage'nin ortak özelliği nedir?",
-            options: ["Hepsi Canonical tarafından geliştirilmiştir", "Hepsi .deb formatındadır", "Dağıtımdan bağımsız çalışırlar", "Hepsi terminal uygulamaları içindir"],
+            options: [
+                "Hepsi .deb formatındadır (Docker CLI'da yoktur)",
+                "Hepsi Canonical tarafından geliştirilmiştir",
+                "Dağıtımdan bağımsız çalışırlar",
+                "Hepsi terminal uygulamaları içindir"
+            ],
             correct: 2,
             explanation: "Üçü de dağıtımdan bağımsız paket formatlarıdır — uygulamayı bağımlılıklarıyla birlikte paketler."
         },
         {
             question: "'apt remove' ile 'apt purge' arasındaki fark nedir?",
-            options: ["Fark yoktur", "purge yapılandırma dosyalarını da siler", "remove daha hızlıdır", "purge sadece root çalıştırabilir"],
+            options: [
+                "purge sadece root çalıştırabilir",
+                "purge yapılandırma dosyalarını da siler",
+                "Fark yoktur ve işlemi sonlandırır",
+                "remove daha hızlıdır yerine farklı bir komut"
+            ],
             correct: 1,
             explanation: "'apt remove' paketi kaldırır ama yapılandırma dosyaları kalır (yeniden kurulumda eski ayarlar korunur). 'apt purge' her şeyi temizler."
         }

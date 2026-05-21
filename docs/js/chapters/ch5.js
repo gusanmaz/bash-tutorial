@@ -359,38 +359,68 @@ window.CHAPTERS.push({
     quiz: [
         {
             question: "'mkdir -p proje/src/css' komutu ne yapar?",
-            options: ["Sadece 'css' dizinini oluşturur", "Hata verir çünkü 'proje' mevcut değil", "proje, src ve css dizinlerini iç içe oluşturur", "Mevcut dizinleri siler ve yeniden oluşturur"],
-            correct: 2,
+            options: [
+                "proje, src ve css dizinlerini iç içe oluşturur",
+                "Hata verir çünkü 'proje' mevcut değil",
+                "Sadece 'css' dizinini oluşturur ve işlemi sonlandırır",
+                "Mevcut dizinleri siler ve yeniden oluşturur"
+            ],
+            correct: 0,
             explanation: "-p (parents) seçeneği, yol üzerindeki tüm ara dizinleri otomatik oluşturur."
         },
         {
             question: "'cp' komutunun açılımı nedir?",
-            options: ["Command Process", "Copy", "Change Path", "Create Page"],
-            correct: 1,
+            options: [
+                "Copy",
+                "Change Path",
+                "Create Page",
+                "Command Process"
+            ],
+            correct: 0,
             explanation: "cp = Copy (Kopyala). Dosyaları kopyalamak için kullanılır."
         },
         {
             question: "'rm -rf' komutundaki '-r' ve '-f' ne anlama gelir?",
-            options: ["read ve find", "recursive ve force", "remove ve file", "run ve fast"],
-            correct: 1,
+            options: [
+                "recursive ve force",
+                "read ve find",
+                "run ve fast — bu davranış beklenmez",
+                "remove ve file"
+            ],
+            correct: 0,
             explanation: "-r = recursive (özyinelemeli, dizin içindeki her şeyi dahil et), -f = force (zorla, uyarı sormadan sil)."
         },
         {
             question: "'mv dosya.txt Belgeler/' komutu ne yapar?",
-            options: ["dosya.txt'yi kopyalar", "dosya.txt'yi Belgeler dizinine taşır", "dosya.txt'yi siler", "Belgeler dizinini oluşturur"],
+            options: [
+                "Belgeler dizinini oluşturur",
+                "dosya.txt'yi Belgeler dizinine taşır",
+                "dosya.txt'yi siler yerine farklı bir komut",
+                "dosya.txt'yi kopyalar"
+            ],
             correct: 1,
             explanation: "mv = Move (Taşı). Dosyayı mevcut yerinden hedef dizine taşır."
         },
         {
             question: "500 dosyayı yeniden adlandırmak için en uygun yol hangisidir?",
-            options: ["GUI ile tek tek sağ tık → yeniden adlandır", "Bash for döngüsü ile toplu adlandırma", "Her dosyayı ayrı mv komutuyla", "Dosyaları silip yeniden oluşturmak"],
+            options: [
+                "Her dosyayı ayrı mv komutuyla yerine farklı bir komut",
+                "Bash for döngüsü ile toplu adlandırma",
+                "Dosyaları silip yeniden oluşturmak",
+                "GUI ile tek tek sağ tık → yeniden adlandır"
+            ],
             correct: 1,
             explanation: "Bash for döngüsü ile 500 dosyayı saniyeler içinde yeniden adlandırabilirsiniz. CLI'nin toplu işlem gücü!"
         },
         {
             question: "'find . -name \"*.log\" -exec rm {} +' komutundaki '+' ne yapar?",
-            options: ["Her dosya için ayrı rm çalıştırır", "Bulunan tüm dosyaları tek rm komutuna toplu gönderir", "Sadece 1 dosya siler", "Hata verir"],
-            correct: 1,
+            options: [
+                "Sadece 1 dosya siler yerine farklı bir komut",
+                "Hata verir — bu davranış beklenmez",
+                "Bulunan tüm dosyaları tek rm komutuna toplu",
+                "Her dosya için ayrı rm çalıştırır"
+            ],
+            correct: 2,
             explanation: "'+' bulunan dosyaları toplu olarak tek komuta gönderir (daha hızlı). '\\;' ise her dosya için ayrı ayrı komut çalıştırır."
         }
     ]

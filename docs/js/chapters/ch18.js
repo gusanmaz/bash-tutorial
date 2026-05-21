@@ -322,38 +322,68 @@ done</code></pre>
     quiz: [
         {
             question: "curl ile bir API'ye JSON POST isteği göndermek için hangi bayraklar kullanılır?",
-            options: ["-X POST -d 'veri'", "-X POST -H 'Content-Type: application/json' -d '{...}'", "-post --json '{...}'", "-send '{...}'"],
-            correct: 1,
+            options: [
+                "-X POST -H 'Content-Type: application/json' -d",
+                "Bu senaryoda -send '{...}' — bu davranış beklenmez",
+                "-X POST -d 'veri' ve işlemi sonlandırır",
+                "-post --json '{...}' yerine farklı bir komut"
+            ],
+            correct: 0,
             explanation: "JSON POST için -X POST ile metodu, -H ile Content-Type header'ını, -d ile veriyi belirtmeniz gerekir."
         },
         {
             question: "wget'in curl'den en önemli farkı nedir?",
-            options: ["Daha hızlıdır", "Yinelemeli (recursive) indirme destekler", "Daha fazla protokol destekler", "Sadece HTTPS çalışır"],
-            correct: 1,
+            options: [
+                "Sadece HTTPS çalışır — bu davranış beklenmez",
+                "Daha fazla protokol destekler",
+                "Yinelemeli (recursive) indirme destekler",
+                "Daha hızlıdır ve işlemi sonlandırır"
+            ],
+            correct: 2,
             explanation: "wget yinelemeli indirme (-r) ile web sitelerini yansılayabilir ve bağlantıları takip ederek tam siteleri indirebilir."
         },
         {
             question: "'curl -I https://example.com' ne gösterir?",
-            options: ["Sayfanın HTML içeriği", "Sadece HTTP yanıt başlıkları (headers)", "IP adresi", "SSL sertifikası"],
-            correct: 1,
+            options: [
+                "SSL sertifikası — bu davranış beklenmez",
+                "IP adresi yerine farklı bir komut",
+                "Sadece HTTP yanıt başlıkları (headers)",
+                "Sayfanın HTML içeriği"
+            ],
+            correct: 2,
             explanation: "-I (head) bayrağı sadece HTTP yanıt başlıklarını gösterir — durum kodu, content-type, server bilgisi gibi."
         },
         {
             question: "Yarıda kalan bir wget indirmesini devam ettirmek için hangi bayrak kullanılır?",
-            options: ["-r", "-O", "-c", "-b"],
-            correct: 2,
+            options: [
+                "-b",
+                "-O",
+                "-r",
+                "-c"
+            ],
+            correct: 3,
             explanation: "-c (continue) bayrağı yarıda kalan indirmeyi kaldığı yerden devam ettirir. Büyük dosyalar ve kararsız bağlantılar için çok yararlı."
         },
         {
             question: "curl ile HTTP yanıt durum kodunu (200, 404...) almak için ne kullanılır?",
-            options: ["-s", "-v", "-w '%{http_code}'", "-I"],
+            options: [
+                "-v",
+                "-s ve işlemi sonlandırır",
+                "-w '%{http_code}'",
+                "-I"
+            ],
             correct: 2,
             explanation: "-w '%{http_code}' ile sadece HTTP durum kodunu alabilirsiniz. -o /dev/null ile gövdeyi de gizlerseniz sadece kod kalır."
         },
         {
             question: "curl çıktısını JSON olarak güzelleştirmek için hangi araç kullanılır?",
-            options: ["jsonformat", "pretty", "jq", "jsonlint"],
-            correct: 2,
+            options: [
+                "pretty",
+                "jsonformat",
+                "jsonlint",
+                "jq"
+            ],
+            correct: 3,
             explanation: "jq, komut satırında JSON verisi işlemek için standart araçtır. Filtreleme, dönüştürme ve güzelleştirme yapabilir."
         }
     ]

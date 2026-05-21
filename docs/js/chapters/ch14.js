@@ -383,50 +383,90 @@ ClientAliveCountMax 2</code></pre>
     quiz: [
         {
             question: "SSH varsayılan olarak hangi portu kullanır?",
-            options: ["21", "22", "80", "443"],
-            correct: 1,
+            options: [
+                "443",
+                "80",
+                "21",
+                "22"
+            ],
+            correct: 3,
             explanation: "SSH varsayılan portu 22'dir. FTP 21, HTTP 80, HTTPS 443 portunu kullanır."
         },
         {
             question: "SSH anahtar çifti oluştururken 'private key' ile ne yapılmalıdır?",
-            options: ["Sunucuya kopyalanmalı", "Herkesle paylaşılmalı", "Sadece sizde kalmalı, kimseyle paylaşılmamalı", "GitHub'a yüklenmeli"],
-            correct: 2,
+            options: [
+                "Sadece sizde kalmalı, kimseyle paylaşılmamalı",
+                "Herkesle paylaşılmalı (Docker CLI'da yoktur)",
+                "GitHub'a yüklenmeli — bu davranış beklenmez",
+                "Bu senaryoda sunucuya kopyalanmalı ve işlemi sonlandırır"
+            ],
+            correct: 0,
             explanation: "Private key (özel anahtar) asla paylaşılmamalıdır. Sunucuya kopyalanan public key'dir (açık anahtar)."
         },
         {
             question: "~/.ssh/authorized_keys dosyasının doğru izni nedir?",
-            options: ["777", "755", "644", "600"],
-            correct: 3,
+            options: [
+                "777",
+                "600",
+                "755",
+                "644"
+            ],
+            correct: 1,
             explanation: "authorized_keys dosyası 600 (-rw-------) olmalıdır. SSH, izinleri sıkı kontrol eder."
         },
         {
             question: "Bir sunucuya ilk SSH bağlantısında gösterilen 'fingerprint' neyi temsil eder?",
-            options: ["Kullanıcının şifresini", "Sunucunun açık anahtarının özetini", "Bağlantı hızını", "IP adresini"],
+            options: [
+                "IP adresini — bu davranış beklenmez",
+                "Sunucunun açık anahtarının özetini",
+                "Bağlantı hızını yerine farklı bir komut",
+                "Kullanıcının şifresini"
+            ],
             correct: 1,
             explanation: "Fingerprint, sunucunun açık anahtarının kriptografik özetidir. Sunucunun kimliğini doğrulamak için kullanılır."
         },
         {
             question: "ssh -L 8080:localhost:3000 user@server komutu ne yapar?",
-            options: ["Sunucuda 8080 portunu açar", "Yerel 8080 portunu sunucunun 3000 portuna yönlendirir", "SOCKS proxy oluşturur", "Sunucuyu yeniden başlatır"],
+            options: [
+                "Varsayılan olarak sOCKS proxy oluşturur yerine farklı bir komut",
+                "Yerel 8080 portunu sunucunun 3000 portuna yönlendirir",
+                "Sunucuda 8080 portunu açar ve işlemi sonlandırır",
+                "Sunucuyu yeniden başlatır — bu davranış beklenmez"
+            ],
             correct: 1,
             explanation: "Local port forwarding (-L): Yerel 8080 portuna gelen trafik, SSH tüneli üzerinden sunucunun 3000 portuna yönlendirilir."
         },
         {
             question: "Hangi SSH anahtar algoritması günümüzde en çok önerilen modern seçenektir?",
-            options: ["RSA 1024", "DSA", "Ed25519", "ECDSA"],
-            correct: 2,
+            options: [
+                "ECDSA",
+                "Ed25519",
+                "DSA",
+                "RSA 1024"
+            ],
+            correct: 1,
             explanation: "Ed25519, kısa anahtar boyutu, yüksek performans ve güçlü güvenliği ile modern sistemlerde önerilen algoritmadır."
         },
         {
             question: "ssh-agent ne işe yarar?",
-            options: ["SSH sunucusu kurar", "Parolalı anahtarların parolasını bellekte tutar", "Firewall yapılandırır", "SSH bağlantılarını loglar"],
+            options: [
+                "Firewall yapılandırır yerine farklı bir komut",
+                "Parolalı anahtarların parolasını bellekte tutar",
+                "SSH sunucusu kurar ve işlemi sonlandırır",
+                "SSH bağlantılarını loglar — bu davranış beklenmez"
+            ],
             correct: 1,
             explanation: "ssh-agent, SSH anahtarlarının parolalarını bellekte tutarak her kullanımda tekrar parola girmenizi engeller."
         },
         {
             question: "Donmuş bir SSH bağlantısını kapatmak için hangi escape sequence kullanılır?",
-            options: ["Ctrl+C", "~.", "Ctrl+D", "exit"],
-            correct: 1,
+            options: [
+                "~.",
+                "Ctrl+D",
+                "exit",
+                "Ctrl+C"
+            ],
+            correct: 0,
             explanation: "~. (tilde + nokta) escape sequence'i, donmuş SSH bağlantılarını kapatmak için kullanılır. Enter'dan sonra yazılmalıdır."
         }
     ]

@@ -193,31 +193,56 @@ window.CHAPTERS.push({
     quiz: [
         {
             question: "'ls *.txt' komutu ne yapar?",
-            options: ["Tüm dosyaları listeler", "Sadece .txt uzantılı dosyaları listeler", "'txt' içeren dosyaları listeler", "Yeni bir .txt dosyası oluşturur"],
+            options: [
+                "'txt' içeren dosyaları listeler",
+                "Sadece .txt uzantılı dosyaları listeler",
+                "Tüm dosyaları listeler ve işlemi sonlandırır",
+                "Yeni bir .txt dosyası oluşturur"
+            ],
             correct: 1,
             explanation: "* joker karakteri sıfır veya daha fazla herhangi karakteri temsil eder. *.txt kalıbı .txt ile biten tüm dosyaları eşler."
         },
         {
             question: "'dosya?.txt' kalıbı hangi dosyayla eşleşir?",
-            options: ["dosya.txt", "dosya12.txt", "dosyaA.txt", "dosyalar.txt"],
-            correct: 2,
+            options: [
+                "dosya.txt",
+                "dosya12.txt",
+                "dosyalar.txt",
+                "dosyaA.txt"
+            ],
+            correct: 3,
             explanation: "? joker karakteri tam olarak BİR karakter temsil eder. dosya?.txt: dosya + herhangi tek karakter + .txt"
         },
         {
             question: "'{1..5}' brace expansion sonucu nedir?",
-            options: ["1..5", "1 2 3 4 5", "15", "Hata verir"],
+            options: [
+                "1..5",
+                "1 2 3 4 5",
+                "Hata verir",
+                "15"
+            ],
             correct: 1,
             explanation: "{1..5} brace expansion 1 2 3 4 5 şeklinde genişler. Ardışık sayı veya harf dizileri üretir."
         },
         {
             question: "'cp dosya.txt{,.bak}' komutu ne yapar?",
-            options: ["Dosyayı siler", "dosya.txt'yi dosya.txt.bak olarak kopyalar", "Hata verir", "İki dosya oluşturur"],
+            options: [
+                "Dosyayı siler ve işlemi sonlandırır",
+                "dosya.txt'yi dosya.txt.bak olarak",
+                "Hata verir yerine farklı bir komut",
+                "İki dosya oluşturur"
+            ],
             correct: 1,
             explanation: "Brace expansion: dosya.txt{,.bak} → dosya.txt dosya.txt.bak. Yani cp dosya.txt dosya.txt.bak çalışır."
         },
         {
             question: "'shopt -s globstar' açıldıktan sonra '**/*.py' ne yapar?",
-            options: ["Sadece mevcut dizindeki .py dosyalarını eşler", "Tüm alt dizinler dahil tüm .py dosyalarını özyinelemeli eşler", "Hata verir", "py uzantılı dosyaları siler"],
+            options: [
+                "Varsayılan olarak hata verir yerine farklı bir komut",
+                "Tüm alt dizinler dahil tüm .py dosyalarını",
+                "py uzantılı dosyaları siler — bu davranış beklenmez",
+                "Sadece mevcut dizindeki .py dosyalarını eşler"
+            ],
             correct: 1,
             explanation: "** (globstar) özyinelemeli glob'dur. **/*.py mevcut dizin ve tüm alt dizinlerdeki .py dosyalarını eşler."
         }

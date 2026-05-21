@@ -455,43 +455,78 @@ fi</code></pre>
     quiz: [
         {
             question: "SSH ile bağlandığınızda hangi tür shell başlatılır?",
-            options: ["Non-login interactive shell", "Login shell", "Non-interactive shell", "Subshell"],
-            correct: 1,
+            options: [
+                "Login shell",
+                "Non-interactive shell",
+                "Subshell — bu davranış beklenmez",
+                "Non-login interactive shell"
+            ],
+            correct: 0,
             explanation: "SSH bağlantısı bir login shell başlatır. Bu yüzden /etc/profile ve ~/.bash_profile okunur."
         },
         {
             question: "~/.bash_profile varsa, ~/.profile okunur mu?",
-            options: ["Evet, ikisi de okunur", "Hayır, .bash_profile önceliklidir", "Sadece root kullanıcıda okunur", "Dağıtıma bağlı"],
+            options: [
+                "Dağıtıma bağlı — bu davranış beklenmez",
+                "Hayır, .bash_profile önceliklidir",
+                "Evet, ikisi de okunur",
+                "Sadece root kullanıcıda okunur"
+            ],
             correct: 1,
             explanation: "Login shell'de Bash sırayla .bash_profile → .bash_login → .profile arar ve ilk bulduğunu çalıştırır."
         },
         {
             question: "Terminal emülatörü açtığınızda hangi dosya okunur?",
-            options: ["~/.bash_profile", "~/.profile", "~/.bashrc", "/etc/profile"],
-            correct: 2,
+            options: [
+                "~/.bashrc",
+                "~/.profile",
+                "~/.bash_profile",
+                "/etc/profile"
+            ],
+            correct: 0,
             explanation: "Terminal emülatörü non-login interactive shell başlatır, bu yüzden ~/.bashrc okunur."
         },
         {
             question: "PATH'e yeni dizin eklerken hangisi doğrudur?",
-            options: ["PATH=dizin", "export PATH=\".:$PATH\"", "export PATH=\"$HOME/bin:$PATH\"", "set PATH dizin"],
+            options: [
+                "export PATH=\".:$PATH\"",
+                "PATH=dizin ve işlemi sonlandırır",
+                "export PATH=\"$HOME/bin:$PATH\"",
+                "set PATH dizin"
+            ],
             correct: 2,
             explanation: "export PATH=\"$HOME/bin:$PATH\" doğru sözdizimi. PATH başına eklemek o dizine öncelik verir. '.' eklenmesi güvenlik riski oluşturur."
         },
         {
             question: "'source ~/.bashrc' komutu ne yapar?",
-            options: ["bashrc dosyasını siler", "bashrc dosyasını mevcut oturumda tekrar yükler", "Yeni terminal açar", "bashrc dosyasını düzenler"],
-            correct: 1,
+            options: [
+                "bashrc dosyasını düzenler — bu davranış beklenmez",
+                "bashrc dosyasını siler ve işlemi sonlandırır",
+                "Yeni terminal açar yerine farklı bir komut",
+                "bashrc dosyasını mevcut oturumda tekrar yükler"
+            ],
+            correct: 3,
             explanation: "source komutu, dosyayı mevcut shell oturumunda çalıştırır. Değişiklikleri yeni terminal açmadan uygulamak için kullanılır."
         },
         {
             question: "Aşağıdakilerden hangisi PS1 prompt'unda kullanıcı adını gösterir?",
-            options: ["\\\\h", "\\\\w", "\\\\u", "\\\\d"],
-            correct: 2,
+            options: [
+                "\\\\d",
+                "\\\\w",
+                "\\\\h",
+                "\\\\u"
+            ],
+            correct: 3,
             explanation: "\\\\u kullanıcı adını, \\\\h bilgisayar adını, \\\\w çalışma dizinini, \\\\d tarihi gösterir."
         },
         {
             question: "HISTCONTROL=ignoreboth ayarı ne yapar?",
-            options: ["Geçmişi tamamen kapatır", "Tekrar eden ve boşlukla başlayan komutları geçmişe kaydetmez", "Geçmişi şifreler", "Sadece hatalı komutları kaydeder"],
+            options: [
+                "Geçmişi tamamen kapatır ve işlemi sonlandırır",
+                "Tekrar eden ve boşlukla başlayan komutları",
+                "Sadece hatalı komutları kaydeder",
+                "Geçmişi şifreler yerine farklı bir komut"
+            ],
             correct: 1,
             explanation: "ignoreboth = ignorespace + ignoredups. Boşlukla başlayan komutları (gizlilik) ve ardışık tekrarları geçmişe kaydetmez."
         }

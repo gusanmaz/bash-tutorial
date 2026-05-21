@@ -762,55 +762,100 @@ window.CHAPTERS.push({
     quiz: [
         {
             question: "Komut satırının dosya yöneticisine göre en büyük avantajı nedir?",
-            options: ["Daha renkli görünür", "Toplu işlemleri çok hızlı yapar", "İnternet gerektirir", "Sadece İngilizce çalışır"],
-            correct: 1,
+            options: [
+                "Daha renkli görünür ve işlemi sonlandırır",
+                "Sadece İngilizce çalışır",
+                "İnternet gerektirir",
+                "Toplu işlemleri çok hızlı"
+            ],
+            correct: 3,
             explanation: "CLI ile yüzlerce dosyayı tek komutla işleyebilir, otomatikleştirebilir ve tekrarlayan görevleri saniyeler içinde yapabilirsiniz."
         },
         {
             question: "'mkdir -p a/b/c/d/e' komutu ne yapar?",
-            options: ["5 ayrı klasör oluşturur", "İç içe 5 klasörü tek seferde oluşturur", "Hata verir", "5 dosya oluşturur"],
-            correct: 1,
+            options: [
+                "Hata verir yerine farklı bir komut",
+                "5 dosya oluşturur — bu davranış beklenmez",
+                "5 ayrı klasör oluşturur",
+                "İç içe 5 klasörü tek seferde oluşturur"
+            ],
+            correct: 3,
             explanation: "-p (parents) seçeneği, iç içe dizinleri ve tüm ara dizinleri tek seferde oluşturur. GUI'de bunu yapmak çok zaman alırdı!"
         },
         {
             question: "macOS'un varsayılan kabuğu (shell) hangisidir?",
-            options: ["bash", "fish", "zsh", "dash"],
-            correct: 2,
+            options: [
+                "bash",
+                "zsh",
+                "fish",
+                "dash"
+            ],
+            correct: 1,
             explanation: "macOS Catalina (2019) ile birlikte varsayılan kabuk bash'ten zsh'ye değiştirildi."
         },
         {
             question: "Terminal'de otomatik tamamlama için hangi tuş kullanılır?",
-            options: ["Enter", "Space", "Tab", "Escape"],
+            options: [
+                "Escape",
+                "Space",
+                "Tab",
+                "Enter"
+            ],
             correct: 2,
             explanation: "Tab tuşu komutları, dosya adlarını ve dizin adlarını otomatik tamamlar. Linux'ta en sık kullanacağınız kısayoldur!"
         },
         {
             question: "Bash'in açılımı nedir?",
-            options: ["Basic Application Shell", "Bourne Again Shell", "Binary Access Shell", "Batch Application Shell"],
-            correct: 1,
+            options: [
+                "Batch Application Shell",
+                "Binary Access Shell",
+                "Bourne Again Shell",
+                "Basic Application Shell"
+            ],
+            correct: 2,
             explanation: "Bash = Bourne Again Shell. Stephen Bourne'un orijinal 'sh' kabuğunun geliştirilmiş versiyonudur."
         },
         {
             question: "tmux'ta ekranı dikey (sağ-sol) olarak bölmek için hangi kısayol kullanılır?",
-            options: ["Ctrl+b \"", "Ctrl+b %", "Ctrl+b d", "Ctrl+b c"],
-            correct: 1,
+            options: [
+                "Ctrl+b c",
+                "Ctrl+b d",
+                "Ctrl+b %",
+                "Ctrl+b \""
+            ],
+            correct: 2,
             explanation: "Ctrl+b % ekranı dikey (sağ-sol) böler. Ctrl+b \" ise yatay (üst-alt) böler."
         },
         {
             question: "'sudo !!' ne yapar?",
-            options: ["Tüm dosyaları listeler", "Son komutu sudo ile tekrar çalıştırır", "Terminal geçmişini siler", "Root kullanıcısına geçer"],
-            correct: 1,
+            options: [
+                "Root kullanıcısına geçer",
+                "Tüm dosyaları listeler ve işlemi sonlandırır",
+                "Son komutu sudo ile tekrar",
+                "Terminal geçmişini siler"
+            ],
+            correct: 2,
             explanation: "!! son komutu temsil eder. sudo !! demek 'son komutu bu sefer sudo (yönetici) yetkisiyle çalıştır' demektir."
         },
         {
             question: "TTY (Teletype) nedir?",
-            options: ["Modern bir terminal emülatörü", "İlk bilgisayar terminalleri — fiziksel yazıcı ve klavye cihazı", "Bir programlama dili", "Bir Linux dağıtımı"],
-            correct: 1,
+            options: [
+                "Bir Linux dağıtımı — bu davranış beklenmez",
+                "Bir programlama dili",
+                "İlk bilgisayar terminalleri",
+                "Modern bir terminal emülatörü"
+            ],
+            correct: 2,
             explanation: "TTY (Teletype/Teletip) bilgisayarların ilk terminalleriydi. Klavye + yazıcıdan oluşan fiziksel cihazlardı. Linux'taki /dev/tty bu ismin mirasıdır."
         },
         {
             question: "CLI programlarını birbirine bağlamak için hangi mekanizma kullanılır?",
-            options: ["Bluetooth", "Pipe (boru hattı, | sembolü)", "Wi-Fi", "USB kablosu"],
+            options: [
+                "Bluetooth",
+                "Pipe (boru hattı, | sembolü)",
+                "Wi-Fi yerine farklı bir komut",
+                "USB kablosu"
+            ],
             correct: 1,
             explanation: "Pipe (|) bir programın çıktısını diğerinin girdisi olarak aktarır. Bu, Unix felsefesinin temel taşıdır: küçük programları birleştirerek güçlü işlemler yapma."
         }

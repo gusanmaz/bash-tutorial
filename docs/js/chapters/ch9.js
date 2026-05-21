@@ -423,38 +423,68 @@ daemon          /usr/sbin/nologin</span></code></pre>
     quiz: [
         {
             question: "'cat' komutunun açılımı nedir?",
-            options: ["Category", "Concatenate", "Catalog", "Catch"],
-            correct: 1,
+            options: [
+                "Concatenate",
+                "Catch — bu davranış beklenmez",
+                "Category",
+                "Catalog"
+            ],
+            correct: 0,
             explanation: "cat = Concatenate (Birleştir). Dosya içeriğini gösterir veya birden fazla dosyayı birleştirir."
         },
         {
             question: "'wc -c' ve 'wc -m' arasındaki fark nedir?",
-            options: ["Hiçbir fark yoktur", "-c byte sayar, -m karakter sayar", "-c karakter sayar, -m byte sayar", "-c satır sayar, -m kelime sayar"],
-            correct: 1,
+            options: [
+                "-c byte sayar, -m karakter sayar",
+                "-c satır sayar, -m kelime sayar",
+                "-c karakter sayar, -m byte sayar",
+                "Hiçbir fark yoktur ve işlemi sonlandırır"
+            ],
+            correct: 0,
             explanation: "wc -c byte (bayt) sayar, wc -m karakter sayar. UTF-8'de Türkçe karakterler (ş,ç,ğ) 2 byte olduğundan sonuçlar farklı olabilir."
         },
         {
             question: "'tail -f log.txt' ne yapar?",
-            options: ["Dosyanın ilk satırını gösterir", "Dosyayı siler", "Dosyanın sonunu canlı olarak takip eder", "Dosyayı filtreler"],
-            correct: 2,
+            options: [
+                "Dosyayı siler (Docker CLI'da yoktur)",
+                "Dosyayı filtreler — bu davranış beklenmez",
+                "Dosyanın ilk satırını gösterir",
+                "Dosyanın sonunu canlı olarak takip eder"
+            ],
+            correct: 3,
             explanation: "-f = follow (takip et). Dosyaya eklenen yeni satırları gerçek zamanlı gösterir. Log izleme için harika!"
         },
         {
             question: "awk '{print $3}' ne yapar?",
-            options: ["3. satırı yazdırır", "3. karakteri yazdırır", "3. sütunu (alanı) yazdırır", "Dosyayı 3 kez yazdırır"],
-            correct: 2,
+            options: [
+                "3. karakteri yazdırır",
+                "3. sütunu (alanı) yazdırır",
+                "3. satırı yazdırır ve işlemi sonlandırır",
+                "Dosyayı 3 kez yazdırır"
+            ],
+            correct: 1,
             explanation: "awk'ta $1, $2, $3... alan (sütun) numaralarıdır. $3 her satırın 3. alanını yazdırır."
         },
         {
             question: "sed -i.bak 's/a/b/g' dosya.txt ne yapar?",
-            options: ["Sadece ekrana yazdırır", "Dosyayı değiştirir, yedek almaz", "Dosyayı değiştirir ve .bak uzantılı yedek oluşturur", "Hata verir"],
-            correct: 2,
+            options: [
+                "Hata verir — bu davranış beklenmez",
+                "Sadece ekrana yazdırır ve işlemi sonlandırır",
+                "Dosyayı değiştirir, yedek almaz",
+                "Dosyayı değiştirir ve .bak uzantılı yedek"
+            ],
+            correct: 3,
             explanation: "-i.bak dosyayı yerinde değiştirir ve orijinalin bir kopyasını dosya.txt.bak olarak kaydeder. Güvenli düzenleme yöntemi!"
         },
         {
             question: "'tac' komutu ne yapar?",
-            options: ["Dosyayı siler", "Dosyanın satırlarını ters sırada gösterir", "Karakter sayar", "Dosya türünü gösterir"],
-            correct: 1,
+            options: [
+                "Dosyayı siler ve işlemi sonlandırır",
+                "Karakter sayar yerine farklı bir komut",
+                "Dosyanın satırlarını ters sırada gösterir",
+                "Dosya türünü gösterir — bu davranış beklenmez"
+            ],
+            correct: 2,
             explanation: "tac, cat'in tersidir (isim de ters yazılmıştır). Dosyanın son satırını ilk, ilk satırını son olarak gösterir."
         }
     ]

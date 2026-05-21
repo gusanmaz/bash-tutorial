@@ -61,6 +61,8 @@ window.CHEATSHEET = [
             { cmd: 'find yol -name "kalıp"', desc: 'Dosya adına göre bul' },
             { cmd: 'find yol -type f/d', desc: 'Türe göre bul (File/Directory)' },
             { cmd: 'find . -size +10M', desc: '10MB\'den büyük dosyaları bul' },
+            { cmd: 'locate dosya', desc: 'İndeks DB\'de hızlı dosya adı arama' },
+            { cmd: 'sudo updatedb', desc: 'locate veritabanını güncelle' },
             { cmd: 'which komut', desc: 'Komutun tam yolunu göster' },
             { cmd: 'type komut', desc: 'Komutun türünü göster' },
         ]
@@ -101,6 +103,49 @@ window.CHEATSHEET = [
             { cmd: 'cut -d":" -f1', desc: 'Alanları kes (Delimiter, Field)' },
             { cmd: 'tr "a-z" "A-Z"', desc: 'Karakterleri dönüştür (Translate)' },
             { cmd: 'sed "s/eski/yeni/g"', desc: 'Akış düzenleyici (Stream Editor)' },
+            { cmd: 'awk \'{print $1}\'', desc: 'Sütun bazlı metin işleme' },
+        ]
+    },
+    {
+        title: '💾 Disk ve Sistem',
+        items: [
+            { cmd: 'df -h', desc: 'Bağlı dosya sistemlerinin doluluğu' },
+            { cmd: 'du -sh *', desc: 'Dizin boyutları' },
+            { cmd: 'free -h', desc: 'RAM kullanımı' },
+            { cmd: 'lsblk -f', desc: 'Disk bölümleri ve mount noktaları' },
+            { cmd: 'mount | column -t', desc: 'Bağlı dosya sistemleri' },
+            { cmd: 'dmesg | tail', desc: 'Son çekirdek mesajları' },
+        ]
+    },
+    {
+        title: '📦 Arşiv ve Sıkıştırma',
+        items: [
+            { cmd: 'tar -czvf yedek.tar.gz dizin/', desc: 'Arşiv oluştur + gzip' },
+            { cmd: 'tar -xzvf yedek.tar.gz', desc: 'Arşiv aç' },
+            { cmd: 'tar -tzvf yedek.tar.gz', desc: 'Arşiv içeriğini listele' },
+            { cmd: 'gzip dosya', desc: 'Tek dosyayı sıkıştır' },
+            { cmd: 'zip -r arsiv.zip dizin/', desc: 'Zip arşiv oluştur' },
+        ]
+    },
+    {
+        title: '📡 Ağ ve DNS',
+        items: [
+            { cmd: 'ping -c 4 host', desc: 'Erişilebilirlik testi' },
+            { cmd: 'ip addr', desc: 'IP adresleri' },
+            { cmd: 'ip route', desc: 'Yönlendirme tablosu' },
+            { cmd: 'ss -tulpn', desc: 'Dinlenen portlar ve süreçler' },
+            { cmd: 'dig +short domain', desc: 'DNS sorgusu' },
+            { cmd: 'host domain', desc: 'DNS kısa sorgu' },
+        ]
+    },
+    {
+        title: '📋 Log ve Güvenlik',
+        items: [
+            { cmd: 'tail -f /var/log/syslog', desc: 'Log canlı izle' },
+            { cmd: 'journalctl -u servis -f', desc: 'systemd servis logu' },
+            { cmd: 'who / w / last', desc: 'Oturum ve giriş geçmişi' },
+            { cmd: 'sudo ufw status', desc: 'Güvenlik duvarı durumu' },
+            { cmd: 'sudo ufw allow 22/tcp', desc: 'SSH portuna izin' },
         ]
     },
     {

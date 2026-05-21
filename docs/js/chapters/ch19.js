@@ -229,38 +229,68 @@ find "$YEDEK_DIZIN" -maxdepth 1 -type d -mtime +30 -exec rm -rf {} \\;</code></p
     quiz: [
         {
             question: "rsync'i cp'den üstün kılan temel özellik nedir?",
-            options: ["Daha hızlı kopyalar", "Sadece değişen dosya/blokları aktarır (delta transfer)", "Daha fazla dosya türü destekler", "Otomatik sıkıştırma yapar"],
+            options: [
+                "Daha fazla dosya türü destekler yerine farklı bir komut",
+                "Sadece değişen dosya/blokları aktarır (delta transfer)",
+                "Daha hızlı kopyalar ve işlemi sonlandırır",
+                "Otomatik sıkıştırma yapar — bu davranış beklenmez"
+            ],
             correct: 1,
             explanation: "rsync delta transfer algoritması ile sadece değişen kısımları aktarır. 10GB dizinde 1 dosya değiştiyse, cp hepsini, rsync sadece o dosyayı kopyalar."
         },
         {
             question: "'rsync kaynak/ hedef/' ile 'rsync kaynak hedef/' arasındaki fark nedir?",
-            options: ["Fark yoktur", "İlki kaynak içindekileri, ikincisi kaynak dizinini hedef altına kopyalar", "İlki daha hızlıdır", "İkincisi sıkıştırma yapar"],
-            correct: 1,
+            options: [
+                "Fark yoktur ve işlemi sonlandırır",
+                "İkincisi sıkıştırma yapar",
+                "İlki kaynak içindekileri",
+                "İlki daha hızlıdır"
+            ],
+            correct: 2,
             explanation: "Sondaki slash (/) kritiktir: kaynak/ → içindekiler kopyalanır; kaynak → dizin hedef/kaynak olarak kopyalanır."
         },
         {
             question: "--dry-run (-n) bayrağı ne yapar?",
-            options: ["Dosyaları siler", "Ne olacağını gösterir ama değişiklik yapmaz", "Sıkıştırma uygular", "Hata ayıklama modunu açar"],
-            correct: 1,
+            options: [
+                "Hata ayıklama modunu açar — bu davranış beklenmez",
+                "Dosyaları siler ve işlemi sonlandırır",
+                "Sıkıştırma uygular yerine farklı bir komut",
+                "Ne olacağını gösterir ama değişiklik yapmaz"
+            ],
+            correct: 3,
             explanation: "--dry-run simülasyon yapar: hangi dosyaların kopyalanacağını, silineceğini gösterir ama hiçbir değişiklik yapmaz. Her zaman ilk seferde kullanın!"
         },
         {
             question: "'--delete' bayrağı ne yapar?",
-            options: ["Kaynak dosyaları siler", "Hedef dizindeki, kaynakta olmayan dosyaları siler", "Transfer sonrası geçici dosyaları temizler", "Log dosyalarını siler"],
-            correct: 1,
+            options: [
+                "Transfer sonrası geçici dosyaları temizler yerine farklı bir komut",
+                "Kaynak dosyaları siler ve işlemi sonlandırır",
+                "Hedef dizindeki, kaynakta olmayan dosyaları siler",
+                "Log dosyalarını siler — bu davranış beklenmez"
+            ],
+            correct: 2,
             explanation: "--delete, hedef dizini kaynağın tam yansıması yapar. Kaynakta olmayan dosyalar hedeften silinir. Dikkatli kullanın!"
         },
         {
             question: "rsync'in --link-dest özelliği ne sağlar?",
-            options: ["Sembolik linkler oluşturur", "Değişmeyen dosyaları hard link ile bağlar (disk tasarrufu)", "Uzak sunucuya link gönderir", "FTP bağlantısı kurar"],
-            correct: 1,
+            options: [
+                "Sembolik linkler oluşturur",
+                "FTP bağlantısı kurar — bu davranış beklenmez",
+                "Uzak sunucuya link gönderir",
+                "Değişmeyen dosyaları hard link ile bağlar"
+            ],
+            correct: 3,
             explanation: "--link-dest ile değişmeyen dosyalar hard link kullanır — her snapshot tam yedek gibi görünür ama aslında sadece değişen dosyalar ek yer kaplar."
         },
         {
             question: "rsync ile uzak sunucuya senkronizasyon hangi protokolü kullanır?",
-            options: ["FTP", "HTTP", "SSH (varsayılan)", "rsync daemon"],
-            correct: 2,
+            options: [
+                "SSH (varsayılan)",
+                "FTP ve işlemi sonlandırır",
+                "HTTP",
+                "rsync daemon"
+            ],
+            correct: 0,
             explanation: "rsync varsayılan olarak SSH üzerinden çalışır. Ayrıca rsync daemon protokolü de desteklenir ama SSH daha güvenlidir."
         }
     ]

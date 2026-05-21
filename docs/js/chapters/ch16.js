@@ -29,6 +29,11 @@ window.CHAPTERS.push({
     </ul>
 </div>
 
+<div class="info-box tip">
+    <div class="info-box-title">💡 Bu bölümde zor terimler</div>
+    Staging area, rebase, upstream, fast-forward gibi kavramlar ilk geçtiğinde <strong>📌 not kutularında</strong> sade Türkçe ile açıklanır. Önce kavramları okuyun, sonra terminal örneklerini deneyin — sıra önemli değil, <code>git status</code> her zaman güvenli bir başlangıç noktasıdır.
+</div>
+
 <div class="eng-box">
     <div class="eng-title">🔤 İngilizce Terimler</div>
     <div class="eng-content">
@@ -215,14 +220,98 @@ deploy:
 
 <p>İş akışı: <strong>Düzenle → git add (Stage) → git commit (Kaydet)</strong></p>
 
-<h3>Dosya Yaşam Döngüsü</h3>
-<p>Git'te bir dosya 4 durumdan birinde olabilir:</p>
+<div class="info-box note">
+    <div class="info-box-title">📌 Üç alanı market alışverişi gibi düşünün</div>
+    <ul>
+        <li><strong>Çalışma dizini</strong> = Market rafları — ürünleri (dosyaları) elinize alıp incelersiniz, değiştirirsiniz.</li>
+        <li><strong>Staging area</strong> = Alışveriş sepeti — kasaya götüreceğiniz ürünleri sepete koyarsınız (<code>git add</code>). Sepette olmayan ürün fişe yazılmaz.</li>
+        <li><strong>Repository</strong> = Fiş / arşiv — kasada ödeme yaptınız (<code>git commit</code>), alışveriş kalıcı kayda geçti.</li>
+    </ul>
+    Sık sorulan soru: "Dosyayı kaydettim (Ctrl+S), neden Git görmüyor?" — Çünkü Ctrl+S sadece diske yazar; Git'e "bunu commit'e dahil et" demek için <code>git add</code> gerekir.
+</div>
 
-<img src="img/git_file_lifecycle.svg" alt="Git Dosya Yaşam Döngüsü" style="max-width:100%; margin: 1.5rem 0; border-radius: 8px;">
+<h3>Adım Adım: Tek Dosyada Üç Alanı Görmek</h3>
+<p>Aşağıdaki mini senaryoyu kendi projenizde deneyin. Her adımdan sonra <code>git status</code> çalıştırın — çıktı değişimini izlemek Git'i anlamanın en iyi yoludur:</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Üç alan — canlı örnek</span></div>
+    <pre><code><span class="comment"># 1) Yeni dosya oluştur (henüz Git tanımıyor → Untracked):</span>
+<span class="prompt">$</span> <span class="command">echo</span> <span class="string">"Merhaba"</span> > <span class="path">not.txt</span>
+<span class="prompt">$</span> <span class="command">git status</span>
+<span class="comment"># → Untracked files: not.txt</span>
+
+<span class="comment"># 2) Sepete koy (Staging):</span>
+<span class="prompt">$</span> <span class="command">git add</span> <span class="path">not.txt</span>
+<span class="prompt">$</span> <span class="command">git status</span>
+<span class="comment"># → Changes to be committed: new file: not.txt</span>
+
+<span class="comment"># 3) Kalıcı kayıt (Repository):</span>
+<span class="prompt">$</span> <span class="command">git commit</span> <span class="flag">-m</span> <span class="string">"docs: not.txt eklendi"</span>
+<span class="prompt">$</span> <span class="command">git status</span>
+<span class="comment"># → nothing to commit, working tree clean</span>
+
+<span class="comment"># 4) Dosyayı tekrar düzenle (Modified — henüz staged değil):</span>
+<span class="prompt">$</span> <span class="command">echo</span> <span class="string">"Yeni satır"</span> >> <span class="path">not.txt</span>
+<span class="prompt">$</span> <span class="command">git status</span>
+<span class="comment"># → Changes not staged for commit: modified: not.txt</span></code></pre>
+</div>
+
+<h3>Dosya Yaşam Döngüsü</h3>
+<p>Git'te bir dosya 4 durumdan birinde olabilir. Aşağıdaki diyagram, bu durumların <strong>üç alana</strong> (çalışma dizini → staging → repository) nasıl oturduğunu ve hangi komutla geçiş yapıldığını gösterir — okları takip edin:</p>
+
+<img src="img/git_file_lifecycle.svg" alt="Git Dosya Yaşam Döngüsü — Untracked, Staged, Committed, Modified durumları ve geçiş komutları" style="max-width:100%; margin: 1.5rem 0; border-radius: 8px;">
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Diyagramı okuma ipucu</div>
+    <strong>Kalın oklar</strong> = normal akış (<code>git add</code> → <code>git commit</code> → düzenle → tekrar <code>git add</code>).<br>
+    <strong>Kesik mavi oklar</strong> = geri alma — diyagramın altındaki kutuda açıklanır.<br>
+    <strong>Untracked (YENİ)</strong> kırmızı çerçeveli kutuda — sadece <em>ilk kez oluşturduğunuz</em> dosyalar buradan başlar. Daha önce commit edilmiş dosya düzenlenince doğrudan <em>Modified</em> olur.
+</div>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 git restore ne işe yarar? (Ctrl+Z gibi düşünün)</div>
+    Git'te "geri al" birkaç farklı anlama gelir — hangi aşamada olduğunuza bağlı:
+    <table>
+        <tr><th>Komut</th><th>Sade Türkçe</th><th>Ne olur?</th></tr>
+        <tr>
+            <td><code>git restore dosya</code></td>
+            <td>"Diskteki dosyayı son commit'teki haline döndür"</td>
+            <td><strong>Modified</strong> iken yaptığınız düzenlemeler silinir. Commit geçmişi değişmez — sadece dosya içeriği eski haline gelir. ⚠️ Kaydedilmemiş yazdıklarınız gider!</td>
+        </tr>
+        <tr>
+            <td><code>git restore --staged dosya</code></td>
+            <td>"Sepetten çıkar — git add'i iptal et"</td>
+            <td><strong>Staged</strong> olan dosya bir sonraki commit'e gitmez. Dosya diskte kalır. <em>Önemli:</em> Daha önce commit edilmiş dosyada Git <strong>takibi bırakmaz</strong> — sadece sepetten çıkarır; değişiklikler <strong>Modified</strong> olarak çalışma dizininde durur.</td>
+        </tr>
+        <tr>
+            <td><code>git rm --cached dosya</code></td>
+            <td>"Git artık hiç takip etmesin (dosyayı silme)"</td>
+            <td>Dosya diskte kalır ama Git repodan <strong>çıkarmayı planlar</strong>. Sonraki commit'te "bu dosya artık repoda yok" kaydedilir; diskte <strong>Untracked</strong> kalır. <code>.gitignore</code> ile birlikte kullanılır (ör. yanlışlıkla eklenen <code>.env</code>).</td>
+        </tr>
+    </table>
+    <p><strong>🤔 restore --staged ile rm --cached farkı ne?</strong></p>
+    <p><strong>Kısa cevap:</strong> Yeni dosyada ikisi de benzer sonuç verir (Untracked). Asıl fark, dosya <em>daha önce commit edilmişse</em> ortaya çıkar:</p>
+    <table>
+        <tr><th>Durum</th><th><code>git restore --staged</code></th><th><code>git rm --cached</code></th></tr>
+        <tr>
+            <td>Yeni dosya (<code>git add</code> yaptınız, henüz commit yok)</td>
+            <td colspan="2" style="text-align:center;">İkisi de aynı: sepetten çıkar → <strong>Untracked</strong></td>
+        </tr>
+        <tr>
+            <td>Eski dosya (repoda zaten var, değişiklik staged)</td>
+            <td>Sepetten çıkar → değişiklikler <strong>Modified</strong>'da kalır, Git takip etmeye devam eder</td>
+            <td>Repodan silmeyi <strong>commit'e hazırlar</strong> → dosya diskte Untracked olur, bir daha commit etmezseniz repoda kaybolur</td>
+        </tr>
+    </table>
+    <strong>Ne zaman hangisi?</strong><br>
+    • "Commit'e erken ekledim, biraz daha düzenleyeceğim" → <code>git restore --staged</code><br>
+    • "Bu dosya hiç repoda olmamalıydı (.env, build/ çıktısı)" → <code>git rm --cached</code> + <code>.gitignore</code> + commit<br><br>
+    <strong>Örnek:</strong> <code>main.py</code>'yi düzenlediniz, beğenmediniz → <code>git restore main.py</code>. <code>git add</code> yaptınız ama commit etmek istemiyorsunuz → <code>git restore --staged main.py</code>.
+</div>
 
 <table>
     <tr><th>Durum</th><th>Açıklama</th><th>Nasıl geçiş yapılır?</th></tr>
-    <tr><td><strong>Untracked</strong> (İzlenmiyor)</td><td>Git bu dosyayı tanımıyor. Yeni oluşturduğunuz dosyalar.</td><td><code>git add dosya</code> ile Staged'e geçer</td></tr>
+    <tr><td><strong>Untracked</strong> (İzlenmiyor)</td><td>Git bu dosyayı <em>hiç tanımıyor</em>. Az önce oluşturduğunuz <code>not.txt</code>, indirdiğiniz resim gibi dosyalar. Commit geçmişinde yok.</td><td><code>git add dosya</code> ile Staged'e geçer (ilk takip)</td></tr>
     <tr><td><strong>Staged</strong> (Hazırlanmış)</td><td>Bir sonraki commit'e dahil edilecek.</td><td><code>git commit</code> ile Committed'a geçer</td></tr>
     <tr><td><strong>Committed</strong> (Kaydedilmiş)</td><td>Git deposuna güvenle kaydedilmiş.</td><td>Dosyayı düzenleyin → Modified olur</td></tr>
     <tr><td><strong>Modified</strong> (Değiştirilmiş)</td><td>Son commit'ten beri değişmiş.</td><td><code>git add dosya</code> ile yeniden Staged'e</td></tr>
@@ -276,6 +365,16 @@ git version 2.43.0</code></pre>
 <!-- ============= SSH ANAHTARI ============= -->
 
 <h2>GitHub ile SSH Bağlantısı Kurma</h2>
+<div class="info-box note">
+    <div class="info-box-title">📌 SSH anahtarı nedir? (sade dilde)</div>
+    <ul>
+        <li><strong>SSH</strong>: Bilgisayarınız ile GitHub arasında şifreli, güvenli bağlantı kurma yöntemi.</li>
+        <li><strong>Anahtar çifti</strong>: İki parça — <em>özel anahtar</em> (<code>id_ed25519</code>) sizde kalır, asla paylaşılmaz; <em>açık anahtar</em> (<code>.pub</code>) GitHub'a yapıştırılır.</li>
+        <li><strong>Passphrase</strong>: Anahtar dosyasının kilidi — ekstra güvenlik; boş bırakabilirsiniz ama laptop kaybolursa risk artar.</li>
+        <li><strong>ssh-agent</strong>: Passphrase'i oturum boyunca hatırlayan yardımcı program — her push'ta şifre sormaz.</li>
+    </ul>
+    HTTPS ile her seferinde token girmek yerine SSH bir kez kurulur, sonra <code>git push</code> sorunsuz çalışır.
+</div>
 <p>GitHub'a her push/pull yaptığınızda şifre girmek istemiyorsanız <strong>SSH anahtarı</strong> kullanın. Bu en güvenli ve pratik yöntemdir.</p>
 
 <div class="code-block">
@@ -538,6 +637,17 @@ A  src/helpers.py       <span class="comment"># A = Added (staged)</span>
 ?? test_main.py         <span class="comment"># ?? = Untracked</span></code></pre>
 </div>
 
+<div class="info-box note">
+    <div class="info-box-title">📌 Panik anında: git status okuma rehberi</div>
+    <ol>
+        <li><strong>"Untracked files"</strong> → Git bu dosyayı hiç görmedi. İstiyorsanız <code>git add</code>, istemiyorsanız <code>.gitignore</code>.</li>
+        <li><strong>"Changes not staged"</strong> → Dosyayı değiştirdiniz ama sepete koymadınız. <code>git add dosya</code> veya geri almak için <code>git restore dosya</code>.</li>
+        <li><strong>"Changes to be committed"</strong> → Sepette, commit bekliyor. <code>git commit</code> veya sepetten çıkarmak için <code>git restore --staged dosya</code>.</li>
+        <li><strong>"Your branch is ahead/behind"</strong> → Yerel dalınız GitHub'dan farklı. <code>git push</code> (ahead) veya <code>git pull</code> (behind).</li>
+    </ol>
+    Emin değilseniz: <code>git status</code> → <code>git diff</code> → karar verin. <code>git diff</code> henüz sepete konmamış değişiklikleri satır satır gösterir (<span style="color:#2a9d8f">+</span> eklenen, <span style="color:#e76f51">−</span> silinen).
+</div>
+
 <h3>git add — Değişiklikleri Hazırlama</h3>
 <div class="code-block">
     <div class="code-block-header"><span>git add kullanımı</span></div>
@@ -668,6 +778,15 @@ e4f5g6h feat: İlk commit
 <!-- ============= DALLANMA ============= -->
 
 <h2>Dallanma (Branching)</h2>
+<div class="info-box note">
+    <div class="info-box-title">📌 HEAD, branch, commit — kafa karıştıran üçlü</div>
+    <ul>
+        <li><strong>Commit</strong>: Projenin belirli bir anındaki kayıtlı fotoğrafı — benzersiz bir kimlik numarası (hash) alır, örn. <code>a1b2c3d</code>.</li>
+        <li><strong>Branch (dal)</strong>: Bir commit'e işaret eden isimli etiket — aslında sadece "şu commit'teyim" diyen bir işaretçi (pointer). Yeni commit yaptıkça işaretçi ilerler.</li>
+        <li><strong>HEAD</strong>: "Şu an hangi commit'te duruyorum?" sorusunun cevabı — genelde bir dal adını takip eder (<code>ref: refs/heads/main</code>).</li>
+    </ul>
+    Branch oluşturmak dosya kopyalamak değildir — Git sadece yeni bir isimli işaretçi ekler; bu yüzden milisaniyeler sürer.
+</div>
 <p>Branch'lar Git'in en güçlü özelliklerinden biridir. Her branch bağımsız bir geliştirme hattıdır. Branch oluşturmak son derece hafif bir işlemdir — Git sadece 41 byte'lık bir işaretçi (pointer) oluşturur.</p>
 
 <p>Neden branching önemli?</p>
@@ -726,6 +845,14 @@ e4f5g6h feat: İlk commit
 <h2>Birleştirme (Merge) ve Çakışma Çözümleme</h2>
 
 <h3>Merge — Dalları Birleştirme</h3>
+<div class="info-box note">
+    <div class="info-box-title">📌 Fast-forward vs three-way merge</div>
+    <ul>
+        <li><strong>Fast-forward</strong> (<em>ileri sarma</em>): <code>main</code> hiç ilerlememiş, sadece <code>feature</code> dalında commit'ler var. Git <code>main</code> işaretçisini ileri taşır — ekstra merge commit oluşmaz. Temiz, düz çizgi geçmiş.</li>
+        <li><strong>Three-way merge</strong> (<em>üç yollu birleştirme</em>): Hem <code>main</code> hem <code>feature</code> ilerlemiş. Git ortak ata commit'i bulur, iki dalı birleştirir, yeni bir <strong>merge commit</strong> oluşturur — geçmişte birleşme noktası görünür.</li>
+    </ul>
+    Hangisi olacağını siz seçmezsiniz — Git duruma göre karar verir. İkisi de normaldir; three-way merge daha sık görülür.
+</div>
 <div class="code-block">
     <div class="code-block-header"><span>Merge işlemi</span></div>
     <pre><code><span class="comment"># Önce hedef dala geç:</span>
@@ -797,6 +924,12 @@ both modified:   src/login.py    <span class="comment">← Bu dosyada çakışma
 <!-- ============= REBASE ============= -->
 
 <h3>Rebase — Geçmişi Düzleştirme</h3>
+<div class="info-box note">
+    <div class="info-box-title">📌 Merge vs Rebase — hangisi ne zaman?</div>
+    <strong>Merge</strong>: İki dalın birleşme noktasını geçmişte <em>korur</em> — "feature dalından main'e birleştirdim" kaydı kalır.<br><br>
+    <strong>Rebase</strong>: Feature dalınızı main'in <em>en ucuna taşır</em> — sanki feature'ı bugün main'den ayırmışsınız gibi düz bir çizgi oluşur. Geçmiş daha okunaklı ama commit'ler yeniden yazılır.<br><br>
+    <strong>Pratik kural:</strong> Kendi yerel dalınızı güncellerken → rebase olabilir. Başkalarının da push ettiği paylaşılan dallarda → merge veya PR kullanın, rebase yapmayın.
+</div>
 <p>Rebase, dalınızı başka bir dalın <em>ucuna</em> taşır — sanki o daldan yeni ayrılmışsınız gibi. Daha temiz bir geçmiş oluşturur ama dikkatli kullanılmalıdır.</p>
 
 <div class="code-block">
@@ -857,6 +990,16 @@ origin  git@github.com:ali/proje.git (push)
 <!-- ============= GITHUB FORK VE PR ============= -->
 
 <h2>Fork ve Pull Request (PR) — Açık Kaynak Katkısı</h2>
+<div class="info-box note">
+    <div class="info-box-title">📌 Clone, Fork, origin, upstream — karıştırılan dörtlü</div>
+    <ul>
+        <li><strong>Clone</strong>: Bir repoyu bilgisayarınıza indirmek — <code>git clone URL</code>.</li>
+        <li><strong>Fork</strong>: Başkasının GitHub projesinin <em>sizin hesabınıza kopyasını</em> oluşturmak — GitHub web'deki "Fork" butonu. Sizin kopyanız, sizin kontrolünüzde.</li>
+        <li><strong>origin</strong>: Varsayılan remote adı — genelde <em>sizin</em> fork'unuz (<code>github.com/SIZ/proje</code>).</li>
+        <li><strong>upstream</strong>: Orijinal projenin sahibi — katkınızın gideceği asıl repo (<code>github.com/ORIJINAL/proje</code>). Siz fork'u güncel tutmak için upstream'ten çekersiniz.</li>
+    </ul>
+    Akış: Fork → clone (origin = fork'unuz) → upstream ekle → dal aç → değiştir → push (origin'e) → PR (upstream'e).
+</div>
 <p>Başkasının projesine katkıda bulunmak isterseniz <strong>Fork + PR</strong> iş akışını kullanırsınız. Bu, açık kaynak dünyasının temel mekanizmasıdır.</p>
 
 <img src="img/git_github_workflow.svg" alt="GitHub Fork ve PR İş Akışı" style="max-width:100%; margin: 1.5rem 0; border-radius: 8px;">
@@ -1161,6 +1304,16 @@ tmp/
 </div>
 
 <h3>Git Flow vs GitHub Flow</h3>
+<div class="info-box note">
+    <div class="info-box-title">📌 develop, release, hotfix — Git Flow terimleri</div>
+    <ul>
+        <li><strong>main</strong>: Canlıya giden, her zaman çalışır kod.</li>
+        <li><strong>develop</strong>: Geliştirme hattı — feature'lar önce buraya birleşir, main'e değil.</li>
+        <li><strong>release/*</strong>: "v2.0 çıkacak" gibi sürüm hazırlık dalı — son düzeltmeler, versiyon numarası.</li>
+        <li><strong>hotfix/*</strong>: Canlıdaki acil hata — main'den açılır, hem main hem develop'a gider.</li>
+    </ul>
+    Küçük ekipler ve web projeleri için GitHub Flow (sadece main + feature) genelde yeterlidir.
+</div>
 <table>
     <tr><th>Özellik</th><th>Git Flow</th><th>GitHub Flow</th></tr>
     <tr><td>Dallar</td><td>main, develop, feature/*, release/*, hotfix/*</td><td>main, feature/*</td></tr>
@@ -1607,6 +1760,12 @@ jobs:
 <!-- ============= GİT DAHİLİ YAPISI ============= -->
 
 <h2>Git Dahili Yapısı (İç Mimari)</h2>
+<div class="info-box note">
+    <div class="info-box-title">📌 SHA-1 hash ve .git klasörü</div>
+    Her commit'e Git bir <strong>hash</strong> (parmak izi) verir — örn. <code>a1b2c3d4e5f6...</code>. İçeriktek tek bir harf değişse hash tamamen değişir; bu yüzden Git verinin bozulup bozulmadığını anlar.<br><br>
+    Proje klasörünüzdeki gizli <code>.git/</code> klasörü tüm geçmişi tutar — commit'ler, dallar, ayarlar. Bu klasörü silerseniz Git geçmişi gider (dosyalar kalır ama versiyon kontrolü biter).<br><br>
+    <strong>Detached HEAD</strong>: HEAD bir dal adı yerine doğrudan eski bir commit'e işaret ederse — "geçmişte bir noktadayım, dalda değilim" durumu. Deneme yaparken olur; orada commit yaparsanız dal olmadan kaybolabilir. Çözüm: <code>git switch -c yeni-dal</code> ile dal oluşturun.
+</div>
 <p>Git'in altında 4 temel nesne türü vardır. Bunu bilmek zorunlu değil ama Git'in neden bu kadar güçlü olduğunu anlamanıza yardımcı olur:</p>
 <table>
     <tr><th>Nesne</th><th>İngilizce</th><th>Açıklama</th></tr>
@@ -1638,6 +1797,17 @@ feat: ilk commit</code></pre>
 <!-- ============= ÖZET TABLO ============= -->
 
 <h2>Hızlı Başvuru — En Sık Kullanılan Komutlar</h2>
+<div class="info-box warning">
+    <div class="info-box-title">⚠️ Yeni başlayanların sık yaptığı hatalar</div>
+    <ul>
+        <li><strong>Commit etmeden dal değiştirmek</strong> → Git uyarı verir; <code>git stash</code> veya commit yapın.</li>
+        <li><strong><code>git add .</code> ile göz kapalı her şeyi eklemek</strong> → <code>.env</code> veya büyük dosyalar yanlışlıkla gidebilir. Önce <code>git status</code> kontrol edin.</li>
+        <li><strong>Push etmeden <code>git reset --hard</code></strong> → Yerel commit'ler geri dönüşsüz silinir.</li>
+        <li><strong>Paylaşılan dalda rebase</strong> → Takım arkadaşlarının geçmişi bozulur — sadece kendi yerel dalınızda.</li>
+        <li><strong>"GitHub = Git" sanmak</strong> → Git bilgisayarınızda çalışır; GitHub sadece bulut depolama + işbirliği aracıdır.</li>
+        <li><strong>Conflict'te panik</strong> → Dosyadaki <code>&lt;&lt;&lt;</code> / <code>===</code> / <code>&gt;&gt;&gt;</code> işaretlerini düzenleyip <code>git add</code> + <code>git commit</code> yeterli.</li>
+    </ul>
+</div>
 <table>
     <tr><th>Komut</th><th>Ne Yapar</th><th>Ne Zaman Kullanılır</th></tr>
     <tr><td><code>git init</code></td><td>Yeni repo başlatır</td><td>Yeni proje oluştururken</td></tr>
@@ -1738,122 +1908,222 @@ feat: ilk commit</code></pre>
     quiz: [
         {
             question: "Git ile GitHub arasındaki temel fark nedir?",
-            options: ["İkisi aynı şeydir", "Git bir yazılımdır, GitHub ise bir web platformudur", "GitHub ücretsizdir, Git ücretlidir", "Git sadece Linux'ta çalışır"],
-            correct: 1,
+            options: [
+                "Git sadece Linux'ta çalışır",
+                "İkisi aynı şeydir ve işlemi sonlandırır",
+                "Git bir yazılımdır",
+                "GitHub ücretsizdir, Git ücretlidir"
+            ],
+            correct: 2,
             explanation: "Git bilgisayarınızda çalışan bir versiyon kontrol yazılımıdır. GitHub ise Git depolarınızı bulutta barındıran ve iş birliği araçları sunan bir web platformudur."
         },
         {
             question: "Git'i diğer VCS'lerden ayıran en önemli özellik nedir?",
-            options: ["Ücretsiz olması", "Dağıtık (distributed) olması", "Grafik arayüzü", "Otomatik yedekleme"],
-            correct: 1,
+            options: [
+                "Otomatik yedekleme",
+                "Ücretsiz olması",
+                "Dağıtık (distributed) olması",
+                "Grafik arayüzü yerine farklı bir komut"
+            ],
+            correct: 2,
             explanation: "Git dağıtıktır — her geliştirici tüm geçmişin tam kopyasına sahiptir. Merkezi sunucu çökse bile çalışmaya devam edersiniz."
         },
         {
             question: "'git add' ile 'git commit' arasındaki fark nedir?",
-            options: ["İkisi aynı şeydir", "add dosyayı staging'e ekler, commit kalıcı olarak kaydeder", "add uzağa gönderir, commit yerelde kaydeder", "add siler, commit geri alır"],
-            correct: 1,
+            options: [
+                "İkisi aynı şeydir ve işlemi sonlandırır",
+                "add siler, commit geri alır",
+                "add uzağa gönderir, commit yerelde kaydeder",
+                "add dosyayı staging'e ekler"
+            ],
+            correct: 3,
             explanation: "git add dosyaları staging area'ya (hazırlık alanı) ekler. git commit staging'deki değişiklikleri kalıcı olarak depoya kaydeder."
         },
         {
             question: "Başkasının GitHub projesine katkıda bulunmak için hangi iş akışı kullanılır?",
-            options: ["Doğrudan main'e push etme", "Fork → Branch → Commit → Push → Pull Request", "E-posta ile kod gönderme", "Dosyayı indirip tekrar yükleme"],
-            correct: 1,
+            options: [
+                "E-posta ile kod gönderme yerine farklı bir komut",
+                "Dosyayı indirip tekrar yükleme",
+                "Fork → Branch → Commit → Push → Pull Request",
+                "Doğrudan main'e push etme ve işlemi sonlandırır"
+            ],
+            correct: 2,
             explanation: "Açık kaynak katkısı için: Projeyi Fork'la → Klonla → Yeni dal oluştur → Değişiklik yap → Push et → Pull Request aç."
         },
         {
             question: "İki dal aynı dosyanın aynı satırını değiştirmişse ne olur?",
-            options: ["Git otomatik çözer", "Merge conflict (çakışma) oluşur", "Dosya silinir", "Son değişiklik kazanır"],
-            correct: 1,
+            options: [
+                "Son değişiklik kazanır",
+                "Dosya silinir yerine farklı bir komut",
+                "Merge conflict (çakışma) oluşur",
+                "Git otomatik çözer"
+            ],
+            correct: 2,
             explanation: "Git aynı satırda farklı değişiklikleri otomatik birleştiremediğinde conflict oluşur. Manuel olarak çözmeniz gerekir."
         },
         {
             question: ".env dosyalarını neden .gitignore'a eklemelisiniz?",
-            options: ["Dosya boyutu çok büyük olduğu için", "Şifre ve API anahtarı içerdiği için — güvenlik açığı yaratır", "Git .env dosyalarını desteklemediği için", "Sadece gelenek olduğu için"],
+            options: [
+                "Dosya boyutu çok büyük olduğu için",
+                "Şifre ve API anahtarı içerdiği için",
+                "Sadece gelenek olduğu için — bu davranış beklenmez",
+                "Git .env dosyalarını desteklemediği için"
+            ],
             correct: 1,
             explanation: ".env dosyaları şifreler ve API anahtarları içerir. GitHub'a push etmek ciddi güvenlik açığıdır — botlar bu dosyaları tarayarak anahtarları çalar!"
         },
         {
             question: "'git stash' ne işe yarar?",
-            options: ["Dosyaları siler", "Yarım kalan çalışmayı geçici saklar", "Uzağa gönderir", "Branch oluşturur"],
-            correct: 1,
+            options: [
+                "Uzağa gönderir yerine farklı bir komut",
+                "Dosyaları siler ve işlemi sonlandırır",
+                "Branch oluşturur",
+                "Yarım kalan çalışmayı geçici saklar"
+            ],
+            correct: 3,
             explanation: "git stash, commit etmeden önce yarım kalan değişiklikleri geçici olarak rafa kaldırır. Başka işlere geçip sonra geri dönebilirsiniz."
         },
         {
             question: "'git reset --hard HEAD~1' ile 'git revert HEAD' arasındaki fark nedir?",
-            options: ["İkisi aynıdır", "reset geçmişi siler, revert geri alma commit'i oluşturur", "revert daha yavaştır", "reset daha güvenlidir"],
-            correct: 1,
+            options: [
+                "reset geçmişi siler",
+                "İkisi aynıdır ve işlemi sonlandırır",
+                "reset daha güvenlidir",
+                "revert daha yavaştır"
+            ],
+            correct: 0,
             explanation: "reset --hard son commit'i siler (tehlikeli). revert ise değişiklikleri geri alan yeni bir commit oluşturur (geçmiş korunur, güvenli)."
         },
         {
             question: "Hangi dosya Git'e hangi dosyaları izlememesi gerektiğini söyler?",
-            options: [".gitconfig", ".gitignore", ".gitkeep", ".gitmodules"],
-            correct: 1,
+            options: [
+                ".gitignore",
+                ".gitconfig",
+                ".gitkeep",
+                ".gitmodules"
+            ],
+            correct: 0,
             explanation: ".gitignore dosyası, Git'in izlememesi gereken dosya ve dizin kalıplarını tanımlar (node_modules/, *.log, .env vb.)."
         },
         {
             question: "Pull Request (PR) açarken commit mesajına 'Closes #42' yazmak ne işe yarar?",
-            options: ["Sadece dekorasyon", "PR merge edildiğinde #42 numaralı Issue otomatik kapatılır", "42. satırı siler", "42. commit'e geri döner"],
-            correct: 1,
+            options: [
+                "42. satırı siler yerine farklı bir komut",
+                "42. commit'e geri döner — bu davranış beklenmez",
+                "PR merge edildiğinde #42 numaralı Issue otomatik",
+                "Bu senaryoda sadece dekorasyon ve işlemi sonlandırır"
+            ],
+            correct: 2,
             explanation: "'Closes #42' veya 'Fixes #42' yazarsanız, PR merge edildiğinde ilgili Issue otomatik olarak kapatılır. Çok pratik bir GitHub özelliğidir!"
         },
         {
             question: "GitHub Pages ne işe yarar?",
-            options: ["Veritabanı barındırır", "Statik web sitelerini ücretsiz barındırır", "E-posta gönderir", "Video hosting yapar"],
-            correct: 1,
+            options: [
+                "Veritabanı barındırır",
+                "E-posta gönderir yerine farklı bir komut",
+                "Video hosting yapar — bu davranış beklenmez",
+                "Statik web sitelerini ücretsiz barındırır"
+            ],
+            correct: 3,
             explanation: "GitHub Pages, HTML/CSS/JS dosyalarınızı ücretsiz olarak web'de yayınlar. Portfolyo siteleri, proje dokümantasyonları ve bloglar için idealdir."
         },
         {
             question: "SSH anahtarını GitHub'a eklemenin faydası nedir?",
-            options: ["Kodları şifreler", "Her push/pull'da şifre girmek zorunda kalmazsınız", "Repoyu daha hızlı klonlar", "Otomatik commit yapar"],
+            options: [
+                "Kodları şifreler ve işlemi sonlandırır",
+                "Her push/pull'da şifre girmek zorunda kalmazsınız",
+                "Otomatik commit yapar — bu davranış beklenmez",
+                "Repoyu daha hızlı klonlar yerine farklı bir komut"
+            ],
             correct: 1,
             explanation: "SSH anahtarı bir kez kurulur ve sonrasında her push/pull işleminde otomatik kimlik doğrulama yapar. Şifre girmenize gerek kalmaz."
         },
         {
             question: "GitHub Desktop ne işe yarar?",
-            options: ["GitHub'ın web sitesini açar", "Git işlemlerini grafik arayüzle yapmanızı sağlar", "Sadece Windows'ta çalışır", "Otomatik kod yazar"],
-            correct: 1,
+            options: [
+                "GitHub'ın web sitesini açar ve işlemi sonlandırır",
+                "Otomatik kod yazar — bu davranış beklenmez",
+                "Sadece Windows'ta çalışır yerine farklı bir komut",
+                "Git işlemlerini grafik arayüzle yapmanızı sağlar"
+            ],
+            correct: 3,
             explanation: "GitHub Desktop, commit, branch, push, pull gibi Git işlemlerini görsel arayüzle yapmanızı sağlayan ücretsiz masaüstü uygulamasıdır. Linux'ta topluluk fork'u (shiftkey/desktop) ile kullanılabilir."
         },
         {
             question: "GitHub Organizations ne için kullanılır?",
-            options: ["Kişisel blog yazmak için", "Birden fazla kişi ve projeyi tek çatı altında yönetmek için", "Git'i kaldırmak için", "Sadece büyük şirketler kullanabilir"],
-            correct: 1,
+            options: [
+                "Kişisel blog yazmak için ve işlemi sonlandırır",
+                "Git'i kaldırmak için yerine farklı bir komut",
+                "Birden fazla kişi ve projeyi tek çatı altında",
+                "Sadece büyük şirketler kullanabilir"
+            ],
+            correct: 2,
             explanation: "GitHub Organizations, takımların birden fazla repo ve üyeyi tek bir çatı altında yönetmesini sağlar. Şirketler, açık kaynak topluluklar ve öğrenci kulüpleri tarafından kullanılır."
         },
         {
             question: "GitHub Copilot nedir?",
-            options: ["Bir versiyon kontrol sistemi", "Yapay zeka destekli kod yazma asistanı", "GitHub'ın mobil uygulaması", "Bir programlama dili"],
+            options: [
+                "Bir programlama dili — bu davranış beklenmez",
+                "Yapay zeka destekli kod yazma asistanı",
+                "Bir versiyon kontrol sistemi",
+                "GitHub'ın mobil uygulaması"
+            ],
             correct: 1,
             explanation: "GitHub Copilot, OpenAI modelleri tarafından desteklenen bir AI kod asistanıdır. Gerçek zamanlı kod önerileri sunar ve öğrencilere ücretsizdir (Student Developer Pack ile)."
         },
         {
             question: "GitHub Classroom ne amaçla kullanılır?",
-            options: ["Online toplantı yapmak için", "Öğretmenlerin GitHub üzerinden ödev oluşturması ve değerlendirmesi için", "Sadece sınav yapmak için", "GitHub hesabı silmek için"],
+            options: [
+                "Online toplantı yapmak için ve işlemi sonlandırır",
+                "Öğretmenlerin GitHub üzerinden ödev oluşturması ve",
+                "GitHub hesabı silmek için — bu davranış beklenmez",
+                "Varsayılan olarak sadece sınav yapmak için yerine farklı bir komut"
+            ],
             correct: 1,
             explanation: "GitHub Classroom, eğitimcilerin ödev oluşturmasını, dağıtmasını ve otomatik değerlendirmesini (autograding) sağlayan ücretsiz bir platformdur."
         },
         {
             question: "GitHub Actions CI/CD pipeline'ında 'matrix strategy' ne işe yarar?",
-            options: ["Dosyaları matris şeklinde sıralar", "Birden fazla OS/versiyon kombinasyonunda test çalıştırır", "Sadece gece çalışır", "Branch'ları otomatik siler"],
+            options: [
+                "Dosyaları matris şeklinde sıralar ve işlemi sonlandırır",
+                "Birden fazla OS/versiyon kombinasyonunda test çalıştırır",
+                "Varsayılan olarak sadece gece çalışır yerine farklı bir komut",
+                "Branch'ları otomatik siler — bu davranış beklenmez"
+            ],
             correct: 1,
             explanation: "Matrix strategy, testlerinizi birden fazla işletim sistemi ve dil versiyonu kombinasyonunda paralel olarak çalıştırmanızı sağlar (örn: Python 3.10, 3.11, 3.12 + Ubuntu, macOS)."
         },
         {
             question: "'gh pr create' komutu ne yapar?",
-            options: ["Git dalı oluşturur", "Terminalden Pull Request açar", "Dosya siler", "Repo klonlar"],
+            options: [
+                "Git dalı oluşturur",
+                "Terminalden Pull Request açar",
+                "Repo klonlar — bu davranış beklenmez",
+                "Dosya siler yerine farklı bir komut"
+            ],
             correct: 1,
             explanation: "'gh' komutu GitHub CLI aracıdır. 'gh pr create' komutu terminalden doğrudan Pull Request oluşturmanızı sağlar — tarayıcıya geçmenize gerek kalmaz."
         },
         {
             question: "GitLab'ın GitHub'dan en belirgin farkı nedir?",
-            options: ["Ücretsiz olmaması", "CI/CD'nin doğrudan platforma entegre olması ve self-hosted kurulabilmesi", "Sadece Linux'ta çalışması", "Git kullanmaması"],
-            correct: 1,
+            options: [
+                "Sadece Linux'ta çalışması yerine farklı bir komut",
+                "Git kullanmaması — bu davranış beklenmez",
+                "Ücretsiz olmaması ve işlemi sonlandırır",
+                "CI/CD'nin doğrudan platforma entegre olması ve"
+            ],
+            correct: 3,
             explanation: "GitLab'ın en güçlü yönü CI/CD'nin platforma gömülü olması ve Community Edition'ın kendi sunucunuza ücretsiz kurulabilmesidir. GitHub'da CI/CD Actions ile sağlanır."
         },
         {
             question: "GitHub web arayüzünde bir repo sayfasında '.' tuşuna basarsanız ne olur?",
-            options: ["Repo silinir", "VS Code'un web versiyonu (github.dev) açılır", "Terminal açılır", "Hiçbir şey olmaz"],
-            correct: 1,
+            options: [
+                "Terminal açılır yerine farklı bir komut",
+                "Hiçbir şey olmaz — bu davranış beklenmez",
+                "VS Code'un web versiyonu (github.dev) açılır",
+                "Bu senaryoda repo silinir ve işlemi sonlandırır"
+            ],
+            correct: 2,
             explanation: "GitHub'da herhangi bir repo sayfasında '.' tuşuna basınca github.dev (VS Code web editörü) açılır. Terminal olmadan güçlü düzenleme yapabilirsiniz!"
         }
     ]

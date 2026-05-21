@@ -8,6 +8,10 @@ window.CHAPTERS.push({
     description: 'Dosya ve dizin izinlerini anlayın ve değiştirin. chmod, chown, umask, özel izinler (SUID/SGID/Sticky Bit) ve ACL.',
     content: `
 <h2>Linux İzin Sistemi</h2>
+<div class="info-box tip">
+    <div class="info-box-title">💡 Bu bölüm biraz yoğun — normal!</div>
+    İzinler Linux'ta en çok kafa karıştıran konulardan biridir. Önce <strong>rwx + chmod 755/644</strong> kısmını oturtun; SUID/SGID/sticky'ye sonra dönün. Alttaki <strong>İzin Hesaplayıcı</strong> ile tıklayarak deneyin — sayılar böyle oturur.
+</div>
 <p>Linux çok kullanıcılı bir sistemdir. Her dosya ve dizin üç tür izne sahiptir ve bunlar üç kullanıcı grubu için ayrı ayrı tanımlanır.</p>
 
 <div class="eng-box">
@@ -118,6 +122,18 @@ drwxr-xr-x 3 kullanici kullanici 4096 Şub 26 10:00 Belgeler</span></code></pre>
     <tr><td><code>444</code></td><td>r--r--r--</td><td>Salt okunur dosya (herkes okuyabilir, kimse yazamaz)</td></tr>
 </table>
 
+<div class="info-box note">
+    <div class="info-box-title">📌 Hangi izni ne zaman?</div>
+    <ul>
+        <li><strong>644</strong> — Normal metin dosyası (README, .py, .txt)</li>
+        <li><strong>755</strong> — Script veya dizin (cd + ls için x gerekir)</li>
+        <li><strong>600</strong> — SSH anahtarı, .env (sadece siz)</li>
+        <li><strong>775</strong> — Ekip dizini (grup yazabilsin)</li>
+        <li><strong>2775</strong> — Ekip dizini + SGID (yeni dosyalar grup alsın)</li>
+        <li><strong>1777</strong> — Herkesin yazabildiği ama silemediği ortak alan (/tmp gibi)</li>
+    </ul>
+</div>
+
 <h3>Sembolik Yöntem</h3>
 <div class="code-block">
     <div class="code-block-header"><span>chmod sembolik örnekleri</span></div>
@@ -158,6 +174,12 @@ drwxr-xr-x 3 kullanici kullanici 4096 Şub 26 10:00 Belgeler</span></code></pre>
 </div>
 
 <p>Merak ettiniz mi? Yeni bir dosya oluşturduğunuzda neden hep <code>644</code> (rw-r--r--) izni ile, dizinler ise <code>755</code> (rwxr-xr-x) izni ile oluşur? Cevap: <strong>umask</strong>.</p>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 umask nasıl düşünülür?</div>
+    umask, yeni dosyaya verilecek izinlerden <strong>çıkarılan (maskelenen)</strong> kısımdır. Teknik olarak bit işlemidir; öğrenirken <em>"666'dan umask çıkar"</em> formülü yeterli:<br>
+    Dosya tabanı <code>666</code>, dizin tabanı <code>777</code>. umask <code>022</code> ise → dosya <code>644</code>, dizin <code>755</code>.
+</div>
 
 <div class="code-block">
     <div class="code-block-header"><span>umask nasıl çalışır</span></div>
@@ -242,6 +264,16 @@ Change: 2024-01-14 14:22:00</span>
 </div>
 
 <h2>Özel İzinler: SUID, SGID ve Sticky Bit</h2>
+<div class="info-box note">
+    <div class="info-box-title">📌 Neden "özel" izinler var?</div>
+    Normal <code>rwx</code> yetmeyen üç gerçek dünya sorunu:
+    <ul>
+        <li><strong>SUID</strong>: "Normal kullanıcı şifresini değiştirsin ama sistem dosyasına yazması gereksin" → <code>passwd</code></li>
+        <li><strong>SGID (dizin)</strong>: "Takım klasöründe herkes dosya oluştursun, hepsi aynı grupta kalsın" → paylaşımlı proje dizini</li>
+        <li><strong>Sticky (dizin)</strong>: "Herkes geçici dosya yazabilsin ama başkasının dosyasını silemesin" → <code>/tmp</code></li>
+    </ul>
+    Günlük hayatta en çok karşılaşacağınız: <strong>sticky (/tmp)</strong> ve <strong>SGID (takım dizini)</strong>. SUID'yi çoğunlukla sistem programlarında görürsünüz.
+</div>
 <p>Temel <code>rwx</code> izinlerinin ötesinde üç özel izin vardır. Bunlar <strong>4 haneli octal</strong> sistemin ilk hanesiyle belirtilir:</p>
 
 <div class="code-block">
@@ -261,6 +293,10 @@ Change: 2024-01-14 14:22:00</span>
 </div>
 
 <h3>1. SUID (Set User ID) — Sayısal: 4000</h3>
+<div class="info-box note">
+    <div class="info-box-title">📌 SUID — sade dilde</div>
+    Program çalışırken "kimlik kartını" dosyanın <strong>sahibinin</strong> kartıyla değiştirir. Siz <code>ali</code> olarak <code>passwd</code> çalıştırırsınız; program kısa süreliğine <strong>root</strong> gibi davranır — böylece <code>/etc/shadow</code>'a yazabilir. Sadece <strong>dosyalarda</strong> anlamlıdır; dizinlerde yok sayılır.
+</div>
 <table>
     <tr><th></th><th>Dosyalarda</th><th>Dizinlerde</th></tr>
     <tr><td><strong>Etki</strong></td><td>Dosya çalıştırıldığında, çalıştıranın değil <strong>dosya sahibinin</strong> yetkileriyle çalışır</td><td>Linux'ta dizinlerde <strong>etkisizdir</strong> (yok sayılır)</td></tr>
@@ -288,6 +324,11 @@ Change: 2024-01-14 14:22:00</span>
 </div>
 
 <h3>2. SGID (Set Group ID) — Sayısal: 2000</h3>
+<div class="info-box note">
+    <div class="info-box-title">📌 SGID — dosya vs dizin (en karışık nokta!)</div>
+    <strong>Dizinde SGID</strong> = Yeni oluşturulan dosyalar, sizin kişisel grubunuzu değil <em>dizinin grubunu</em> alır. Takım paylaşımı için kullanırsınız — pratikte en işe yarayan SGID kullanımı budur.<br><br>
+    <strong>Dosyada SGID</strong> = Program çalışırken dosyanın grubunun yetkileriyle çalışır (SUID'nin grup karşılığı) — günlük hayatta nadir görürsünüz.
+</div>
 <p>SGID en kafa karıştırıcı özel izindir çünkü dosya ve dizinde <strong>tamamen farklı</strong> davranır:</p>
 
 <table>
@@ -318,6 +359,11 @@ Change: 2024-01-14 14:22:00</span>
 </div>
 
 <h3>3. Sticky Bit — Sayısal: 1000</h3>
+<div class="info-box note">
+    <div class="info-box-title">📌 Sticky bit — sade dilde</div>
+    Ortak bir dolap düşünün (<code>/tmp</code> gibi): <strong>herkes içine dosya koyabilir</strong> (yazma izni var), ama <strong>sadece dosyanın sahibi</strong> (veya root) kendi dosyasını silebilir. Sticky olmasaydı, herkes 777 dizinde başkalarının dosyalarını silebilirdi — kaos.<br><br>
+    <code>ls -ld /tmp</code> → son harf <code>t</code> görürsünüz: <code>drwxrwxrwt</code>
+</div>
 
 <table>
     <tr><th></th><th>Dosyalarda</th><th>Dizinlerde</th></tr>
@@ -351,6 +397,17 @@ Change: 2024-01-14 14:22:00</span>
     <tr><td>SGID</td><td>2000</td><td><code>g+s</code></td><td>Dosya grubunun yetkileriyle çalışır</td><td>Yeni dosyalar dizinin grubunu miras alır</td><td><code>rwxr-sr-x</code></td></tr>
     <tr><td>Sticky</td><td>1000</td><td><code>+t</code></td><td>Modern Linux'ta etkisiz</td><td>Sadece sahip/dizin sahibi/root silebilir</td><td><code>rwxrwxrwt</code></td></tr>
 </table>
+
+<div class="info-box tip">
+    <div class="info-box-title">💡 Üçünü bir senaryoda düşünün</div>
+    Paylaşımlı bir sunucuda:
+    <ul>
+        <li><code>/tmp</code> → <code>1777</code> + sticky → herkes geçici dosya yazar, kimse başkasınınkini silmez</li>
+        <li><code>/home/proje</code> → <code>2775</code> + SGID → ekip dosyaları hep <code>gelistiriciler</code> grubunda kalır</li>
+        <li><code>/usr/bin/passwd</code> → SUID → kullanıcı kendi şifresini değiştirir</li>
+    </ul>
+    Sizin elle ayarlayacağınız çoğunlukla: <strong>chmod 775</strong> veya takım dizini için <strong>chmod 2775</strong>.
+</div>
 
 <div class="info-box tip">
     <div class="info-box-title">💡 SUID Dosyalarını Bulma (Güvenlik Denetimi)</div>
@@ -472,44 +529,79 @@ other::r--</span>
     quiz: [
         {
             question: "'chmod' komutunun açılımı nedir?",
-            options: ["Change Model", "Check Mode", "Change Mode", "Channel Modify"],
-            correct: 2,
+            options: [
+                "Change Mode",
+                "Channel Modify",
+                "Check Mode",
+                "Change Model"
+            ],
+            correct: 0,
             explanation: "chmod = Change Mode (Modu değiştir). Dosya izinlerini değiştirmek için kullanılır."
         },
         {
             question: "rwxr-xr-- izni sayısal olarak nedir?",
-            options: ["754", "644", "755", "775"],
-            correct: 0,
+            options: [
+                "775",
+                "755",
+                "754",
+                "644"
+            ],
+            correct: 2,
             explanation: "rwx=4+2+1=7, r-x=4+0+1=5, r--=4+0+0=4 → 754"
         },
         {
             question: "Bir dizinde 'x' izni olmadan ama 'r' izniyle ne yapabilirsiniz?",
-            options: ["Dizine cd ile girip dosyaları okuyabilirsiniz", "Sadece dosya adlarını listelersiniz, meta bilgilere ve içeriklere erişemezsiniz", "Hiçbir şey yapamazsınız", "Dizini silebilirsiniz"],
-            correct: 1,
+            options: [
+                "Dizini silebilirsiniz — bu davranış beklenmez",
+                "Dizine cd ile girip dosyaları okuyabilirsiniz",
+                "Hiçbir şey yapamazsınız yerine farklı bir komut",
+                "Sadece dosya adlarını listelersiniz"
+            ],
+            correct: 3,
             explanation: "Dizinde r var x yok: dosya ADLARINı listeleyebilirsiniz ama boyut, tarih, izin gibi bilgilere erişemezsiniz. Dosya içeriğine de ulaşamazsınız."
         },
         {
             question: "SSH özel anahtarınız için hangi izin doğrudur?",
-            options: ["777", "755", "644", "600"],
+            options: [
+                "755",
+                "644",
+                "777",
+                "600"
+            ],
             correct: 3,
             explanation: "SSH anahtarları sadece sahibi tarafından okunmalıdır. 600 (rw-------) doğru izindir. SSH aksi halde çalışmayı reddeder!"
         },
         {
             question: "/tmp dizinindeki 't' (sticky bit) ne sağlar?",
-            options: ["Herkes her dosyayı silebilir", "Sadece dosya sahibi, dizin sahibi veya root silebilir", "Sadece root silebilir", "Kimse silemez"],
+            options: [
+                "Herkes her dosyayı silebilir",
+                "Sadece dosya sahibi",
+                "Sadece root silebilir",
+                "Kimse silemez — bu davranış beklenmez"
+            ],
             correct: 1,
             explanation: "Sticky bit sayesinde /tmp'de herkes dosya oluşturabilir ama sadece dosya sahibi, dizin sahibi veya root silebilir."
         },
         {
             question: "umask 077 ise yeni oluşturulan dosyanın izni ne olur?",
-            options: ["777", "644", "600", "755"],
-            correct: 2,
+            options: [
+                "600",
+                "644",
+                "755",
+                "777"
+            ],
+            correct: 0,
             explanation: "Dosyalar 666 temel izinle başlar. 666 - 077 = 600 (rw-------). Sadece sahip okuyup yazabilir."
         },
         {
             question: "SGID dizinlerde ne yapar?",
-            options: ["Dizini siler", "Dizine sadece root erişir", "Yeni dosyalar dizinin grubunu miras alır", "Dosyaları şifreler"],
-            correct: 2,
+            options: [
+                "Yeni dosyalar dizinin grubunu miras alır",
+                "Dizine sadece root erişir",
+                "Dizini siler ve işlemi sonlandırır",
+                "Dosyaları şifreler — bu davranış beklenmez"
+            ],
+            correct: 0,
             explanation: "SGID ayarlı bir dizinde oluşturulan dosyalar, oluşturanın grubu yerine DİZİNİN grubunu miras alır. Takım çalışması için çok önemli."
         }
     ]

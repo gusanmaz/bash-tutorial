@@ -454,38 +454,68 @@ h      → Yardım</code></pre>
     quiz: [
         {
             question: "'ps aux' komutundaki PID nedir?",
-            options: ["Program Install Directory", "Process Identification Number", "Private Interface Daemon", "Parallel Input Device"],
+            options: [
+                "Private Interface Daemon",
+                "Process Identification Number",
+                "Parallel Input Device — bu davranış beklenmez",
+                "Program Install Directory"
+            ],
             correct: 1,
             explanation: "PID = Process ID (Süreç Kimlik Numarası). Her çalışan sürecin benzersiz bir numarasıdır."
         },
         {
             question: "Ctrl+Z ile Ctrl+C arasındaki fark nedir?",
-            options: ["İkisi de aynı şeyi yapar", "Ctrl+Z programı askıya alır, Ctrl+C keser (durdurur)", "Ctrl+Z geri al, Ctrl+C kopyala", "Ctrl+Z kapatır, Ctrl+C devam ettirir"],
-            correct: 1,
+            options: [
+                "Ctrl+Z programı askıya alır",
+                "Ctrl+Z kapatır, Ctrl+C devam ettirir",
+                "Ctrl+Z geri al, Ctrl+C kopyala",
+                "İkisi de aynı şeyi yapar ve işlemi sonlandırır"
+            ],
+            correct: 0,
             explanation: "Ctrl+Z SIGTSTP sinyali gönderir (askıya al). Program duraklar ama bellekte kalır. Ctrl+C SIGINT gönderir (kes/durdur)."
         },
         {
             question: "'systemctl enable nginx' ne yapar?",
-            options: ["nginx'i hemen başlatır", "nginx'i durdurur", "Sistem açılışında nginx'i otomatik başlatmayı etkinleştirir", "nginx log dosyalarını gösterir"],
+            options: [
+                "nginx'i hemen başlatır ve işlemi sonlandırır",
+                "nginx'i durdurur (Docker CLI'da yoktur)",
+                "Sistem açılışında nginx'i otomatik başlatmayı",
+                "nginx log dosyalarını gösterir — bu davranış beklenmez"
+            ],
             correct: 2,
             explanation: "systemctl enable bir hizmeti sistem açılışında otomatik başlayacak şekilde yapılandırır. Hemen başlatmaz — bunun için 'start' veya '--now' bayrağı gerekir."
         },
         {
             question: "Bir hizmetin neden başarısız olduğunu görmek için hangi komutu kullanırsınız?",
-            options: ["ps aux | grep hizmet", "top", "journalctl -u hizmet", "cat /var/log/hizmet"],
-            correct: 2,
+            options: [
+                "ps aux | grep hizmet",
+                "journalctl -u hizmet",
+                "top (Docker CLI'da yoktur)",
+                "cat /var/log/hizmet"
+            ],
+            correct: 1,
             explanation: "journalctl -u hizmet komutu, systemd journal'ından belirtilen hizmetin tüm loglarını gösterir. Modern Linux'ta sorun gidermenin en temel aracıdır."
         },
         {
             question: "'0 3 * * * /yedekle.sh' crontab ifadesi ne zaman çalışır?",
-            options: ["3 dakikada bir", "Her gün saat 03:00'te", "Her 3 saatte bir", "Ayda 3 kez"],
-            correct: 1,
+            options: [
+                "Ayda 3 kez — bu davranış beklenmez",
+                "Her 3 saatte bir",
+                "3 dakikada bir",
+                "Her gün saat 03:00'te"
+            ],
+            correct: 3,
             explanation: "Format: dakika(0) saat(3) gün(*) ay(*) haftaGünü(*). Yani: saat 3, dakika 0, her gün, her ay, haftanın her günü = Her gün 03:00'te."
         },
         {
             question: "Daemon nedir?",
-            options: ["Bir virüs türü", "Arka planda terminal bağlantısı olmadan çalışan hizmet süreci", "root kullanıcısı", "Bir dosya sistemi türü"],
-            correct: 1,
+            options: [
+                "root kullanıcısı yerine farklı bir komut",
+                "Bir dosya sistemi türü — bu davranış beklenmez",
+                "Bu senaryoda bir virüs türü ve işlemi sonlandırır",
+                "Arka planda terminal bağlantısı olmadan çalışan"
+            ],
+            correct: 3,
             explanation: "Daemon, arka planda sessizce çalışan, kullanıcı etkileşimi gerektirmeyen hizmet sürecidir. Genellikle ismi 'd' ile biter: sshd, httpd, cron, systemd."
         }
     ]

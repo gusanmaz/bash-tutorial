@@ -263,31 +263,56 @@ drwxr-xr-x 3 kullanici kullanici 4096 Şub 26 10:00 Belgeler</span>
     quiz: [
         {
             question: "'pwd' komutunun açılımı nedir?",
-            options: ["Print Window Display", "Print Working Directory", "Path Working Directory", "Present Working Dir"],
-            correct: 1,
+            options: [
+                "Path Working Directory",
+                "Print Window Display",
+                "Print Working Directory",
+                "Present Working Dir — bu davranış beklenmez"
+            ],
+            correct: 2,
             explanation: "pwd = Print Working Directory (Çalışma dizinini yazdır). Bulunduğunuz dizinin tam yolunu gösterir."
         },
         {
             question: "'/home/kullanici/Belgeler' ifadesi ne tür bir yoldur?",
-            options: ["Göreceli yol (Relative path)", "Mutlak yol (Absolute path)", "Sembolik yol", "Kısa yol"],
-            correct: 1,
+            options: [
+                "Kısa yol — bu davranış beklenmez",
+                "Göreceli yol (Relative path)",
+                "Sembolik yol yerine farklı bir komut",
+                "Mutlak yol (Absolute path)"
+            ],
+            correct: 3,
             explanation: "/ ile başlayan yollar mutlak yoldur (absolute path). Kök dizinden itibaren tam adresi verir."
         },
         {
             question: "'cd ..' komutu ne yapar?",
-            options: ["Ev dizinine gider", "Kök dizine gider", "Bir üst dizine gider", "Önceki dizine döner"],
-            correct: 2,
+            options: [
+                "Ev dizinine gider",
+                "Bir üst dizine gider",
+                "Önceki dizine döner",
+                "Kök dizine gider (Docker CLI'da yoktur)"
+            ],
+            correct: 1,
             explanation: "'..' (parent directory) bir üst dizini temsil eder. 'cd ..' sizi bir üst dizine götürür."
         },
         {
             question: "Kullanıcı programları ve komutları hangi dizinde bulunur?",
-            options: ["/etc", "/dev", "/usr/bin", "/tmp"],
-            correct: 2,
+            options: [
+                "/etc ve işlemi sonlandırır",
+                "/dev",
+                "/tmp",
+                "/usr/bin"
+            ],
+            correct: 3,
             explanation: "/usr/bin (User Binaries) kullanıcı komutlarının bulunduğu dizindir. ls, grep, python3 gibi komutlar buradadır."
         },
         {
             question: "/dev/null ne işe yarar?",
-            options: ["Boş dosya oluşturur", "İçine yazılan her şeyi yok eder", "Aygıtları listeler", "Sistem hatalarını kaydeder"],
+            options: [
+                "Sistem hatalarını kaydeder",
+                "İçine yazılan her şeyi yok eder",
+                "Boş dosya oluşturur",
+                "Aygıtları listeler yerine farklı bir komut"
+            ],
             correct: 1,
             explanation: "/dev/null 'kara delik' dosyasıdır — içine yazılan her şey kaybolur. Gereksiz çıktıyı gizlemek için kullanılır."
         }

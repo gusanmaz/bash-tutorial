@@ -434,43 +434,78 @@ v20.11.0
     quiz: [
         {
             question: "C derleme sürecinin doğru sırası hangisidir?",
-            options: ["Derleme → Ön İşleme → Montaj → Bağlama", "Ön İşleme → Derleme → Montaj → Bağlama", "Montaj → Derleme → Bağlama → Ön İşleme", "Bağlama → Ön İşleme → Montaj → Derleme"],
-            correct: 1,
+            options: [
+                "Derleme → Ön İşleme → Montaj → Bağlama",
+                "Bağlama → Ön İşleme → Montaj → Derleme",
+                "Montaj → Derleme → Bağlama → Ön İşleme",
+                "Ön İşleme → Derleme → Montaj → Bağlama"
+            ],
+            correct: 3,
             explanation: "Sıra: Ön İşleme (Preprocessing, -E) → Derleme (Compilation, -S) → Montaj (Assembly, -c) → Bağlama (Linking). Kısaca: kaynak → assembly → object → executable."
         },
         {
             question: "'gcc -Wall -Wextra' flagları ne yapar?",
-            options: ["Programı duvar kağıdı yapar", "Tüm uyarıları (warnings) aktifleştirir", "Optimizasyonu artırır", "Debug bilgisi ekler"],
-            correct: 1,
+            options: [
+                "Optimizasyonu artırır yerine farklı bir komut",
+                "Debug bilgisi ekler — bu davranış beklenmez",
+                "Tüm uyarıları (warnings) aktifleştirir",
+                "Programı duvar kağıdı yapar"
+            ],
+            correct: 2,
             explanation: "-Wall 'tüm uyarılar' (warnings all), -Wextra ise ekstra uyarılar anlamına gelir. Her zaman kullanılması önerilir."
         },
         {
             question: "Python'da 'sudo pip install' neden tehlikelidir?",
-            options: ["Çok yavaştır", "Sistem Python paketlerini bozabilir", "Root şifresi gerektirir diye", "pip zaten root'tur"],
-            correct: 1,
+            options: [
+                "Root şifresi gerektirir diye",
+                "pip zaten root'tur — bu davranış beklenmez",
+                "Çok yavaştır ve işlemi sonlandırır",
+                "Sistem Python paketlerini bozabilir"
+            ],
+            correct: 3,
             explanation: "Sistem Python'una paket kurmak, dağıtımın kendi Python paketleriyle çakışabilir. Her zaman virtual environment (venv) kullanın."
         },
         {
             question: "Go'nun derleme açısından özel özelliği nedir?",
-            options: ["Sadece Linux'ta derlenir", "Statik bağlanmış tek binary üretir", "Derleme çok yavaştır", "Sadece 64-bit destekler"],
+            options: [
+                "Sadece 64-bit destekler",
+                "Statik bağlanmış tek binary üretir",
+                "Derleme çok yavaştır yerine farklı bir komut",
+                "Sadece Linux'ta derlenir"
+            ],
             correct: 1,
             explanation: "Go, statik olarak bağlanmış tek bir binary üretir — hiçbir dış bağımlılığa ihtiyaç duymaz. Bu, dağıtımı çok kolaylaştırır."
         },
         {
             question: "nvm ne işe yarar?",
-            options: ["Node paketlerini yönetir", "Farklı Node.js versiyonlarını yönetir", "npm'in alternatifidir", "Node uygulamalarını izler"],
-            correct: 1,
+            options: [
+                "Node uygulamalarını izler",
+                "npm'in alternatifidir yerine farklı bir komut",
+                "Farklı Node.js versiyonlarını yönetir",
+                "Node paketlerini yönetir"
+            ],
+            correct: 2,
             explanation: "nvm (Node Version Manager), farklı Node.js versiyonlarını kurup aralarında geçiş yapmanızı sağlar — tıpkı pyenv gibi."
         },
         {
             question: "Statik ve dinamik bağlama arasındaki temel fark nedir?",
-            options: ["Statik daha hızlı derlenir", "Dinamik bağlama kütüphaneyi dosyaya gömer", "Statik bağlama kütüphaneyi dosyaya gömer", "Hiçbir fark yoktur"],
-            correct: 2,
+            options: [
+                "Statik daha hızlı derlenir ve işlemi sonlandırır",
+                "Hiçbir fark yoktur — bu davranış beklenmez",
+                "Dinamik bağlama kütüphaneyi dosyaya gömer",
+                "Statik bağlama kütüphaneyi dosyaya gömer"
+            ],
+            correct: 3,
             explanation: "Statik bağlamada kütüphane kodu binary'ye gömülür (büyük dosya, bağımsız). Dinamik bağlamada çalışma zamanında paylaşılan kütüphaneler (.so) aranır."
         },
         {
             question: "'ldd /usr/bin/git' komutu ne gösterir?",
-            options: ["Git'in kaynak kodunu", "Git'in dinamik kütüphane bağımlılıklarını", "Git'in versiyon geçmişini", "Git'in lisans bilgisini"],
+            options: [
+                "Git'in lisans bilgisini",
+                "Git'in dinamik kütüphane bağımlılıklarını",
+                "Git'in kaynak kodunu ve işlemi sonlandırır",
+                "Git'in versiyon geçmişini"
+            ],
             correct: 1,
             explanation: "ldd (List Dynamic Dependencies), bir programın çalışma zamanında ihtiyaç duyduğu paylaşılan kütüphaneleri (.so dosyaları) listeler."
         }

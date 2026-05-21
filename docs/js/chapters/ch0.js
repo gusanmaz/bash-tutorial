@@ -612,68 +612,123 @@ I have :-(.
     quiz: [
         {
             question: "Linux teknik olarak nedir?",
-            options: ["Bir web tarayıcısı", "Bir işletim sistemi çekirdeği (kernel)", "Bir programlama dili", "Bir masaüstü ortamı"],
+            options: [
+                "Bir web tarayıcısı ve işlemi sonlandırır",
+                "Bir işletim sistemi çekirdeği (kernel)",
+                "Bir masaüstü ortamı",
+                "Bir programlama dili"
+            ],
             correct: 1,
             explanation: "Linux teknik olarak bir çekirdektir (kernel). Çekirdeğin etrafına araçlar eklenerek oluşturulan sistemlere 'dağıtım' (distribution) denir."
         },
         {
             question: "Yeni başlayanlar için en çok önerilen dağıtım hangisidir?",
-            options: ["Arch Linux", "Gentoo", "Ubuntu veya Linux Mint", "Alpine Linux"],
-            correct: 2,
+            options: [
+                "Arch Linux",
+                "Gentoo (Docker CLI'da yoktur)",
+                "Alpine Linux",
+                "Ubuntu veya Linux Mint"
+            ],
+            correct: 3,
             explanation: "Ubuntu ve Linux Mint, kolay kurulumları ve büyük toplulukları sayesinde yeni başlayanlar için idealdir."
         },
         {
             question: "Windows'ta tam bir Linux ortamı çalıştırmak için ne kullanılır?",
-            options: ["WSL (Windows Subsystem for Linux)", "Internet Explorer", "Paint", "Task Manager"],
-            correct: 0,
+            options: [
+                "Internet Explorer (Docker CLI'da yoktur)",
+                "Task Manager — bu davranış beklenmez",
+                "WSL (Windows Subsystem for Linux)",
+                "Paint yerine farklı bir komut"
+            ],
+            correct: 2,
             explanation: "WSL (Windows Subsystem for Linux), Windows 10/11'de sanal makine gerektirmeden gerçek bir Linux ortamı sağlar."
         },
         {
             question: "Dual boot kurmadan önce en önemli adım nedir?",
-            options: ["Bilgisayarı formatlama", "Verileri yedekleme", "Yeni monitör alma", "İnterneti kapatma"],
+            options: [
+                "Bilgisayarı formatlama",
+                "Verileri yedekleme",
+                "İnterneti kapatma",
+                "Yeni monitör alma"
+            ],
             correct: 1,
             explanation: "Dual boot disk bölümleme gerektirdiğinden, veri kaybı riski vardır. Öncesinde mutlaka yedek alınmalıdır!"
         },
         {
             question: "macOS hangi kabuk (shell) programını varsayılan olarak kullanır?",
-            options: ["Bash", "Fish", "Zsh", "PowerShell"],
-            correct: 2,
+            options: [
+                "Fish",
+                "Zsh",
+                "PowerShell",
+                "Bash"
+            ],
+            correct: 1,
             explanation: "macOS Catalina (2019) ile birlikte varsayılan kabuk bash'ten zsh'ye (Z Shell) değiştirildi."
         },
         {
             question: "GPL (GNU General Public License) ne sağlar?",
-            options: ["Yazılımı sadece ücretli yapar", "Kaynak kodunun açık olmasını ve özgürce dağıtılmasını garanti eder", "Yazılımı sadece Linux'ta çalıştırır", "Virüs koruması sağlar"],
-            correct: 1,
+            options: [
+                "Kaynak kodunun açık olmasını ve özgürce dağıtılmasını",
+                "Virüs koruması sağlar — bu davranış beklenmez",
+                "Yazılımı sadece Linux'ta çalıştırır yerine farklı bir komut",
+                "Yazılımı sadece ücretli yapar ve işlemi sonlandırır"
+            ],
+            correct: 0,
             explanation: "GPL, yazılımın kaynak kodunun açık olmasını, değiştirilip dağıtılabilmesini garanti eden bir özgür yazılım lisansıdır. Linux çekirdeği GPL ile lisanslanmıştır."
         },
         {
             question: "Richard Stallman'ın 'Free Software' kavramındaki 'free' ne anlama gelir?",
-            options: ["Ücretsiz", "Özgür", "Hızlı", "Kolay"],
+            options: [
+                "Hızlı",
+                "Özgür",
+                "Kolay",
+                "Ücretsiz"
+            ],
             correct: 1,
             explanation: "Stallman'ın 'free' ile kastettiği 'özgürlük'tür, 'ücretsizlik' değil. 'Free as in freedom, not as in free beer' — yazılımı inceleme, değiştirme ve dağıtma özgürlüğü."
         },
         {
             question: "Linux'un güvenlik avantajlarından biri aşağıdakilerden hangisidir?",
-            options: ["Hiçbir virüs çalışmaz", "Yazılımlar merkezi depolardan güvenle indirilir", "İnternet bağlantısı gerektirmez", "Otomatik şifreleme yapar"],
-            correct: 1,
+            options: [
+                "Hiçbir virüs çalışmaz ve işlemi sonlandırır",
+                "Otomatik şifreleme yapar — bu davranış beklenmez",
+                "İnternet bağlantısı gerektirmez",
+                "Yazılımlar merkezi depolardan güvenle indirilir"
+            ],
+            correct: 3,
             explanation: "Linux'ta yazılımlar güvenilir merkezi depolardan (repository) paket yöneticisi aracılığıyla indirilir. İnternetten rastgele .exe indirme riski yoktur."
         },
         {
             question: "Unix'i 1969'da Bell Labs'ta kim yazmıştır?",
-            options: ["Linus Torvalds", "Richard Stallman", "Ken Thompson", "Brian Kernighan"],
-            correct: 2,
+            options: [
+                "Linus Torvalds",
+                "Ken Thompson",
+                "Richard Stallman",
+                "Brian Kernighan"
+            ],
+            correct: 1,
             explanation: "Ken Thompson, 1969'da Bell Labs'taki bir PDP-7 bilgisayarında ilk Unix'i yazdı. Dennis Ritchie ile birlikte geliştirmeye devam ettiler."
         },
         {
             question: "Unix'i devrimci yapan, 1973'te gerçekleşen olay neydi?",
-            options: ["İlk GUI eklenmesi", "C dili ile yeniden yazılarak taşınabilir hale gelmesi", "İlk web tarayıcısının yazılması", "Açık kaynak lisansı alması"],
+            options: [
+                "İlk GUI eklenmesi ve işlemi sonlandırır",
+                "C dili ile yeniden yazılarak taşınabilir hale gelmesi",
+                "Açık kaynak lisansı alması — bu davranış beklenmez",
+                "İlk web tarayıcısının yazılması yerine farklı bir komut"
+            ],
             correct: 1,
             explanation: "Dennis Ritchie'nin icat ettiği C dili ile Unix yeniden yazıldı. Bu, bir işletim sisteminin yüksek seviyeli dilde yazılması için tarihte bir ilk oldu ve Unix'i farklı donanımlara taşınabilir kıldı."
         },
         {
             question: "Linus Torvalds Linux çekirdeğini ilk duyurduğunda ne demişti?",
-            options: ["Bu dünyanın en büyük projesi olacak", "Sadece bir hobi, büyük ve profesyonel olmayacak", "GNU'nun resmi çekirdeği olacak", "Windows'u yok edecek"],
-            correct: 1,
+            options: [
+                "Windows'u yok edecek — bu davranış beklenmez",
+                "Bu dünyanın en büyük projesi olacak",
+                "Sadece bir hobi, büyük ve profesyonel olmayacak",
+                "GNU'nun resmi çekirdeği olacak yerine farklı bir komut"
+            ],
+            correct: 2,
             explanation: "Torvalds 1991'deki tarihi mesajında 'just a hobby, won\\'t be big and professional like gnu' demişti. Bugün Linux dünyadaki en büyük işbirlikçi yazılım projesidir — çok yanılmıştı! 😄"
         }
     ]
