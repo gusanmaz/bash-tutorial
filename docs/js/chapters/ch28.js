@@ -402,7 +402,7 @@ window.CHAPTERS.push({
 <span class="comment"># 8080 portunu kim kullanıyor?</span></code></pre>
 </div>
 
-<p>Docker'da <code>-p 8080:80</code> yazdığınızda demek istediğiniz şudur: "Ey Docker, benim makinemin 8080 portuna gelen istekleri, konteynerin içindeki 80 portuna yönlendir." Sol taraf her zaman <strong>host</strong> (sizin makineniz), sağ taraf <strong>konteyner</strong>. Sonraki bölümde ağ konusunu çok daha detaylı işleyeceğiz.</p>
+<p>Docker'da <code>-p 8080:80</code> = host'un 8080 portundan konteynerin 80'ine kapı açmak. Konteynerlerin birbirini bulması ise <code>--network</code> konusu — Bölüm 29'da önce <strong>büyük resim</strong> şeması, sonra adım adım anlatılır.</p>
 
 <h2>Docker'ın Genel Akışı</h2>
 <p>İleride yapacağınız işleri bir haritada toplayalım:</p>

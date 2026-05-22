@@ -382,45 +382,47 @@ restart: always            <span class="comment"># Her durumda yeniden başlat (
 restart: on-failure        <span class="comment"># Sadece 0'dan farklı exit kodda</span>
 restart: unless-stopped    <span class="comment"># always gibi ama "docker stop" saygı</span></code></pre>
 
-<h3>networks — Özel Ağlar ve Güvenlik Bölmeleri</h3>
+<h3>networks — Ağlar (Compose'da otomatik DNS)</h3>
 
-<p>Varsayılan olarak Compose, tüm servisleriniz için tek bir ağ oluşturur ve hepsini ona koyar. Çoğu durumda bu yeter. Ama büyük projelerde <strong>güvenlik için</strong> ağları bölmek isteyebilirsiniz: bir geminin su geçirmez bölmeleri gibi.</p>
-
-<p>Tipik desen: bir "ön ağ" (load balancer, web sunucusu) + bir "arka ağ" (veritabanı, cache). Veritabanı sadece arka ağda olur — böylece <strong>dış dünyayla konuşan</strong> servisler kazara DB'ye düz erişemez.</p>
-
-<div class="code-block">
-    <div class="code-block-header"><span>İki katmanlı mimari</span></div>
-    <pre><code>services:
-  lb:                            <span class="comment"># Load balancer / NGINX (dışa açık)</span>
-    image: nginx
-    ports: ["80:80"]
-    networks:
-      - on                       <span class="comment"># Sadece ön ağda</span>
-
-  web:                           <span class="comment"># Uygulama sunucusu</span>
-    build: ./app
-    networks:
-      - on                       <span class="comment"># Ön ağda (lb'den istek alır)</span>
-      - arka                     <span class="comment"># Arka ağda da (db'ye bağlanır)</span>
-
-  db:                            <span class="comment"># Veritabanı</span>
-    image: postgres:16
-    networks:
-      - arka                     <span class="comment"># SADECE arka ağda — lb göremez</span>
-
-networks:
-  on:                            <span class="comment"># Ön ağ (frontend)</span>
-  arka:                          <span class="comment"># Arka ağ (backend)</span></code></pre>
+<div class="info-box tip">
+    <div class="info-box-title">💡 Bölüm 29 ile bağlantı</div>
+    Orada <code>docker network create</code> + <code>--network</code> öğrendiniz. Compose'da aynı mantık: dosyadaki <strong>servis adı</strong> = hostname. <code>web</code> servisi <code>http://db:5432</code> ile veritabanına gider — ayrı ağ komutu yazmaya gerek kalmaz; Compose otomatik bir ağ kurar.
 </div>
 
-<p><strong>Sonuç:</strong></p>
-<ul>
-    <li><code>lb</code> ve <code>web</code> birbirine "on" ağında konuşabilir.</li>
-    <li><code>web</code> ve <code>db</code> birbirine "arka" ağında konuşabilir.</li>
-    <li><code>lb</code> ile <code>db</code> aynı ağda olmadığı için birbirini <strong>göremez bile</strong>. Bu güvenlik açısından harika: dışa açık bir servis derinlerdeki veritabanına direkt bağlanamaz.</li>
-</ul>
+<p>Varsayılan olarak tüm servisler <strong>aynı Compose ağına</strong> girer ve birbirini isimle bulur. Küçük projelerde ekstra tanım gerekmez.</p>
 
-<p>Bu desen, OWASP gibi güvenlik kılavuzlarının önerdiği <em>"defense in depth"</em> (katmanlı savunma) prensibinin Docker'daki uygulamasıdır.</p>
+<p>Büyük projelerde güvenlik için ağları ikiye bölebilirsiniz — <strong>ön katman</strong> (dışarı açık) ve <strong>arka katman</strong> (veritabanı, cache):</p>
+
+<div class="code-block">
+    <div class="code-block-header"><span>Ön / arka ağ — basit şema</span></div>
+    <pre><code><span class="comment"># Dış dünya → lb (ports: 80) → web → db</span>
+<span class="comment"># db sadece "arka" ağında; lb db'yi GÖREMEZ</span>
+
+services:
+  lb:
+    image: nginx
+    ports: ["80:80"]       <span class="comment"># Dış kapı (-p gibi)</span>
+    networks: [on]
+
+  web:
+    build: ./app
+    networks: [on, arka]   <span class="comment"># Köprü: hem dışarı hem DB'ye</span>
+
+  db:
+    image: postgres:16
+    networks: [arka]       <span class="comment"># Sadece iç ağ — ports YOK</span>
+
+networks:
+  on:                      <span class="comment"># Ön ağ</span>
+  arka:                    <span class="comment"># Arka ağ</span></code></pre>
+</div>
+
+<p><strong>Kim kimi görür?</strong></p>
+<ul>
+    <li><code>lb</code> ↔ <code>web</code> — <code>on</code> ağında konuşur</li>
+    <li><code>web</code> ↔ <code>db</code> — <code>arka</code> ağında konuşur</li>
+    <li><code>lb</code> ↔ <code>db</code> — ortak ağ yok → <strong>doğrudan erişim imkânsız</strong></li>
+</ul>
 
 <h2>Gerçek Dünya Örneği 1 — WordPress + MySQL</h2>
 

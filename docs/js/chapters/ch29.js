@@ -26,7 +26,7 @@ window.CHAPTERS.push({
         <li><strong>Adım 14–17</strong>: İzleme, dosya transferi, kaynak sınırları, temizlik.</li>
         <li><strong>Mini Proje</strong>: Tüm bunları tek bir uygulamada birleştirme.</li>
     </ol>
-    <p>"Veri" ve "ağ" bölümlerine geldiğimizde geri durup biraz daha derin nefes alacağız — çünkü bunlar Docker'ı gerçekten anlamanın anahtarı.</p>
+    <p>"Veri" (volume) ve "ağ" (network) bölümlerine gelmeden önce yukarıdaki <strong>büyük resim</strong> kutusuna bakın — <code>-p</code> ile <code>--network</code> ayrımı orada özetlenir.</p>
 </div>
 
 <h2>Adım 0: Docker Çalışıyor mu?</h2>
@@ -303,8 +303,59 @@ f9e8d7c6b5a4   alpine   "echo 'Merhaba D...'"   8 minutes ago    Exited (0) 8 mi
 <span class="prompt">$</span> <span class="command">docker container prune</span></code></pre>
 </div>
 
-<h2>Adım 10: Şimdi Portları Açalım — <code>-p</code></h2>
-<p>NGINX'i başlattık ama tarayıcıdan erişemedik. Çünkü konteynerin kendi ağ alanı var — 80 portu <em>konteynerin içinde</em> dinleniyor, hostumuzdan erişilmiyor. Bağlantıyı kurmak için <code>-p</code> bayrağı:</p>
+<h2>Docker Ağı — Önce Büyük Resim</h2>
+<div class="info-box tip">
+    <div class="info-box-title">💡 Port (-p) ile network (--network) karışmasın</div>
+    Docker'da ağ konusunu zorlaştıran şey genelde <strong>iki farklı sorunun birbirine karışmasıdır</strong>:
+    <ol style="margin:0.5em 0;padding-left:1.2em">
+        <li><strong>Dışarıdan erişim:</strong> Tarayıcı bilgisayarımdaki NGINX'e nasıl ulaşır? → <code>-p</code></li>
+        <li><strong>Konteynerler arası:</strong> Web uygulaması Redis'e nasıl ulaşır? → <code>--network</code></li>
+    </ol>
+    Aşağıdaki şemayı aklınızda tutun; Adım 10 ve Adım 13 bu modele oturur.
+</div>
+
+<div class="code-block">
+    <div class="code-block-header"><span>3 katman — apartman metaforu</span></div>
+    <pre><code>  Dış dünya (internet, tarayıcı)
+         │
+         │  -p 8080:80  ← "Apartman kapısından 8080 numaralı daireye yönlendir"
+         ▼
+  ┌────────────────────────────────────── HOST (sizin bilgisayarınız)
+  │  localhost:8080
+  │
+  │  ┌──────────── docker network (sanal site / LAN) ────────────┐
+  │  │                                                           │
+  │  │   ┌─────────┐      hostname "redis"      ┌─────────┐     │
+  │  │   │  web    │ ────────────────────────► │  redis  │     │
+  │  │   │ :80     │      --network ile        │ :6379   │     │
+  │  │   └─────────┘      aynı ağda            └─────────┘     │
+  │  │                                                           │
+  │  └───────────────────────────────────────────────────────────┘
+  └──────────────────────────────────────
+
+<span class="comment"># Özet:</span>
+<span class="comment"># -p        → Host ↔ Konteyner (dış kapı)</span>
+<span class="comment"># --network → Konteyner ↔ Konteyner (iç iletişim)</span></code></pre>
+</div>
+
+<table>
+    <tr><th>Soru</th><th>Çözüm</th><th>Örnek</th></tr>
+    <tr><td>Tarayıcı sitesi açsın</td><td><code>-p HOST:KONTEYNER</code></td><td><code>-p 8080:80</code></td></tr>
+    <tr><td>Web, Redis'e bağlansın</td><td>Aynı <code>--network</code></td><td><code>host=redis</code></td></tr>
+    <tr><td>Redis internete kapalı kalsın</td><td><code>-p</code> verme</td><td>Sadece <code>--network</code></td></tr>
+</table>
+
+<div class="info-box note">
+    <div class="info-box-title">📌 Terimler — kısa sözlük</div>
+    <strong>Host</strong> = Docker'ın çalıştığı gerçek makine (sizin PC/sunucu).<br>
+    <strong>Bridge</strong> = Konteynerleri birbirine bağlayan sanal anahtar (switch gibi düşünün).<br>
+    <strong>docker0</strong> = Docker'ın kurulumla oluşturduğu varsayılan bridge — ama isimle adresleme zayıf.<br>
+    <strong>User-defined network</strong> = Sizin <code>docker network create</code> ile oluşturduğunuz ağ — <strong>DNS ile isim çözümü</strong> burada devreye girer.<br>
+    <strong>NAT</strong> = <code>-p</code> ile port yönlendirme; dışarıdan gelen istek host portuna, oradan konteyner portuna aktarılır.
+</div>
+
+<h2>Adım 10: Dışarıdan Erişim — Port Açma (<code>-p</code>)</h2>
+<p>NGINX'i başlattık ama tarayıcıdan erişemedik. Neden? Konteyner kendi <strong>izole ağ dünyasında</strong> çalışır; 80 portu sadece o dünyada dinleniyor. Bilgisayarınızdan (host) erişmek için bir <strong>kapı</strong> açmalısınız — bu kapı <code>-p</code> bayrağıdır.</p>
 
 <div class="code-block">
     <div class="code-block-header"><span>Port eşleme</span></div>
@@ -321,17 +372,14 @@ f9e8d7c6b5a4   alpine   "echo 'Merhaba D...'"   8 minutes ago    Exited (0) 8 mi
 <p>Tarayıcınızda <code>http://localhost:8080</code> — NGINX hoş geldin sayfası. İşte Docker'ın gücü: 3 saniyede bir web sunucusu çalıştırıp eriştiniz.</p>
 
 <div class="info-box note">
-    <div class="info-box-title">📌 Port Kavramı — Hızlı Hatırlatma</div>
-    <p>Bilgisayarın IP adresi "sokak adresi" ise, <strong>port</strong> "daire numarasıdır". Aynı bilgisayarda farklı servisler farklı portlarda dinler:</p>
-    <ul>
-        <li><strong>80</strong> — HTTP</li>
-        <li><strong>443</strong> — HTTPS</li>
-        <li><strong>22</strong> — SSH</li>
-        <li><strong>5432</strong> — PostgreSQL</li>
-        <li><strong>3306</strong> — MySQL</li>
-        <li><strong>6379</strong> — Redis</li>
+    <div class="info-box-title">📌 <code>-p HOST:KONTEYNER</code> nasıl okunur?</div>
+    <code>-p 8080:80</code> → "Bilgisayarımın (host) <strong>8080</strong> portuna gelen trafiği, konteynerin <strong>80</strong> portuna ilet."<br><br>
+    Sokak adresi = IP, daire numarası = port (Bölüm 25). Aynı makinede farklı servisler farklı portlarda dinler:
+    <ul style="margin:0.5em 0;padding-left:1.2em">
+        <li><strong>80</strong> HTTP · <strong>443</strong> HTTPS · <strong>22</strong> SSH</li>
+        <li><strong>5432</strong> PostgreSQL · <strong>6379</strong> Redis</li>
     </ul>
-    <code>-p HOST:KONTEYNER</code> diyerek "hostun 8080 portuna gelen isteği konteynerin 80'ine yönlendir" demiş oluruz. Host portu istediğiniz gibi seçebilirsiniz (izinliyse); konteynerin portu imajın nasıl yazıldığına bağlıdır.</p>
+    Host tarafındaki portu (8080) genelde siz seçersiniz; konteyner tarafı (80) imajın nasıl yazıldığına bağlıdır.
 </div>
 
 <div class="code-block">
@@ -569,149 +617,123 @@ POSTGRES_DB=uygulama</span>
     <code>docker rm -f pg</code> dediğinizde sadece konteyner gider, volume hâlâ orada durur. Bu güvenliğiniz için iyidir (yanlışlıkla veritabanı silmezsiniz) ama unutursanız diskte sessizce birikir. Kullanılmadığından emin olduktan sonra <code>docker volume rm</code> ya da <code>docker volume prune</code> ile temizleyin.
 </div>
 
-<h2>Adım 13: Konteynerler Arası İletişim — Ağlar</h2>
-<p>Şu ana kadar konteynerlerimizi tek tek başlattık. Peki iki konteynerin birbiriyle konuşması gerekirse? Örneğin bir API sunucusunun bir veritabanına bağlanması, ya da bir web uygulamasının bir cache servisine istek atması. Bu <strong>ağlar (networks)</strong> alanına girer.</p>
+<h2>Adım 13: Konteynerler Birbirini Nasıl Bulur? — <code>--network</code></h2>
 
-<p>Bu adımda Redis'i sıkça kullanacağımız için önce onu bir tanıtalım:</p>
+<p>Adım 10'da <code>-p</code> ile <strong>dış dünyadan</strong> konteynere kapı açtık. Şimdi tersi senaryo: iki konteyner aynı makinede çalışıyor — web uygulaması Redis'e, API veritabanına bağlanacak. Bunlar için genelde <strong>dışarı port açmaya gerek yok</strong>; sadece aynı Docker ağına koymak yeterli.</p>
 
-<div class="info-box note">
-    <div class="info-box-title">📌 Bu Arada — Redis Nedir?</div>
-    <p><strong>Redis</strong> (Remote Dictionary Server) çok hızlı bir <em>anahtar-değer (key-value)</em> veri saklayıcısıdır. Klasik veritabanı gibi tablo/sütun mantığı yoktur; basitçe <em>"anahtar şu, değer şu"</em> şeklinde veri tutar:</p>
-    <pre><code>SET kullanici:42 "ahmet"
-GET kullanici:42        → "ahmet"
-INCR ziyaret-sayisi     → 1, sonra 2, sonra 3...</code></pre>
-    <p><strong>Neden bu kadar popüler?</strong> Verileri RAM'de tuttuğu için saniyede yüz binlerce işlem yapabilir. Tipik kullanımları:</p>
-    <ul>
-        <li><strong>Önbellek (cache)</strong>: Veritabanından çekilen yavaş sonuçları geçici olarak Redis'e koyarsınız; bir dahaki istekte oradan saniyenin binde biri sürede gelir.</li>
-        <li><strong>Sayaçlar</strong>: Ziyaret sayısı, oy sayısı, "şu kadar saniyede şu kadar istek" gibi şeyler.</li>
-        <li><strong>Oturum (session) saklama</strong>: Giriş yapan kullanıcının token'ı, sepeti vs.</li>
-        <li><strong>Kuyruk / mesajlaşma</strong>: İşlemler arasında basit mesaj geçirme.</li>
-    </ul>
-    <p>Aşağıda "Redis'e PING gönderiyoruz, PONG dönüyor" derken: bir konteynerden başka konteynerdeki Redis sunucusuna ağ üzerinden mesaj atıp cevap alıyoruz. <code>redis-cli</code> ise Redis'le konuşmak için kullanılan komut satırı istemcisidir (PostgreSQL'in <code>psql</code>'i gibi).</p>
+<div class="info-box warning">
+    <div class="info-box-title">⚠️ En sık yapılan hata</div>
+    Redis veya PostgreSQL'i <code>-p 6379:6379</code> ile internete açmak zorunda değilsiniz. Sadece aynı ağdaki web konteyneri bağlanacaksa <code>--network</code> yeterli — ve <strong>daha güvenli</strong>.
 </div>
 
-<h3>Konteynerler Birbirini Nasıl Bulur?</h3>
-<p>Normal bir bilgisayar ağında iki makine birbirini iki şekilde bulabilir:</p>
-<ul>
-    <li><strong>IP adresi ile</strong> (örn. <code>192.168.1.42</code>) — sayısal, ezberlemesi zor, değişebilir.</li>
-    <li><strong>İsim ile</strong> (örn. <code>google.com</code>) — okunur, kalıcı. Bunu mümkün kılan şey <strong>DNS</strong>'tir: isimleri IP'lere çeviren bir telefon rehberi gibi.</li>
-</ul>
-<p>Docker, konteynerleri için aynı şeyi yapar — ama bir <strong>şart vardır</strong>: aynı kullanıcı tarafından oluşturulan ağ üzerinde olmaları lazım.</p>
+<h3>Bridge (köprü) nedir — sade Türkçe</h3>
+<p><strong>Bridge</strong>, konteynerlerin takıldığı <strong>sanal bir yerel ağ</strong>dır. Evinizdeki Wi‑Fi router gibi düşünün: aynı ağa bağlı cihazlar birbirini görür; dışarıdan gelen biri router'da port açmadıkça içeri giremez.</p>
 
-<h3>Bridge Nedir?</h3>
+<table>
+    <tr><th>Ağ türü</th><th>Nasıl oluşur?</th><th>İsimle erişim (DNS)?</th></tr>
+    <tr><td><strong>Varsayılan bridge</strong> (<code>docker0</code>)</td><td>Her <code>docker run</code> otomatik</td><td>❌ Hayır — sadece IP ile</td></tr>
+    <tr><td><strong>Özel ağ</strong> (user-defined)</td><td><code>docker network create</code></td><td>✅ Evet — konteyner adı = hostname</td></tr>
+</table>
+
 <div class="info-box note">
-    <div class="info-box-title">📌 Sanal Ağ Köprüsü</div>
-    <p>Düşünün: bir router'a dört kablo taktınız, dört bilgisayar birbirine konuşabilir. <strong>Bridge</strong>, yazılım tarafındaki bu router'dır (teknik olarak "switch"). Docker kurulunca <code>docker0</code> adlı bir varsayılan bridge oluşturur. Bu ağda her konteynere bir iç IP atanır (örn. <code>172.17.0.2</code>) ve aynı köprüye takılı oldukları için birbirlerine IP üzerinden erişebilirler.</p>
-    <p><strong>Ama varsayılan <code>docker0</code> bridge'inde bir sorun var:</strong> konteynerler birbirini <em>isimle bulamaz</em>, sadece IP ile. Üstelik IP'ler konteyner her yeniden başladığında değişebilir. Kodunuzda <code>db.host = "172.17.0.3"</code> yazmak çok kırılgan olur.</p>
-    <p>Çözüm: <strong>kendi ağınızı (user-defined bridge) oluşturmak</strong>. Docker burada bir bonus olarak <em>otomatik DNS</em> sağlar — konteynerleri isimle bulabilirsiniz. Bu yüzden hep <code>docker network create</code> ile başlamak altın kuraldır.</p>
+    <div class="info-box-title">📌 Neden hep <code>docker network create</code>?</div>
+    Varsayılan <code>docker0</code> ağında konteyner IP'si her restart'ta değişebilir (<code>172.17.0.3</code> gibi). Koda <code>host="172.17.0.3"</code> yazmak kırılgan olur.<br><br>
+    Özel ağda Docker <strong>mini DNS</strong> sunar: konteyner adını IP'ye çevirir. Bu yüzden kodda <code>host="redis"</code> yazarsınız — IP değişse bile çalışır.
+</div>
+
+<h3>Redis — bu örnekte ne yapıyoruz?</h3>
+<div class="info-box note">
+    <div class="info-box-title">📌 Redis kısaca</div>
+    <strong>Redis</strong> RAM'de çalışan hızlı bir anahtar-değer deposudur (<code>SET anahtar değer</code>, <code>GET anahtar</code>). Önbellek ve sayaç için sık kullanılır. Burada amacımız Redis'i öğrenmek değil — <strong>iki konteynerin ağ üzerinden konuşmasını</strong> göstermek. <code>redis-cli</code> = Redis'e komut gönderen terminal aracı (psql gibi).
 </div>
 
 <div class="code-block">
-    <div class="code-block-header"><span>Kendi ağınızla konteynerleri birbirine bağlamak</span></div>
-    <pre><code><span class="comment"># 1) Özel bir bridge ağı oluştur:</span>
+    <div class="code-block-header"><span>Adım adım: özel ağ + iki konteyner</span></div>
+    <pre><code><span class="comment"># 1) Sanal ağ oluştur (apartman sitesi kur):</span>
 <span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">uygulama-ag</span>
 
-<span class="comment"># 2) Redis sunucusunu bu ağda başlat (dış porta gerek yok):</span>
+<span class="comment"># 2) Redis sunucusu — adı "redis", dış port YOK:</span>
 <span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">redis</span> \\
-    <span class="flag">--network</span> <span class="argument">uygulama-ag redis</span>
+    <span class="flag">--network</span> <span class="argument">uygulama-ag</span> \\
+    <span class="argument">redis</span>
 
-<span class="comment"># 3) Aynı ağdan başka bir konteyner, "redis" ismiyle ona erişebilir:</span>
+<span class="comment"># 3) İkinci konteyner — "redis" ismine bağlan:</span>
 <span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">--rm -it</span> \\
-    <span class="flag">--network</span> <span class="argument">uygulama-ag redis redis-cli -h redis</span>
-<span class="comment">#                                              ↑ Bu "redis" konteyner adıdır,
-#                                                Docker'ın DNS'i otomatik IP'ye çevirir.</span>
+    <span class="flag">--network</span> <span class="argument">uygulama-ag</span> \\
+    <span class="argument">redis redis-cli -h redis</span>
+<span class="comment">#                           ↑ konteyner ADI = hostname</span>
+
 <span class="output">redis:6379&gt;</span> <span class="command">PING</span>
-<span class="output">PONG</span>
-<span class="comment"># Sunucudan "ben hayattayım" cevabı geldi.</span>
-<span class="output">redis:6379&gt;</span> <span class="command">SET</span> <span class="argument">merhaba "dunya"</span>
-<span class="output">OK</span>
-<span class="output">redis:6379&gt;</span> <span class="command">GET</span> <span class="argument">merhaba</span>
-<span class="output">"dunya"</span></code></pre>
+<span class="output">PONG</span></code></pre>
 </div>
 
-<p><strong>Burada ne yaptık?</strong></p>
+<p><strong>Ne oldu?</strong></p>
 <ol>
-    <li>"uygulama-ag" adında yeni bir sanal ağ kurduk — sadece bu ağa katılan konteynerler birbirini görür, dışarıdan kimse giremez.</li>
-    <li>Redis sunucusunu konteyner olarak başlattık ve bu ağa bağladık. <strong>Dikkat:</strong> <code>-p</code> ile dış porta açmadık — sadece aynı ağdaki kardeş konteynerler erişebilir. Bu güvenlik açısından çok iyi: Redis'iniz internete açık kalmaz.</li>
-    <li>İkinci konteyneri (Redis CLI istemcisi) aynı ağa bağladık ve sunucuya "redis" diyerek bağlandık. Docker'ın iç DNS'i bu ismi otomatik olarak Redis konteynerinin IP'sine çevirdi.</li>
+    <li>İki konteyneri aynı sanal ağa (<code>uygulama-ag</code>) koyduk.</li>
+    <li>Redis'e <code>-p</code> vermedik — internetten erişilemez, sadece aynı ağdakiler görür.</li>
+    <li>İkinci konteyner <code>-h redis</code> dedi; Docker DNS bunu Redis konteynerinin IP'sine çevirdi.</li>
 </ol>
 
 <div class="info-box tip">
-    <div class="info-box-title">💡 Gerçek Hayatta Bu Nasıl Görünür?</div>
-    <p>Bir Python web uygulamanız olduğunu düşünün. Redis'e bağlanmak için kodda şöyle yazardınız:</p>
+    <div class="info-box-title">💡 Gerçek uygulama kodunda</div>
     <pre><code>import redis
-r = redis.Redis(host="redis", port=6379)  <span class="comment"># "redis" konteynerin adı</span>
-r.set("merhaba", "dünya")</code></pre>
-    <p>Uygulamayı konteynerleştirip aynı ağa bağlayınca "redis" hostname'i otomatik çalışır. Bu yüzden bağlantı dizelerini config'e koyarken konteyner ismini kullanmak yaygın bir desendir.</p>
+r = redis.Redis(host="redis", port=6379)  <span class="comment"># "redis" = konteyner adı</span></code></pre>
+    Web konteynerini de <code>--network uygulama-ag</code> ile başlatırsanız bu satır çalışır. Compose'da servis adı otomatik hostname olur (Bölüm 31).
 </div>
 
-<h3>Diğer Ağ Modları — Sadece Bilgi Olsun</h3>
-<p><code>docker network ls</code> yazınca aşağıdaki gibi varsayılan ağlar görürsünüz:</p>
-<pre><code>NETWORK ID     NAME      DRIVER    SCOPE
-8a3b4c5d6e7f   bridge    bridge    local
-1a2b3c4d5e6f   host      host      local
-9z8y7x6w5v4u   none      null      local</code></pre>
-<ul>
-    <li><strong>bridge</strong> (varsayılan): Yukarıda anlattığımız klasik mod. Yeni başlattığınız konteynerler isim vermediğiniz sürece <code>docker0</code> bridge'ine takılır.</li>
-    <li><strong>host</strong>: Konteyner host'un ağ yığınını <em>doğrudan</em> kullanır. Yalıtım yoktur — konteyner içinde port 80 dinlerseniz host'ta da 80 portu meşgul olur. <code>-p</code> bayrağına gerek kalmaz. Performans biraz daha iyi; ama yalıtım yok ve port çakışmaları yaşarsınız.</li>
-    <li><strong>none</strong>: Konteynerin <em>hiç</em> ağı yoktur. Sadece <code>lo</code> (loopback) arayüzü vardır. Tamamen izole bir hesaplama yapmak istediğinizde kullanılır.</li>
-</ul>
-<p>Pratikte %95 ihtimalle kendi oluşturduğunuz bir <strong>user-defined bridge</strong> ağıyla çalışacaksınız. Diğerleri özel durumlar için.</p>
+<h3><code>-p</code> mi, <code>--network</code> mi? — karar tablosu</h3>
+<table>
+    <tr><th>İhtiyaç</th><th>Kullan</th><th>Örnek</th></tr>
+    <tr><td>Tarayıcı / dış istemci erişsin</td><td><code>-p</code></td><td><code>-p 8080:80</code></td></tr>
+    <tr><td>Sadece başka konteyner bağlansın</td><td><code>--network</code> (genelde <code>-p</code> yok)</td><td>DB, Redis, internal API</td></tr>
+    <tr><td>Her ikisi de</td><td>İkisini birlikte</td><td>Web: <code>-p 8080:80 --network app</code></td></tr>
+</table>
+
+<h3>Diğer ağ modları (host, none) — kısa</h3>
+<p><code>docker network ls</code> çıktısında üç varsayılan ağ görürsünüz. Günlük işin %95'inde <strong>özel bridge</strong> yeter; bunlar kenar durumlar:</p>
+<table>
+    <tr><th>Mod</th><th>Ne demek?</th><th>Ne zaman?</th></tr>
+    <tr><td><strong>bridge</strong></td><td>Varsayılan; izole ağ + isteğe <code>-p</code></td><td>Normal kullanım</td></tr>
+    <tr><td><strong>host</strong></td><td>Konteyner host ağını paylaşır; <code>-p</code> gerekmez</td><td>Performans kritik, yalıtım istemiyorsanız (nadir)</td></tr>
+    <tr><td><strong>none</strong></td><td>Hiç ağ yok; sadece kendi içi</td><td>Tam izolasyon (nadir)</td></tr>
+</table>
 
 <div class="code-block">
     <div class="code-block-header"><span>Ağ komutları</span></div>
-    <pre><code><span class="prompt">$</span> <span class="command">docker network ls</span>                       <span class="comment"># Tüm ağlar</span>
-<span class="prompt">$</span> <span class="command">docker network create ad</span>                 <span class="comment"># Oluştur</span>
-<span class="prompt">$</span> <span class="command">docker network inspect ad</span>                <span class="comment"># Detay (hangi konteynerler bağlı, IP'leri)</span>
-<span class="prompt">$</span> <span class="command">docker network connect ad konteyner</span>      <span class="comment"># Var olan konteyneri ağa ekle</span>
-<span class="prompt">$</span> <span class="command">docker network disconnect ad konteyner</span>   <span class="comment"># Ağdan çıkar</span>
-<span class="prompt">$</span> <span class="command">docker network rm ad</span>                     <span class="comment"># Ağı sil (içinde konteyner olmamalı)</span>
-<span class="prompt">$</span> <span class="command">docker network prune</span>                     <span class="comment"># Kullanılmayan ağları toplu sil</span>
-
-<span class="comment"># Bir konteynerin hangi ağlarda olduğunu görmek:</span>
-<span class="prompt">$</span> <span class="command">docker inspect</span> <span class="argument">konteyner</span> <span class="flag">--format</span> <span class="string">'{{json .NetworkSettings.Networks}}'</span></code></pre>
+    <pre><code><span class="prompt">$</span> <span class="command">docker network ls</span>
+<span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">ag-adi</span>
+<span class="prompt">$</span> <span class="command">docker network inspect</span> <span class="argument">ag-adi</span>     <span class="comment"># Bağlı konteynerler, IP'ler</span>
+<span class="prompt">$</span> <span class="command">docker network connect</span> <span class="argument">ag-adi konteyner</span>  <span class="comment"># Çalışan konteynere ağ ekle</span>
+<span class="prompt">$</span> <span class="command">docker network disconnect</span> <span class="argument">ag-adi konteyner</span>
+<span class="prompt">$</span> <span class="command">docker network rm</span> <span class="argument">ag-adi</span>
+<span class="prompt">$</span> <span class="command">docker network prune</span></code></pre>
 </div>
 
-<div class="info-box tip">
-    <div class="info-box-title">💡 Aynı Konteyner Birden Fazla Ağa Bağlı Olabilir</div>
-    Mesela bir API sunucusu hem "frontend-net" hem "backend-net" ağlarında olsun: frontend ile public konuşur, backend'de veritabanına gizli erişir. <code>docker network connect</code> ile çalışan bir konteynere ek ağ bağlayabilirsiniz.
+<div class="info-box note">
+    <div class="info-box-title">📌 Bir konteyner birden fazla ağda olabilir</div>
+    Örnek: <code>web</code> hem <code>frontend</code> hem <code>backend</code> ağında — dışarıdan gelen trafikle konuşur ve arka plandaki veritabanına da erişir. Veritabanı sadece <code>backend</code> ağındaysa, dış servisler DB'yi <strong>hiç göremez</strong>. Bölüm 31'de Compose ile aynı desen.
 </div>
 
-<h3>Mini Uygulama — İki Konteynerli Ziyaretçi Sayacı</h3>
-<p>Şimdi yukarıda öğrendiklerimizi küçük somut bir örnekte deneyelim: bir Redis konteyneri "ziyaretçi sayısı"nı saklayacak, biz başka bir konteynerden ona "1 arttır" diyeceğiz. Bir web sitesinin sayaç servisinin minik versiyonu gibi.</p>
+<h3>Mini uygulama — ziyaretçi sayacı</h3>
+<p>Redis'te bir sayaç tutalım; ikinci konteynerden <code>INCR</code> ile arttıralım. IP bilmeden, sadece isimle:</p>
 
 <div class="code-block">
-    <div class="code-block-header"><span>Konteynerler arası iletişim</span></div>
-    <pre><code><span class="comment"># 1) Mini bir ağ oluştur:</span>
-<span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">mini</span>
-
-<span class="comment"># 2) Redis'i "sayi" adıyla bu ağa bağla (dış port yok):</span>
+    <div class="code-block-header"><span>İki konteyner, tek ağ</span></div>
+    <pre><code><span class="prompt">$</span> <span class="command">docker network create</span> <span class="argument">mini</span>
 <span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">sayi --network mini redis:alpine</span>
 
-<span class="comment"># 3) Geçici bir Redis istemcisi konteyneri başlat ("sayi" hostname'ine bağlan):
-# --rm: çıkınca konteyneri otomatik sil (test etmek için ideal)</span>
-<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">--rm -it</span> <span class="flag">--network</span> <span class="argument">mini redis:alpine redis-cli -h sayi</span>
-
-<span class="comment"># Komut isteminde artık Redis ile konuşuyoruz:</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>      <span class="comment"># "ziyaret" anahtarını 1 arttır</span>
+<span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">--rm -it --network</span> <span class="argument">mini redis:alpine redis-cli -h sayi</span>
+<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>
 <span class="output">(integer) 1</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">INCR</span> <span class="argument">ziyaret</span>      <span class="comment"># Yine arttır</span>
-<span class="output">(integer) 2</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">GET</span> <span class="argument">ziyaret</span>       <span class="comment"># Şu anki değeri oku</span>
-<span class="output">"2"</span>
-<span class="output">sayi:6379&gt;</span> <span class="command">exit</span></code></pre>
+<span class="output">sayi:6379&gt;</span> <span class="command">GET</span> <span class="argument">ziyaret</span>
+<span class="output">"1"</span></code></pre>
 </div>
 
-<p><strong>Burada güzel olan ne?</strong> Redis konteynerinin IP'sini hiç bilmedik. Sadece <em>"sayi"</em> dedik — Docker'ın iç DNS'i bunu doğru konteynere çevirdi. Konteyner yeniden başlatılsa, IP değişse bile, "sayi" adı duruyor.</p>
+<p>Konteyner yeniden başlasa IP değişse bile <strong>isim</strong> (<code>sayi</code>) aynı kalır — bağlantı dizgesi bozulmaz.</p>
 
 <div class="info-box tip">
-    <div class="info-box-title">💡 Bonus: Kalıcılık Ekleyelim</div>
-    <p>Yukarıdaki örnekte Redis konteynerini sildiğinizde sayaç sıfırlanır (RAM'de saklıyor). Veriyi kalıcı tutmak için volume ekleyin:</p>
-    <pre><code><span class="prompt">$</span> <span class="command">docker run</span> <span class="flag">-d --name</span> <span class="argument">sayi</span> <span class="flag">--network</span> <span class="argument">mini</span> \\
-    <span class="flag">-v</span> <span class="argument">sayi-disk:/data</span> \\
-    <span class="argument">redis:alpine redis-server --save 60 1</span>
-<span class="comment"># --save 60 1: 60 saniyede en az 1 değişiklik olursa diske yaz</span></code></pre>
-    <p>Artık konteyner silinse bile <code>sayi-disk</code> volume'ünde veri kalır. Yeni konteynerle aynı volume'ü bağlarsanız sayaç kaldığı yerden devam eder.</p>
+    <div class="info-box-title">💡 Kalıcılık (volume) hatırlatması</div>
+    Redis verisi konteyner silinince gider. Kalıcı tutmak için Adım 12'deki volume'ü ekleyin: <code>-v sayi-disk:/data</code>
 </div>
 
 <h2>Adım 14: Konteyneri İzlemek</h2>
@@ -798,21 +820,19 @@ Local Volumes   4         2         4GB       2GB (50%)</span>
 <p>Şimdiye kadar öğrendiklerimizle küçük ama tam bir ortam kuralım: Bir NGINX web sitesi + bir Redis önbellek + özel bir ağ + kalıcı bir volume. Gerçek bir mimaride benzer parçalar olur; biz "iskelet"i kuruyoruz.</p>
 
 <div class="info-box note">
-    <div class="info-box-title">📌 Bu Mini Mimari Hangi Şekilde Düşünülebilir?</div>
-    <pre><code>┌────────────┐   8080:80    ┌────────────────┐
-│   Tarayıcı │ ───────────→ │   NGINX (web)  │  ─→ sayfaları gösterir
-└────────────┘              │   demo-ag      │
-                            └────────┬───────┘
-                                     │ "redis" hostname üzerinden
-                                     │ konteyner-içi ağ
-                                     ▼
-                            ┌────────────────┐
-                            │  Redis         │  ─→ verileri saklar
-                            │  demo-ag       │
-                            │  ↕             │
-                            │  redis-disk    │  ─→ veriler diskte kalıcı
-                            └────────────────┘</code></pre>
-    <p>NGINX 80 portunu dinler ve host'un 8080'ine açıktır — dışarıdan erişilebilir. Redis sadece "demo-ag" iç ağındadır — sadece NGINX (ve aynı ağdaki başka konteynerler) erişebilir. Redis'in verileri "redis-disk" volume'ünde tutulur, böylece konteyner silinse bile veri yok olmaz.</p>
+    <div class="info-box-title">📌 Bu Mini Mimari — -p ve --network bir arada</div>
+    <pre><code>┌────────────┐   -p 8080:80   ┌────────────────┐
+│  Tarayıcı  │ ─────────────► │  NGINX (web)   │
+└────────────┘   (dış kapı)   │  demo-ag ağı   │
+                              └───────┬────────┘
+                                      │ hostname "redis"
+                                      │ (--network, iç iletişim)
+                                      ▼
+                              ┌────────────────┐
+                              │  Redis           │  ← ports YOK
+                              │  demo-ag ağı     │     (dışarı kapalı)
+                              └────────────────┘</code></pre>
+    <p>NGINX'e <code>-p 8080:80</code> ile dışarıdan erişilir. Redis sadece <code>demo-ag</code> içindedir — tarayıcı Redis'e doğrudan ulaşamaz. İkisi de aynı ağda olduğu için NGINX, Redis'e <code>redis</code> adıyla bağlanabilir.</p>
 </div>
 
 <div class="code-block">
@@ -883,7 +903,9 @@ Local Volumes   4         2         4GB       2GB (50%)</span>
     <tr><td>"port is already allocated"</td><td>Başka şey o portu kullanıyor; farklı port seç</td></tr>
     <tr><td>"executable not found" (bash)</td><td>Alpine imajında bash yok; <code>sh</code> kullan</td></tr>
     <tr><td>Veri kayboldu</td><td>Volume kullanmamışsınız; konteyner rm'lenince her şey gitti</td></tr>
-    <tr><td>İki konteyner birbirini görmüyor</td><td>Aynı özel ağda mı? <code>docker network inspect</code> kontrol et</td></tr>
+    <tr><td>İki konteyner birbirini görmüyor</td><td>Aynı <code>--network</code> mü? <code>docker network inspect AĞ_ADI</code> — konteyner listesine bak. Hostname = <code>--name</code> ile verdiğiniz ad.</td></tr>
+    <tr><td>Redis/DB'ye dışarıdan bağlanamıyorum</td><td>Normal — iç servis için <code>-p</code> vermeyin; web konteyneri aynı ağda <code>host=redis</code> kullansın</td></tr>
+    <tr><td>Tarayıcı site açılmıyor ama konteyner çalışıyor</td><td><code>-p</code> eksik olabilir — <code>docker ps</code> PORTS sütununda <code>0.0.0.0:8080-&gt;80</code> görünmeli</td></tr>
     <tr><td>"No space left on device"</td><td><code>docker system df</code> + <code>docker system prune -a</code></td></tr>
     <tr><td>Konteyner root çalışıyor, güvensiz</td><td><code>-u 1000</code> bayrağı veya Dockerfile'da <code>USER</code></td></tr>
 </table>
